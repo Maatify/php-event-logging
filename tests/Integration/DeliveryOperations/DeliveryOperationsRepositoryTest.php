@@ -142,7 +142,7 @@ final class DeliveryOperationsRepositoryTest extends MysqlIntegrationTestCase
         $pdo = $this->pdo;
         self::assertNotNull($pdo);
         $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-        self::assertFalse($pdo->getAttribute(PDO::ATTR_EMULATE_PREPARES));
+        self::assertFalse((bool) $pdo->getAttribute(PDO::ATTR_EMULATE_PREPARES));
 
         $occurredAt = new DateTimeImmutable('2024-01-01 12:00:00', new DateTimeZone('UTC'));
         $first = new DeliveryOperationRecordDTO(
