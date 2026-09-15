@@ -1,6 +1,6 @@
 # Admin Query API Roadmap
 
-**Status:** Phase 4 Active
+**Status:** Phase 4 Complete; Phase 5 Not Started
 
 ## 1. Scope Boundary
 
@@ -95,9 +95,9 @@ Implement the Admin Query API for domains that never received the incorrect post
 
 These are new post-legacy-v1.0 features, not corrections to the legacy first-release Runtime.
 
-- **Status:** Phase 4 is active. DiagnosticsTelemetry Runtime is complete and merged.
+- **Status:** Phase 4 pagination implementation is complete across both new domains and all six domains overall.
   - `DiagnosticsTelemetry`: [Owner Approved / Runtime Implemented / Complete](../architecture/ADMIN_QUERY_DIAGNOSTICS_TELEMETRY_BLUEPRINT.md)
-  - `DeliveryOperations`: Owner Approved / Runtime Implemented / Pending Merge
+  - `DeliveryOperations`: [Owner Approved / Runtime Implemented / Complete](../architecture/ADMIN_QUERY_DELIVERY_OPERATIONS_BLUEPRINT.md)
 
 ### Phase 5 — Reporting and Dashboard Summary Contracts
 
@@ -118,13 +118,13 @@ A reporting-specific audit may adjust this order only through an explicit docume
 
 Reporting scope may include domain-appropriate aggregates, counts, trends, and dashboard summaries. It must not introduce cross-domain reporting queries unless a separate architecture decision explicitly approves them.
 
-- **Status:** Pending completion of pagination across all six domains.
+- **Status:** Not started. Phase 5 reporting/dashboard work remains separate and is not implemented merely because Phase 4 pagination is complete.
 
 ### Phase 6 — Host Integration Documentation and Validation
 
 - **Goal:** Document how host applications wire, authorize, filter, sort, paginate, and expose the completed Admin Query API and reporting contracts.
 - **Scope:** Controllers, routes, permissions, UI, localization, and exports remain host-owned.
-- **Status:** Pending completion of pagination and reporting contracts.
+- **Status:** Pending completion of the separate reporting contracts.
 
 ## 5. Non-Negotiable Compatibility Rules
 
@@ -142,7 +142,7 @@ Every implementation phase must prove all of the following:
 
 ## 6. Current Gate
 
-- Phase 4 is active;
-- DeliveryOperations Runtime is pending merge;
-- reporting/dashboard does not start until Admin pagination is released and verified for all six domains;
+- Phase 4 pagination implementation is complete across all six domains;
+- DeliveryOperations Runtime is implemented and present in the current Runtime ancestry (historical commit `e8c74f894baeef397fdbde0fbfe912b65bcfa2c7`);
+- Phase 5 reporting/dashboard has not started and is not implied by completion of Phase 4;
 - no release/tag authorized.
