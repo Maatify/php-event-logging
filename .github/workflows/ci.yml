@@ -121,6 +121,8 @@ jobs:
 
       - name: Check tracked diff whitespace
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
@@ -133,9 +135,28 @@ jobs:
             if [[ "$base_sha" == "0000000000000000000000000000000000000000" ]]; then
               base_sha="$(git rev-list --max-parents=0 "$head_sha")"
             fi
-          else
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             head_sha="${{ github.sha }}"
-            base_sha="$(git rev-parse "${head_sha}^")"
+            open_prs="$(gh pr list \
+              --repo "$GITHUB_REPOSITORY" \
+              --state open \
+              --head "$GITHUB_REF_NAME" \
+              --limit 100 \
+              --json number,baseRefOid,headRefOid)"
+            matching_prs="$(jq --arg expected_head_sha "$head_sha" '[.[] | select(.headRefOid == $expected_head_sha)]' <<< "$open_prs")"
+            matching_pr_count="$(jq 'length' <<< "$matching_prs")"
+            if [[ "$matching_pr_count" != "1" ]]; then
+              echo "Expected exactly one open PR for ${GITHUB_REPOSITORY}:${GITHUB_REF_NAME} at ${head_sha}, found ${matching_pr_count}." >&2
+              exit 1
+            fi
+            base_sha="$(jq -r '.[0].baseRefOid' <<< "$matching_prs")"
+            if [[ -z "$base_sha" || "$base_sha" == "null" ]]; then
+              echo "The matching PR did not provide a base SHA." >&2
+              exit 1
+            fi
+          else
+            echo "Unsupported event for whitespace comparison: ${{ github.event_name }}" >&2
+            exit 1
           fi
 
           git diff --check "$base_sha" "$head_sha"
