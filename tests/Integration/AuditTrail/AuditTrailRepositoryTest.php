@@ -11,11 +11,10 @@ use Maatify\EventLogging\AuditTrail\DTO\AuditTrailRecordDTO;
 use Maatify\EventLogging\AuditTrail\Infrastructure\Mysql\AuditTrailLoggerMysqlRepository;
 use Maatify\EventLogging\AuditTrail\Infrastructure\Mysql\AuditTrailQueryMysqlRepository;
 use Maatify\EventLogging\Tests\Integration\Support\MysqlIntegrationTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * @covers \Maatify\EventLogging\AuditTrail\Infrastructure\Mysql\AuditTrailLoggerMysqlRepository
- * @covers \Maatify\EventLogging\AuditTrail\Infrastructure\Mysql\AuditTrailQueryMysqlRepository
- */
+#[CoversClass(AuditTrailLoggerMysqlRepository::class)]
+#[CoversClass(AuditTrailQueryMysqlRepository::class)]
 final class AuditTrailRepositoryTest extends MysqlIntegrationTestCase
 {
     private AuditTrailLoggerMysqlRepository $logger;

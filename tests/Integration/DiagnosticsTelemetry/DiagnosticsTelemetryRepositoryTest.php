@@ -13,12 +13,11 @@ use Maatify\EventLogging\DiagnosticsTelemetry\Enum\DiagnosticsTelemetryActorType
 use Maatify\EventLogging\DiagnosticsTelemetry\Enum\DiagnosticsTelemetrySeverityInterface;
 use Maatify\EventLogging\DiagnosticsTelemetry\Infrastructure\Mysql\DiagnosticsTelemetryLoggerMysqlRepository;
 use Maatify\EventLogging\DiagnosticsTelemetry\Infrastructure\Mysql\DiagnosticsTelemetryQueryMysqlRepository;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Maatify\EventLogging\DiagnosticsTelemetry\Infrastructure\Mysql\DiagnosticsTelemetryLoggerMysqlRepository
- * @covers \Maatify\EventLogging\DiagnosticsTelemetry\Infrastructure\Mysql\DiagnosticsTelemetryQueryMysqlRepository
- */
+#[CoversClass(DiagnosticsTelemetryLoggerMysqlRepository::class)]
+#[CoversClass(DiagnosticsTelemetryQueryMysqlRepository::class)]
 final class DiagnosticsTelemetryRepositoryTest extends TestCase
 {
     private \PDO $pdo;

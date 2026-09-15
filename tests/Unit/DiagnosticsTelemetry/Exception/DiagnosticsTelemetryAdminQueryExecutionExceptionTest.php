@@ -9,11 +9,10 @@ use Maatify\EventLogging\DiagnosticsTelemetry\Exception\DiagnosticsTelemetryAdmi
 use Maatify\EventLogging\Exception\EventLoggingExceptionInterface;
 use Maatify\Exceptions\Enum\ErrorCodeEnum;
 use Maatify\Exceptions\Exception\System\SystemMaatifyException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Maatify\EventLogging\DiagnosticsTelemetry\Exception\DiagnosticsTelemetryAdminQueryExecutionException
- */
+#[CoversClass(DiagnosticsTelemetryAdminQueryExecutionException::class)]
 final class DiagnosticsTelemetryAdminQueryExecutionExceptionTest extends TestCase
 {
     public function testItExtendsCorrectClassesAndInterfaces(): void

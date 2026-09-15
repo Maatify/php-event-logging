@@ -9,11 +9,10 @@ use Maatify\EventLogging\AuthoritativeAudit\Exception\AuthoritativeAuditAdminQue
 use Maatify\EventLogging\Exception\EventLoggingExceptionInterface;
 use Maatify\Exceptions\Enum\ErrorCodeEnum;
 use Maatify\Exceptions\Exception\System\SystemMaatifyException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Maatify\EventLogging\AuthoritativeAudit\Exception\AuthoritativeAuditAdminQueryExecutionException
- */
+#[CoversClass(AuthoritativeAuditAdminQueryExecutionException::class)]
 final class AuthoritativeAuditAdminQueryExecutionExceptionTest extends TestCase
 {
     public function testItExtendsCorrectClassesAndInterfaces(): void

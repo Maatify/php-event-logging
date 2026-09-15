@@ -6,12 +6,12 @@ namespace Maatify\EventLogging\Tests\Unit\AuthoritativeAudit\Infrastructure\Mysq
 
 use DateTimeZone;
 use Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditRowMapper;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-/**
- * @covers \Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditRowMapper
- */
+#[CoversClass(AuthoritativeAuditRowMapper::class)]
 final class AuthoritativeAuditRowMapperTest extends TestCase
 {
     private AuthoritativeAuditRowMapper $mapper;
@@ -142,9 +142,7 @@ final class AuthoritativeAuditRowMapperTest extends TestCase
         $this->assertSame('1970-01-01 00:00:00.000000', $dto->occurredAt->format('Y-m-d H:i:s.u'));
     }
 
-    /**
-     * @dataProvider invalidChangesProvider
-     */
+    #[DataProvider('invalidChangesProvider')]
     public function testItFallsBackToNullForInvalidChanges(mixed $changesInput): void
     {
         $row = ['changes' => $changesInput];

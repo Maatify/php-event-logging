@@ -11,6 +11,7 @@ use Maatify\EventLogging\DeliveryOperations\Exception\DeliveryOperationsStorageE
 use Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsAdminQueryMysqlRepository;
 use PDO;
 use PDOException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
@@ -88,7 +89,7 @@ final class DeliveryOperationsAdminQueryMysqlRepositoryTest extends TestCase
 
     // ===== Equality Filters =====
 
-    /** @dataProvider idFilterProvider */
+    #[DataProvider('idFilterProvider')]
     public function testItFiltersById(int $id): void
     {
         $this->insertLog(eventId: 'id-1');
@@ -179,7 +180,7 @@ final class DeliveryOperationsAdminQueryMysqlRepositoryTest extends TestCase
         $this->assertSame(1, $res->filtered);
     }
 
-    /** @dataProvider actorFilterProvider */
+    #[DataProvider('actorFilterProvider')]
     public function testItFiltersActorIndependently(string $actorType, ?int $actorId, int $expected): void
     {
         $this->insertLog(eventId: 'a1', actorType: 'SYS', actorId: 10);
@@ -205,7 +206,7 @@ final class DeliveryOperationsAdminQueryMysqlRepositoryTest extends TestCase
         ];
     }
 
-    /** @dataProvider targetFilterProvider */
+    #[DataProvider('targetFilterProvider')]
     public function testItFiltersTargetIndependently(string $targetType, ?int $targetId, int $expected): void
     {
         $this->insertLog(eventId: 't1', targetType: 'DOC', targetId: 10);
@@ -233,7 +234,7 @@ final class DeliveryOperationsAdminQueryMysqlRepositoryTest extends TestCase
 
     // ===== Attempts =====
 
-    /** @dataProvider attemptFilterProvider */
+    #[DataProvider('attemptFilterProvider')]
     public function testItFiltersAttemptRanges(?int $min, ?int $max, int $expected): void
     {
         $this->insertLog(eventId: 'att-1', attemptNo: 0);
@@ -521,7 +522,7 @@ final class DeliveryOperationsAdminQueryMysqlRepositoryTest extends TestCase
 
     // ===== LIKE Escaping =====
 
-    /** @dataProvider likeEscapeProvider */
+    #[DataProvider('likeEscapeProvider')]
     public function testLikeEscape(string $pattern, string $message, int $expected): void
     {
         $this->insertLog(eventId: 'like-1', errorMessage: $message);

@@ -11,11 +11,10 @@ use Maatify\EventLogging\SecuritySignals\DTO\SecuritySignalsQueryDTO;
 use Maatify\EventLogging\SecuritySignals\Infrastructure\Mysql\SecuritySignalsLoggerMysqlRepository;
 use Maatify\EventLogging\SecuritySignals\Infrastructure\Mysql\SecuritySignalsQueryMysqlRepository;
 use Maatify\EventLogging\Tests\Integration\Support\MysqlIntegrationTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * @covers \Maatify\EventLogging\SecuritySignals\Infrastructure\Mysql\SecuritySignalsLoggerMysqlRepository
- * @covers \Maatify\EventLogging\SecuritySignals\Infrastructure\Mysql\SecuritySignalsQueryMysqlRepository
- */
+#[CoversClass(SecuritySignalsLoggerMysqlRepository::class)]
+#[CoversClass(SecuritySignalsQueryMysqlRepository::class)]
 final class SecuritySignalsRepositoryTest extends MysqlIntegrationTestCase
 {
     private SecuritySignalsLoggerMysqlRepository $logger;

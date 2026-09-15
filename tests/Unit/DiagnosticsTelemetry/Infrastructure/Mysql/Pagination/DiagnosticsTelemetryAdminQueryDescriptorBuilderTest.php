@@ -8,12 +8,11 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Maatify\EventLogging\DiagnosticsTelemetry\DTO\DiagnosticsTelemetryAdminQueryRequestDTO;
 use Maatify\EventLogging\DiagnosticsTelemetry\Infrastructure\Mysql\Pagination\DiagnosticsTelemetryAdminQueryDescriptorBuilder;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-/**
- * @covers \Maatify\EventLogging\DiagnosticsTelemetry\Infrastructure\Mysql\Pagination\DiagnosticsTelemetryAdminQueryDescriptorBuilder
- */
+#[CoversClass(DiagnosticsTelemetryAdminQueryDescriptorBuilder::class)]
 final class DiagnosticsTelemetryAdminQueryDescriptorBuilderTest extends TestCase
 {
     private DiagnosticsTelemetryAdminQueryDescriptorBuilder $builder;

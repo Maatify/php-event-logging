@@ -10,12 +10,11 @@ use Maatify\EventLogging\AuthoritativeAudit\DTO\AuthoritativeAuditAdminQueryRequ
 use Maatify\EventLogging\AuthoritativeAudit\Exception\AuthoritativeAuditStorageException;
 use Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditAdminQueryMysqlRepository;
 use PDO;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
-/**
- * @covers \Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditAdminQueryMysqlRepository
- */
+#[CoversClass(AuthoritativeAuditAdminQueryMysqlRepository::class)]
 final class AuthoritativeAuditAdminQueryMysqlRepositoryTest extends TestCase
 {
     private PDO $pdo;

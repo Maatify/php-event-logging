@@ -8,11 +8,11 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Maatify\EventLogging\AuthoritativeAudit\DTO\AuthoritativeAuditAdminQueryRequestDTO;
 use Maatify\EventLogging\AuthoritativeAudit\Exception\AuthoritativeAuditAdminQueryInvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Maatify\EventLogging\AuthoritativeAudit\DTO\AuthoritativeAuditAdminQueryRequestDTO
- */
+#[CoversClass(AuthoritativeAuditAdminQueryRequestDTO::class)]
 final class AuthoritativeAuditAdminQueryRequestDTOTest extends TestCase
 {
     public function testItConstructsWithAllDefaultsAndSerializesCorrectly(): void
@@ -165,9 +165,7 @@ final class AuthoritativeAuditAdminQueryRequestDTOTest extends TestCase
         new AuthoritativeAuditAdminQueryRequestDTO(targetId: -5);
     }
 
-    /**
-     * @dataProvider lengthValidationDataProvider
-     */
+    #[DataProvider('lengthValidationDataProvider')]
     public function testLengthValidation(string $field, int $maxLength, bool $shouldThrow): void
     {
         if ($shouldThrow) {
@@ -213,9 +211,7 @@ final class AuthoritativeAuditAdminQueryRequestDTOTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider invalidUtf8DataProvider
-     */
+    #[DataProvider('invalidUtf8DataProvider')]
     public function testItRejectsInvalidUtf8(string $field): void
     {
         $this->expectException(AuthoritativeAuditAdminQueryInvalidArgumentException::class);
