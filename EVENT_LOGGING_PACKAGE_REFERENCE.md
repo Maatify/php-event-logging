@@ -417,7 +417,7 @@ DiagnosticsTelemetry Admin Query exception boundaries:
 
 The package does not provide HTTP controllers, routes, authorization, middleware, UI, exports, localization, dashboards, free-text search, metadata search, arbitrary SQL, joins, caching, or approximate counts for Admin Query. Event ID, route name, duration, and metadata filtering are explicitly unsupported. Hosts own those concerns.
 
-### Superseded Post-v1 Pagination Artifacts
+### Superseded Post-Legacy-v1 Pagination Artifacts
 
 The following pagination artifacts were added after the legacy `maatify/event-logging` `v1.0.0` release and are considered superseded experiments pending replacement by the approved Admin Query API:
 

@@ -8,7 +8,7 @@
 
 *   This document governs only the protected primitive cursor read/query compatibility baseline inherited from legacy `maatify/event-logging` `v1.0.0`.
 *   It does not indicate that `maatify/php-event-logging` has a published Stable release.
-*   Its cursor requirements do not govern the separate post-v1 Admin Query API.
+*   Its cursor requirements do not govern the separate post-legacy-v1 Admin Query API.
 *   It must not be used to justify extending the superseded cursor-wrapper experiment.
 
 ## 1. Overview

@@ -33,4 +33,4 @@ The domain operates with two tables:
 
 The complete pipeline design contemplates an asynchronous consumer (materializer) that reads from the outbox and moves records to the audit log table, potentially across database boundaries (e.g., from a high-transaction OLTP database to a dedicated audit data warehouse).
 
-**Important:** The implementation of outbox consumers, materializers, and dead-letter semantics for handling consumer failures is **deferred** and is not part of the v1.0.0 package baseline. The package provides the schema and the outbox repository for writing, but the host application is responsible for orchestrating the materialization process if desired.
+**Important:** The implementation of outbox consumers, materializers, and dead-letter semantics for handling consumer failures is **deferred** and is not part of the inherited legacy `maatify/event-logging` `v1.0.0` package baseline. The package provides the schema and the outbox repository for writing, but the host application is responsible for orchestrating the materialization process if desired.

@@ -19,7 +19,7 @@ This document defines the complete approved architecture for adding the new Admi
 ## 1. Classification and Strict Non-Scope Boundaries
 
 - This is a new Admin Query API, not a rebuild.
-- DiagnosticsTelemetry has no superseded post-v1 wrapper artifacts to delete.
+- DiagnosticsTelemetry has no superseded post-legacy-v1 wrapper artifacts to delete.
 - No schema, Composer, CI, host, factory/provider/binding, controller, route, permission, UI, export, dashboard, reporting, or framework-wiring change is authorized.
 - Primitive `find()` and legacy `read()` remain separate supported paths.
 
@@ -37,7 +37,7 @@ This document defines the complete approved architecture for adding the new Admi
   - Architecture (`ADMIN_QUERY_API_ARCHITECTURE.md`)
   - Roadmap (`ADMIN_QUERY_API_ROADMAP.md`)
   - Inventory (`DOCUMENTATION_INVENTORY.md`)
-- Explicit separation: The protected `v1.0.0` primitive Runtime and the approved new Admin Query API are explicitly separated. The Admin Query API does not replace or alter the protected primitive paths.
+- Explicit separation: The protected primitive Runtime inherited from the legacy `maatify/event-logging` `v1.0.0` compatibility baseline and the approved new Admin Query API are explicitly separated. The Admin Query API does not replace or alter the protected primitive paths. This document does not claim a published Stable release for `maatify/php-event-logging`.
 
 ## 3. Protected Primitive Contract
 

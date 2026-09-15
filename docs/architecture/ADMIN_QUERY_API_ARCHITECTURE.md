@@ -19,7 +19,7 @@ It applies only to work started **after the legacy package's first Stable releas
 The architecture separates three distinct layers:
 
 1. The inherited and protected legacy `maatify/event-logging` `v1.0.0` Runtime compatibility baseline.
-2. Incorrect post-v1.0 pagination work that must be rebuilt.
+2. Incorrect post-legacy-v1.0 pagination work that must be rebuilt.
 3. The target Admin Query API and later reporting contracts.
 
 No implementation is authorized by this document alone.
@@ -35,12 +35,12 @@ The following are frozen and outside the remediation scope of this architecture:
 - Primitive read/query APIs across all six logging domains.
 - Existing query DTOs and view/event DTOs.
 - Existing repositories, schemas, row hydration behavior, and domain exceptions.
-- Existing cursor behavior that belongs to the first-release Runtime.
-- Existing host integrations that depend on first-release contracts.
+- Existing cursor behavior that belongs to the legacy first-release Runtime.
+- Existing host integrations that depend on legacy first-release contracts.
 
 No Admin pagination or reporting phase may redesign, replace, remove, or silently alter this baseline.
 
-Any internal refactor required by later work must prove through regression coverage that all first-release behavior remains identical.
+Any internal refactor required by later work must prove through regression coverage that all legacy first-release behavior remains identical.
 
 ## 3. Incorrect Post-Legacy-v1.0 Pagination Experiment
 
@@ -66,7 +66,7 @@ Therefore:
 - It must not be generalized or copied to additional domains.
 - It must not be preserved merely because it already exists.
 - Each affected domain must be rebuilt through the approved Admin Query API architecture.
-- Superseded post-v1.0 pagination artifacts may be removed or retired only after the replacement passes its complete implementation, test, and compatibility gate.
+- Superseded post-legacy-v1.0 pagination artifacts may be removed or retired only after the replacement passes its complete implementation, test, and compatibility gate.
 - Removal or retirement must not affect any contract or Runtime behavior protected by legacy `maatify/event-logging` `v1.0.0`.
 
 ## 4. Target Admin Query API
@@ -79,7 +79,7 @@ It must cover all six domains in the order fixed by the roadmap.
 
 ### 4.1 Rebuild domains
 
-These domains already contain incorrect post-v1.0 pagination work and must be rebuilt:
+These domains already contain incorrect post-legacy-v1.0 pagination work and must be rebuilt:
 
 1. `AuditTrail` — rebuild POC.
 2. `BehaviorTrace` — rebuild.
@@ -177,7 +177,7 @@ The implementation must:
 
 ## 8. Reporting and Dashboard Contracts
 
-Reporting and dashboard summary work is a separate post-v1.0 phase.
+Reporting and dashboard summary work is a separate post-legacy-v1.0 phase.
 
 It begins only after pagination is complete and stable across all six domains.
 
@@ -195,8 +195,8 @@ Cross-domain reporting queries remain prohibited unless a separate approved arch
 ## 9. Current Contract Precedence
 
 - [EVENT_LOGGING_PACKAGE_REFERENCE.md](../../EVENT_LOGGING_PACKAGE_REFERENCE.md) remains the canonical current stable Runtime and public API contract.
-- [PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md](PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md) remains authoritative for the first-release primitive query path.
-- [ADMIN_QUERY_API_ROADMAP.md](../roadmap/ADMIN_QUERY_API_ROADMAP.md) defines the approved post-v1.0 execution order.
+- [PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md](PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md) remains authoritative for the legacy first-release primitive query path.
+- [ADMIN_QUERY_API_ROADMAP.md](../roadmap/ADMIN_QUERY_API_ROADMAP.md) defines the approved post-legacy-v1.0 execution order.
 - [ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md](../audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md) defines the historical Phase 1 baseline. Current per-domain truth is established by the latest approved/reviewable domain blueprint and actual main state.
 - This architecture becomes Runtime truth only through separately approved implementation PRs and a later release update.
 
@@ -205,7 +205,7 @@ Cross-domain reporting queries remain prohibited unless a separate approved arch
 The following are prohibited:
 
 - Modifying or replacing the inherited legacy `maatify/event-logging` `v1.0.0` Runtime baseline as part of pagination remediation.
-- Treating incorrect post-legacy-v1.0 pagination artifacts as protected first-release contracts.
+- Treating incorrect post-legacy-v1.0 pagination artifacts as protected legacy first-release contracts.
 - Extending the old wrapper experiment to `DiagnosticsTelemetry` or `DeliveryOperations`.
 - Creating one generic repository for all domains.
 - Creating generic cross-domain queries.

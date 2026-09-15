@@ -2,7 +2,9 @@
 
 **Status:** Implemented / Complete
 
-This document defines the complete approved architecture for replacing the superseded post-v1 AuthoritativeAudit pagination wrapper with a package-owned Admin Query API.
+This document defines the complete approved architecture for replacing the superseded post-legacy-v1 AuthoritativeAudit pagination wrapper with a package-owned Admin Query API.
+
+> **Identity and release-state note:** All references below to `v1.0.0`, the first release, or post-v1 work refer to the inherited compatibility/runtime baseline of legacy `maatify/event-logging` `v1.0.0`. They do not claim a published Stable release for `maatify/php-event-logging`.
 
 It establishes the blueprint for the final remediation phase, ensuring strict fail-closed behavior, protected transaction boundaries, and separation from outbox semantics. PR #118 implemented the approved Runtime contract. The primitive placeholder correction, strict Unit/Regression/live-MySQL coverage, and atomic seven-file retirement are complete.
 
@@ -12,7 +14,7 @@ It establishes the blueprint for the final remediation phase, ensuring strict fa
 - The full contract defined in this Blueprint is approved exactly as written.
 - An independent Runtime implementation task/PR is authorized.
 - The Runtime PR must:
-  - Preserve `v1.0.0` contracts completely.
+  - Preserve the contracts protected by legacy `maatify/event-logging` `v1.0.0` completely.
   - Implement the Admin Query API exactly as documented here.
   - Apply the primitive distinct-placeholder correction.
   - Provide full coverage (Unit, Regression, and strict real-MySQL Integration).
@@ -26,9 +28,9 @@ It establishes the blueprint for the final remediation phase, ensuring strict fa
 ## 1. Audited Baseline
 
 - **Exact audited main SHA:** `fc590f53687935d1f02d5b96782f2349de7e931a`
-- **Purpose:** Rebuild post-v1 pagination experiment into Admin Query API architecture.
+- **Purpose:** Rebuild the post-legacy-v1 pagination experiment into Admin Query API architecture.
 
-### 1.1 Protected `v1.0.0` Contract
+### 1.1 Protected Legacy `maatify/event-logging` `v1.0.0` Contract
 
 The following primitive contracts are protected and preserved:
 
@@ -139,9 +141,9 @@ The following primitive contracts are protected and preserved:
   - Exact query exception catch boundaries (PDOException): `Failed to query AuthoritativeAudit records: {message}` with previous throwable.
   - Exact map exception catch boundaries (Throwable): `Failed to map AuthoritativeAudit row: {message}` with previous throwable.
 
-### 1.2 Superseded Post-v1 Pagination Artifacts
+### 1.2 Superseded Post-Legacy-v1 Pagination Artifacts
 
-The following exactly 7 files are superseded post-v1 artifacts and must be deleted atomically during implementation:
+The following exactly 7 files are superseded post-legacy-v1 artifacts and must be deleted atomically during implementation:
 - `src/AuthoritativeAudit/Contract/AuthoritativeAuditPaginatedQueryInterface.php`
 - `src/AuthoritativeAudit/Service/AuthoritativeAuditPaginatedQueryService.php`
 - `src/AuthoritativeAudit/DTO/AuthoritativeAuditQueryPageDTO.php`
@@ -853,7 +855,7 @@ Testing spans Unit, Regression, and strict real-MySQL Integration domains provin
 - Safe nullable fields extraction mimicking internal JSON properties accurately.
 - Dedicated Unit and Regression tests handling exact corrupt JSON mapper processing logic without relying on skip mechanics in rigid schema instances.
 - Realigned primitive query native PDO placeholders guaranteeing exact functional integrity spanning downstream contexts.
-- Guaranteed complete preservation of all protected `v1.0.0` implementations mirroring original constraints.
+- Guaranteed complete preservation of all implementations protected by legacy `maatify/event-logging` `v1.0.0`, mirroring original constraints.
 - Exception structures holding exact message parameters carrying upstream context borders.
 - Repository actions passing Storage exceptions without applying duplicate nesting.
 - External validation verifying repository borders preventing execution over local transaction elements.

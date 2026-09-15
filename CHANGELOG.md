@@ -28,7 +28,7 @@ The `1.0.0` entry below is a historical record of the legacy `maatify/event-logg
 - Extracted DiagnosticsTelemetry policy-aware row hydration into a shared internal mapper while preserving primitive find() and legacy read() behavior.
 - Corrected DiagnosticsTelemetry primitive find() cursor placeholders for native PDO prepared statements without changing cursor semantics.
 - Updated DiagnosticsTelemetry Admin Query blueprint, roadmap, package reference, domain README, integration guide, and documentation inventory to implementation status.
-- Corrected AuthoritativeAudit primitive `find()` cursor placeholders for native PDO prepared statements without changing v1 semantics.
+- Corrected AuthoritativeAudit primitive `find()` cursor placeholders for native PDO prepared statements without changing legacy `maatify/event-logging` `v1.0.0` semantics.
 - Updated internal mapper, descriptor, repository, and documentation states for AuthoritativeAudit Admin Query.
 - Extracted AuditTrail row hydration into a shared internal mapper while preserving primitive query behavior.
 - Extracted BehaviorTrace policy-aware row hydration into a shared internal mapper while preserving primitive query behavior.
@@ -40,10 +40,10 @@ The `1.0.0` entry below is a historical record of the legacy `maatify/event-logg
 - Updated SecuritySignals Admin Query blueprint, roadmap, package reference, module README, and integration documentation to implementation status after completing the follow-up verification contract.
 
 ### Removed
-- Removed the exactly seven superseded AuthoritativeAudit post-v1 pagination wrapper artifacts.
-- Removed superseded AuditTrail post-v1 pagination wrapper artifacts that were not protected `v1.0.0` contracts.
-- Removed superseded BehaviorTrace post-v1 pagination wrapper artifacts that were not protected `v1.0.0` contracts.
-- Removed superseded SecuritySignals post-v1 pagination wrapper artifacts that were not protected `v1.0.0` contracts.
+- Removed the exactly seven superseded AuthoritativeAudit post-legacy-v1 pagination wrapper artifacts.
+- Removed superseded AuditTrail post-legacy-v1 pagination wrapper artifacts that were not protected contracts of the legacy `maatify/event-logging` `v1.0.0` compatibility baseline.
+- Removed superseded BehaviorTrace post-legacy-v1 pagination wrapper artifacts that were not protected contracts of the legacy `maatify/event-logging` `v1.0.0` compatibility baseline.
+- Removed superseded SecuritySignals post-legacy-v1 pagination wrapper artifacts that were not protected contracts of the legacy `maatify/event-logging` `v1.0.0` compatibility baseline.
 
 ### Documentation
 - Drafted AuditTrail Admin Query POC blueprint (`ADMIN_QUERY_AUDIT_TRAIL_POC_BLUEPRINT.md`) defining the proposed replacement architecture. No Runtime, Composer, schema, or test behavior changed.
@@ -57,7 +57,7 @@ The `1.0.0` entry below is a historical record of the legacy `maatify/event-logg
 ### Documentation
 - Removed superseded Admin Query cursor-wrapper audit documents.
 - Removed partial domain `PUBLIC_API.md` files.
-- Aligned current Runtime, primitive-read, integration, and roadmap documentation with the approved post-v1 architecture.
+- Aligned current Runtime, primitive-read, integration, and roadmap documentation with the approved post-legacy-v1 architecture inherited from the legacy `maatify/event-logging` `v1.0.0` compatibility baseline.
 - Confirmed that this documentation cleanup introduces no Runtime, Composer, schema, or test behavior change.
 
 - Completed Phase 1 Admin Query Runtime and persistence compatibility inventory (strictly documentation and audit).
