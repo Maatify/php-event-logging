@@ -1,6 +1,6 @@
 # BehaviorTrace Module (Operational Activity)
 
-**Project:** maatify/event-logging
+**Project:** maatify/php-event-logging
 **Module:** BehaviorTrace
 **Namespace:** `Maatify\EventLogging\BehaviorTrace`
 

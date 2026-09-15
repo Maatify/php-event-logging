@@ -1,6 +1,6 @@
 # Diagnostics Telemetry Module
 
-**Project:** maatify/event-logging
+**Project:** maatify/php-event-logging
 **Module:** DiagnosticsTelemetry
 **Namespace:** `Maatify\EventLogging\DiagnosticsTelemetry`
 

@@ -1,7 +1,7 @@
 # Logging Domain Rules
 
 **Status:** CANONICAL
-**Scope:** Defines the **six canonical logging domains**, their intent, boundaries, and classification rules for `maatify/event-logging`.
+**Scope:** Defines the **six canonical logging domains**, their intent, boundaries, and classification rules for `maatify/php-event-logging`.
 
 ---
 

@@ -1,8 +1,8 @@
-# Contributing to maatify/event-logging
+# Contributing to maatify/php-event-logging
 
-Thank you for your interest in contributing to **maatify/event-logging**! We welcome contributions that help improve this package.
+Thank you for your interest in contributing to **maatify/php-event-logging**! We welcome contributions that help improve this package.
 
-**maatify/event-logging** is a standalone, framework-agnostic Composer library. It is designed to be completely independent of any host application architecture or framework. As a reusable library, `composer.lock` must not be committed to the repository.
+**maatify/php-event-logging** is a standalone, framework-agnostic Composer library. It is designed to be completely independent of any host application architecture or framework. As a reusable library, `composer.lock` must not be committed to the repository.
 
 ## Ways to Contribute
 

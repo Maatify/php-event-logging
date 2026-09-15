@@ -1,6 +1,6 @@
 # Test Coverage Matrix
 
-This matrix provides a high-level overview of the intended test coverage spread across the different domains of the `maatify/event-logging` package.
+This matrix provides a high-level overview of the intended test coverage spread across the different domains of the `maatify/php-event-logging` package.
 
 | Feature / Domain | AuthoritativeAudit | AuditTrail | SecuritySignals | BehaviorTrace | DiagnosticsTelemetry | DeliveryOperations | Common |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |

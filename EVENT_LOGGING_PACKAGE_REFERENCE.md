@@ -1,10 +1,12 @@
 # Event Logging Package Reference
 
-`maatify/event-logging` is the canonical framework-agnostic Composer package for Maatify event logging. This document is the single root package-reference source of truth for the stable package contract, public runtime API, infrastructure adapters, schema ownership, and package-specific standards decisions.
+`maatify/php-event-logging` is the canonical successor framework-agnostic Composer package for Maatify event logging. This document is the single root package-reference source of truth for the package contract, public runtime API, infrastructure adapters, schema ownership, and package-specific standards decisions.
+
+The legacy `maatify/event-logging` `v1.0.0` release remains historical evidence from before this successor package identity was adopted. This repository does not claim that `maatify/php-event-logging` has a published Stable release.
 
 ## 1. Package identity and stable contract
 
-- Composer package: `maatify/event-logging`.
+- Composer package: `maatify/php-event-logging`.
 - PHP namespace root: `Maatify\EventLogging\`.
 - Package type: standalone, framework-agnostic Composer library.
 - Persistence model: host-provided `PDO` with domain-owned MySQL repositories and schemas.

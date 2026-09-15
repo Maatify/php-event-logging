@@ -1,7 +1,7 @@
 # Storage & Schema Guarantees
 
 **Status:** CANONICAL
-**Scope:** Defines the baseline storage schema, naming conventions, and constraints for the `maatify/event-logging` package.
+**Scope:** Defines the baseline storage schema, naming conventions, and constraints for the `maatify/php-event-logging` package.
 
 ---
 

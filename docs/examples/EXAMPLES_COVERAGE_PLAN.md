@@ -1,6 +1,6 @@
 # Examples Coverage Plan
 
-This document outlines the planned examples to be created for the `maatify/event-logging` package.
+This document outlines the planned examples to be created for the `maatify/php-event-logging` package.
 
 All examples MUST follow these rules:
 - Be plain PHP only.

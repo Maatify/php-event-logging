@@ -5,7 +5,7 @@
 
 ## 1. Purpose
 
-This document defines the canonical architecture for Admin pagination, reporting, and dashboard query work inside the `maatify/event-logging` package.
+This document defines the canonical architecture for Admin pagination, reporting, and dashboard query work inside the `maatify/php-event-logging` package.
 
 It applies only to work started **after the first stable release (`v1.0.0`)** and must be read together with:
 
@@ -97,7 +97,7 @@ Each domain requires its own reviewed contract, filter rules, trusted SQL, mappe
 
 ## 5. Strict Boundary Responsibilities
 
-### 5.1 Event Logging Package (`maatify/event-logging`)
+### 5.1 Event Logging Package (`maatify/php-event-logging`)
 
 The package owns all domain-specific behavior:
 

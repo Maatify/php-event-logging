@@ -1,6 +1,6 @@
 # Testing Strategy
 
-Recommended validation for `maatify/event-logging`:
+Recommended validation for `maatify/php-event-logging`:
 
 1. Run `composer validate` inside `packages/event-logging`.
 2. Run PHP syntax checks over every copied PHP file.

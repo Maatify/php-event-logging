@@ -1,6 +1,6 @@
 # CANONICAL_LOGGER_DESIGN_STANDARD
 
-> **Project:** maatify/event-logging
+> **Project:** maatify/php-event-logging
 > **Status:** CANONICAL (Binding — Subordinate to unified-logging-system.*)
 > **Scope:** Defines the **mandatory design standard** for building any logging domain as a framework-agnostic standalone, extractable library (uses explicit Composer/runtime dependencies).
 > **Terminology Source of Truth:** `docs/architecture/logging/LOG_DOMAINS_OVERVIEW.md`

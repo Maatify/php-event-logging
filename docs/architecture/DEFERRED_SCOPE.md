@@ -7,7 +7,7 @@
 
 ## 1. Archiving Strategy
 
-While the unified logging architecture contemplates archiving to manage large data volumes, **archive support is deferred and optional**. It is not required for the correct functioning of the `maatify/event-logging` package.
+While the unified logging architecture contemplates archiving to manage large data volumes, **archive support is deferred and optional**. It is not required for the correct functioning of the `maatify/php-event-logging` package.
 
 **Deferred Archive Features:**
 - Dedicated `*_archive` tables (e.g., `maa_event_logging_behavior_trace_archive`).

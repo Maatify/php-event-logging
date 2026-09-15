@@ -1,6 +1,6 @@
 # LOGGING_LIBRARY_STRUCTURE_CANONICAL
 
-> **Project:** maatify/event-logging
+> **Project:** maatify/php-event-logging
 > **Status:** NON-BINDING (Structural blueprint for logging modules as future standalone libraries)
 > **Scope:** Defines the required folder structure, module boundaries, shared primitives, and extraction-ready layout for the six logging domains.
 > **Terminology Source of Truth:** `../../architecture/logging/LOG_DOMAINS_OVERVIEW.md`
