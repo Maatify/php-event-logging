@@ -25,6 +25,7 @@ The `1.0.0` entry below is a historical record of the legacy `maatify/event-logg
 - Added Unit, Regression, and strict MySQL Integration coverage for SecuritySignals Admin Query pagination and primitive cursor compatibility.
 
 ### Changed
+- Raised the minimum supported PHP contract from `^8.2` to `^8.4` and aligned the Composer platform baseline and CI matrix.
 - Extracted DiagnosticsTelemetry policy-aware row hydration into a shared internal mapper while preserving primitive find() and legacy read() behavior.
 - Corrected DiagnosticsTelemetry primitive find() cursor placeholders for native PDO prepared statements without changing cursor semantics.
 - Updated DiagnosticsTelemetry Admin Query blueprint, roadmap, package reference, domain README, integration guide, and documentation inventory to implementation status.

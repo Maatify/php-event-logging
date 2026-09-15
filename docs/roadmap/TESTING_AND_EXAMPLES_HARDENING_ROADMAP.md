@@ -6,7 +6,7 @@
 
 **Recommended Test Tooling:**
 - **Framework:** **PHPUnit** is recommended over Pest. This is a framework-agnostic package meant for wide compatibility, and PHPUnit is the standard for low-level library testing. It provides strict class-based testing which aligns well with the strict domain isolation architecture.
-- **Composer dev dependencies:** `phpunit/phpunit` (v10 or v11 depending on PHP 8.2 support).
+- **Composer dev dependencies:** `phpunit/phpunit` (v10 or v11 depending on PHP 8.4 support).
 - **Autoload-dev setup:**
   ```json
   "autoload-dev": {

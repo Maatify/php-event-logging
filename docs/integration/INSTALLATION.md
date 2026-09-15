@@ -16,7 +16,7 @@ Consumer installation through `composer require maatify/php-event-logging` is no
 
 ### System Requirements
 
-- **PHP:** `^8.2`
+- **PHP:** `^8.4`
 - **Extensions required:**
   - `ext-json` (For safe metadata and payload decoding)
   - `ext-pdo` (For database integration)

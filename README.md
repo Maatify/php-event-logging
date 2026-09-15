@@ -41,7 +41,7 @@ This package provides strict domain isolation, MySQL persistence, and fail-open/
 
 ## 📋 Requirements
 
-* PHP `^8.2`
+* PHP `^8.4`
 * `ext-json`
 * `ext-pdo`
 
@@ -179,7 +179,7 @@ The `examples/` directory contains plain PHP illustrative skeletons covering int
 
 ## ✅ Quality Status
 
-* PHP 8.2+
+* PHP `^8.4`
 * PHPStan Level Max
 * PHPUnit testing available
 * GitHub Actions CI validated
