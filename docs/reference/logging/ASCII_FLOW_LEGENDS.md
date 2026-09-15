@@ -2,7 +2,7 @@
 
 ## Canonical ASCII Flow Language
 
-**Project:** maatify/event-logging
+**Project:** maatify/php-event-logging
 **Status:** NON-BINDING (Reference Language)
 **Scope:** All architecture, execution, storage, and logging diagrams
 **Authority Alignment:**

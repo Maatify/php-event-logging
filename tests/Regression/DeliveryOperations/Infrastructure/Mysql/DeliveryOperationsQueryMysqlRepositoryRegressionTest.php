@@ -37,7 +37,7 @@ final class DeliveryOperationsQueryMysqlRepositoryRegressionTest extends TestCas
             ->method('prepare')
             ->with($this->callback(function (string $sql) {
                 return str_contains($sql, 'SELECT * FROM maa_event_logging_delivery_operations')
-                    && str_contains($sql, 'WHERE actor_type = :actor_type AND actor_id = :actor_id AND target_type = :target_type AND target_id = :target_id AND channel = :channel AND operation_type = :operation_type AND status = :status AND request_id = :request_id AND correlation_id = :correlation_id AND occurred_at >= :after AND occurred_at <= :before AND (occurred_at < :cursor_at OR (occurred_at = :cursor_at AND id < :cursor_id))')
+                    && str_contains($sql, 'WHERE actor_type = :actor_type AND actor_id = :actor_id AND target_type = :target_type AND target_id = :target_id AND channel = :channel AND operation_type = :operation_type AND status = :status AND request_id = :request_id AND correlation_id = :correlation_id AND occurred_at >= :after AND occurred_at <= :before AND (occurred_at < :cursor_at_before OR (occurred_at = :cursor_at_equal AND id < :cursor_id))')
                     && str_contains($sql, 'ORDER BY occurred_at DESC, id DESC LIMIT 500');
             }))
             ->willReturn($this->statement);
@@ -56,7 +56,8 @@ final class DeliveryOperationsQueryMysqlRepositoryRegressionTest extends TestCas
                 'correlation_id' => 'cor-1',
                 'after' => '2023-01-01 00:00:00.000000',
                 'before' => '2023-01-02 00:00:00.000000',
-                'cursor_at' => '2023-01-01 12:00:00.000000',
+                'cursor_at_before' => '2023-01-01 12:00:00.000000',
+                'cursor_at_equal' => '2023-01-01 12:00:00.000000',
                 'cursor_id' => 99,
             ]);
 
@@ -98,6 +99,8 @@ final class DeliveryOperationsQueryMysqlRepositoryRegressionTest extends TestCas
             ->method('execute')
             ->willReturnCallback(function (array $params) {
                 $this->assertArrayNotHasKey('cursor_at', $params);
+                $this->assertArrayNotHasKey('cursor_at_before', $params);
+                $this->assertArrayNotHasKey('cursor_at_equal', $params);
                 $this->assertArrayNotHasKey('cursor_id', $params);
                 return true;
             });

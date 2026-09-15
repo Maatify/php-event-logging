@@ -4,22 +4,20 @@
 
 ![Maatify.dev](https://www.maatify.dev/assets/img/img/maatify_logo_white.svg)
 
-[![Latest Version](https://img.shields.io/packagist/v/maatify/event-logging.svg)](https://packagist.org/packages/maatify/event-logging)
-[![PHP Version](https://img.shields.io/packagist/php-v/maatify/event-logging.svg)](https://packagist.org/packages/maatify/event-logging)
-[![License](https://img.shields.io/packagist/l/maatify/event-logging.svg)](LICENSE)
-[![PHPStan](https://img.shields.io/badge/PHPStan-Level%20Max-4E8CAE)](https://github.com/Maatify/event-logging)
+[![PHPStan](https://img.shields.io/badge/PHPStan-Level%20Max-4E8CAE)](https://github.com/Maatify/php-event-logging)
 
-[![Monthly Downloads](https://img.shields.io/packagist/dm/maatify/event-logging)](https://packagist.org/packages/maatify/event-logging)
-[![Total Downloads](https://img.shields.io/packagist/dt/maatify/event-logging)](https://packagist.org/packages/maatify/event-logging)
 [![Maatify Ecosystem](https://img.shields.io/badge/Maatify-Ecosystem-blueviolet)](https://github.com/Maatify)
-[![Install](https://img.shields.io/badge/Install-composer%20require%20maatify%2Fevent--logging-blue)](https://packagist.org/packages/maatify/event-logging)
 
 [![Changelog](https://img.shields.io/badge/Changelog-View-blue.svg)](CHANGELOG.md)
 [![Package Reference](https://img.shields.io/badge/Reference-Read-blue.svg)](EVENT_LOGGING_PACKAGE_REFERENCE.md)
 [![Security Policy](https://img.shields.io/badge/Security-Policy-blue.svg)](SECURITY.md)
 [![Contributing Guide](https://img.shields.io/badge/Contributing-Guide-blue.svg)](CONTRIBUTING.md)
 
-`maatify/event-logging` is a framework-agnostic standalone Composer package for registering event logging domains within the Maatify ecosystem.
+`maatify/php-event-logging` is a framework-agnostic standalone Composer package for registering event logging domains within the Maatify ecosystem.
+
+Repository: [Maatify/php-event-logging](https://github.com/Maatify/php-event-logging)
+
+**Publication status:** Development. `maatify/php-event-logging` is not yet published on Packagist and has no Stable release under this identity.
 
 This package provides strict domain isolation, MySQL persistence, and fail-open/fail-closed semantics without mandatory framework bindings. It intentionally relies on explicit Composer and runtime dependencies to operate autonomously from host applications and frameworks.
 
@@ -48,18 +46,25 @@ This package provides strict domain isolation, MySQL persistence, and fail-open/
 * `ext-pdo`
 
 **Composer/Runtime Dependencies:**
+* `maatify/exceptions`
+* `maatify/persistence`
+* `maatify/shared-common`
 * `psr/log`
 * `ramsey/uuid`
-* `maatify/exceptions`
-* `maatify/shared-common`
 
 ---
 
 ## 📦 Installation
 
+This repository is currently under Development and is not published on Packagist. To work on the package from its source repository:
+
 ```bash
-composer require maatify/event-logging
+git clone https://github.com/Maatify/php-event-logging.git
+cd php-event-logging
+composer install
 ```
+
+Consumer installation through `composer require maatify/php-event-logging` is not available until an Owner-approved release is published.
 
 ---
 

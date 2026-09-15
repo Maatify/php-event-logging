@@ -1,5 +1,5 @@
 {
-  "name": "maatify/event-logging",
+  "name": "maatify/php-event-logging",
   "description": "Framework-agnostic standalone event logging library containing isolated Maatify logging domains. Depends only on explicit Composer/runtime dependencies.",
   "keywords": [
     "audit",
@@ -15,7 +15,7 @@
     "php",
     "security-signals"
   ],
-  "homepage": "https://github.com/Maatify/event-logging",
+  "homepage": "https://github.com/Maatify/php-event-logging",
   "type": "library",
   "license": "MIT",
   "authors": [
@@ -26,8 +26,8 @@
     }
   ],
   "support": {
-    "issues": "https://github.com/Maatify/event-logging/issues",
-    "source": "https://github.com/Maatify/event-logging"
+    "issues": "https://github.com/Maatify/php-event-logging/issues",
+    "source": "https://github.com/Maatify/php-event-logging"
   },
   "autoload": {
     "psr-4": {
@@ -40,12 +40,12 @@
     }
   },
   "require": {
-    "php": "^8.2",
     "ext-json": "*",
     "ext-pdo": "*",
     "maatify/exceptions": "^1.1",
     "maatify/persistence": "^1.1.0",
     "maatify/shared-common": "^1.0",
+    "php": "^8.2",
     "psr/log": "^3.0",
     "ramsey/uuid": "^4.9"
   },
@@ -54,7 +54,7 @@
     "phpunit/phpunit": "^10.0 || ^11.0"
   },
   "suggest": {
-    "php-di/php-di": "Optional DI container integration for wiring maatify/event-logging bindings."
+    "php-di/php-di": "Optional DI container integration for wiring maatify/php-event-logging bindings."
   },
   "scripts": {
     "analyse": "phpstan analyse src tests --level=max",

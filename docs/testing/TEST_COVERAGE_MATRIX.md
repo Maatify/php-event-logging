@@ -1,6 +1,6 @@
 # Test Coverage Matrix
 
-This matrix provides a high-level overview of the intended test coverage spread across the different domains of the `maatify/event-logging` package.
+This matrix provides a high-level overview of the intended test coverage spread across the different domains of the `maatify/php-event-logging` package.
 
 | Feature / Domain | AuthoritativeAudit | AuditTrail | SecuritySignals | BehaviorTrace | DiagnosticsTelemetry | DeliveryOperations | Common |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
@@ -18,7 +18,7 @@ This matrix provides a high-level overview of the intended test coverage spread 
 | **Integration Tests (MySQL)**| | | | | | | |
 | Schema Creation & DB Init | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | N/A |
 | Insert & Query Roundtrip | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | N/A |
-| Primitive v1.0 Cursor Pagination (DESC) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | N/A |
+| Legacy `maatify/event-logging` v1.0.0 Primitive Cursor Pagination (DESC) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | N/A |
 | Date Filters (`after`, `before`) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | N/A |
 | Actor Filters | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | N/A |
 | Request/Correlation Filters | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ | N/A |

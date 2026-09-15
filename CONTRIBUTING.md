@@ -1,8 +1,8 @@
-# Contributing to maatify/event-logging
+# Contributing to maatify/php-event-logging
 
-Thank you for your interest in contributing to **maatify/event-logging**! We welcome contributions that help improve this package.
+Thank you for your interest in contributing to **maatify/php-event-logging**! We welcome contributions that help improve this package.
 
-**maatify/event-logging** is a standalone, framework-agnostic Composer library. It is designed to be completely independent of any host application architecture or framework. As a reusable library, `composer.lock` must not be committed to the repository.
+**maatify/php-event-logging** is a standalone, framework-agnostic Composer library. It is designed to be completely independent of any host application architecture or framework. As a reusable library, `composer.lock` must not be committed to the repository.
 
 ## Ways to Contribute
 
@@ -54,7 +54,7 @@ Before submitting a Pull Request, please ensure all tests and static analysis ch
    ```
 
    **Note on Integration Tests**:
-   Integration tests require a real MySQL database. `EVENT_LOGGING_TEST_MYSQL_DSN` must be set; otherwise integration tests are skipped. For example, to match the GitHub Actions environment, you might use:
+   Integration tests require a real MySQL database. `EVENT_LOGGING_TEST_MYSQL_DSN` must be set; otherwise the real-MySQL Integration gate is unavailable: shared integration fixtures may be skipped, while strict repository integration tests fail fast with a configuration error. This must not be reported as a passing Integration result. For example, to match the GitHub Actions environment, you might use:
    ```bash
    EVENT_LOGGING_TEST_MYSQL_DSN="mysql:host=127.0.0.1;port=3306;dbname=event_logging_test"
    EVENT_LOGGING_TEST_MYSQL_USER="root"

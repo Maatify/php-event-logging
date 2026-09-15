@@ -1,6 +1,6 @@
 # Testing & Examples Hardening Roadmap
 
-**Context:** The `maatify/event-logging` package is Integration Release Ready. This document is a post-readiness quality hardening plan before a future stable v1.0 release. It must NOT reopen the integration release gate. This roadmap plans for strong, useful, professional test coverage and examples coverage across the entire package.
+**Context:** The `maatify/php-event-logging` package is in Development. This document is a post-readiness quality hardening plan before a future first Stable release under the new package identity. It must NOT reopen the integration release gate. This roadmap plans for strong, useful, professional test coverage and examples coverage across the entire package.
 
 ## 1. Test Infrastructure
 
@@ -265,7 +265,7 @@ How examples should be validated:
 
 ## 13. Final Hardening Gate
 
-Gate before v1.0 stable release:
+Gate before the first Stable release under the new package identity:
 - All unit tests pass.
 - Integration tests pass (or are documented as optional CI job).
 - Examples syntax pass.
@@ -290,5 +290,5 @@ Gate before v1.0 stable release:
 
 The testing and examples hardening described in this roadmap are:
 - **NOT required** for current Integration Release Readiness (the package is already ready for integration).
-- **Recommended** before v1.0 stable.
-- **Required** before public stable release.
+- **Recommended** before the first Stable release under the new package identity.
+- **Required** before the first public Stable release under the new package identity.

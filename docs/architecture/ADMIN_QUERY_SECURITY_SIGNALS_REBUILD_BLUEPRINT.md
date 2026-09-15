@@ -1,10 +1,12 @@
 # SecuritySignals Admin Query Rebuild Blueprint
 
-**Status:** Owner Approved / Runtime Implemented
+**Status:** Owner Approved / Runtime Implemented / Complete
 
-This document defines the complete approved architecture for replacing the superseded post-v1 SecuritySignals pagination wrapper with a package-owned Admin Query API. The Runtime implementation is now present, covered, and verified.
+This document defines the complete approved architecture for replacing the superseded post-legacy-v1 SecuritySignals pagination wrapper with a package-owned Admin Query API. The Runtime implementation is now present, covered, and verified.
 
-It records the Owner decisions made on `2026-07-14`, the post-v1 retirement rule recorded by `ADMIN_QUERY_SECURITY_SIGNALS_POST_V1_RETIREMENT_DECISION.md`, and final approval of the complete coherent blueprint on `2026-07-15`. It authorizes a separate Runtime implementation task/PR, but it does **not** itself implement Runtime, tagging, or release work.
+> **Identity and release-state note:** All references below to `v1.0.0`, the first release, or post-v1 work refer to the inherited compatibility/runtime baseline of legacy `maatify/event-logging` `v1.0.0`. They do not claim a published Stable release for `maatify/php-event-logging`.
+
+It records the Owner decisions made on `2026-07-14`, the post-legacy-v1 retirement rule recorded by `ADMIN_QUERY_SECURITY_SIGNALS_POST_V1_RETIREMENT_DECISION.md`, and final approval of the complete coherent blueprint on `2026-07-15`. The approved Runtime implementation task/PR delivered the documented Runtime; this blueprint does **not** authorize tagging or release work.
 
 ---
 
@@ -15,7 +17,7 @@ It records the Owner decisions made on `2026-07-14`, the post-v1 retirement rule
 - **Original PR #102 HEAD:** `d5121cee3a3069aaaaea5dded2521ae1316f5fdb`
 - **Pre-Owner-decision corrected HEAD:** `c4f3b234e1d82b0b08b8207c76b64f46474ec058`
 - **Regressed Owner-decision commit inspected:** `0da1f2f28c5146c84a6cada1c0534eabb401c84a`
-- **Historical post-v1 pagination origin:** PR #74, `Add SecuritySignals paginated query support`
+- **Historical post-legacy-v1 pagination origin:** PR #74, `Add SecuritySignals paginated query support`
 
 ### 1.1 Runtime and schema sources reviewed
 
@@ -63,7 +65,7 @@ It records the Owner decisions made on `2026-07-14`, the post-v1 retirement rule
 
 The audit distinguishes three different contracts:
 
-1. **Protected `v1.0.0` Runtime**
+1. **Runtime protected by legacy `maatify/event-logging` `v1.0.0`**
    - primitive public interface;
    - primitive query and view DTOs;
    - primitive repository constructor and observable behavior;
@@ -72,18 +74,18 @@ The audit distinguishes three different contracts:
    - storage exception boundary;
    - write-side policy behavior;
    - recorder fail-open reliability boundary.
-2. **Superseded post-v1 pagination experiment**
+2. **Superseded post-legacy-v1 pagination experiment**
    - four Runtime wrapper artifacts;
    - three directly associated unit tests;
    - introduced by PR #74;
-   - not part of the protected `v1.0.0` surface;
+   - not part of the surface protected by legacy `maatify/event-logging` `v1.0.0`;
    - replaced and deleted atomically inside the approved Runtime rebuild.
 3. **Approved Admin Query path**
    - SecuritySignals-specific package API;
    - offset/page pagination through `maatify/persistence`;
    - no change to the primitive public contract.
 
-Current code, current schema, active canonical documents, the post-v1 retirement decision, and already implemented package-owned Admin Query patterns take precedence over historical documents.
+Current code, current schema, active canonical documents, the post-legacy-v1 retirement decision, and already implemented package-owned Admin Query patterns take precedence over historical documents.
 
 ---
 
@@ -262,7 +264,7 @@ The primitive repository:
 - catches `Throwable` for row mapping;
 - preserves the original throwable as `previous`.
 
-A future mapper extraction must not alter the constructor, public signatures, filters, cursor activation, ordering, limit behavior, hydration fallbacks, catch boundaries, or message prefixes.
+The completed mapper extraction did not alter the constructor, public signatures, filters, cursor activation, ordering, limit behavior, hydration fallbacks, catch boundaries, or message prefixes.
 
 ---
 
@@ -368,7 +370,7 @@ Admin Query calls are direct read operations. Their validation, execution, and s
 
 ---
 
-## 5. Superseded Post-v1 Pagination Experiment
+## 5. Superseded Post-Legacy-v1 Pagination Experiment
 
 PR #74 introduced exactly these Runtime artifacts:
 
@@ -390,7 +392,7 @@ tests/Unit/SecuritySignals/Service/SecuritySignalsPaginatedQueryServiceTest.php
 Classification:
 
 ```text
-Superseded Post-v1 Experiment
+Superseded Post-Legacy-v1 Experiment
 ```
 
 Known package references are limited to the wrapper family itself, its tests, and architecture/history documentation:
@@ -426,8 +428,8 @@ The package-level Runtime rebuild is atomic:
 
 1. add the approved SecuritySignals Admin Query implementation;
 2. add its Unit, Regression, and strict real-MySQL Integration coverage;
-3. preserve the protected `v1.0.0` primitive behavior;
-4. delete the exact seven superseded post-v1 artifacts;
+3. preserve the primitive behavior protected by legacy `maatify/event-logging` `v1.0.0`;
+4. delete the exact seven superseded post-legacy-v1 artifacts;
 5. update package and integration documentation.
 
 PR #102 and PR #103 were documentation-only and implemented no deletion themselves.
@@ -1002,7 +1004,7 @@ The current primitive SQL reuses the named placeholder `:cursor_at` twice.
 
 Repeated named placeholders are prohibited by the project standard and are not an Owner choice.
 
-The Runtime implementation must use:
+The completed Runtime implementation uses:
 
 ```sql
 (
@@ -1024,9 +1026,9 @@ This required correction:
 - does not change limit behavior;
 - does not change page semantics;
 - does not change returned records;
-- must be delivered with focused unit coverage;
-- must be delivered with primitive regression coverage;
-- must be proven using real MySQL with native prepared statements.
+- was delivered with focused unit coverage;
+- was delivered with primitive regression coverage;
+- was proven using real MySQL with native prepared statements.
 
 PR #102 documented the requirement but did not implement it.
 
@@ -1269,7 +1271,7 @@ tests/Unit/SecuritySignals/DTO/SecuritySignalsQueryPageDTOTest.php
 tests/Unit/SecuritySignals/Service/SecuritySignalsPaginatedQueryServiceTest.php
 ```
 
-The Runtime rebuild must contain both the approved replacement and these exact deletions.
+The completed Runtime rebuild contains both the approved replacement and these exact deletions.
 
 Package-level completion requires:
 
@@ -1353,11 +1355,11 @@ The primitive repeated `:cursor_at` placeholder must be replaced by:
 
 This is required by the project standard and is not an optional Owner choice.
 
-### 18.3 Atomic post-v1 retirement and host migration
+### 18.3 Atomic post-legacy-v1 retirement and host migration
 
-The exact seven superseded artifacts are outside the protected `v1.0.0` contract.
+The exact seven superseded artifacts are outside the contract protected by legacy `maatify/event-logging` `v1.0.0`.
 
-They must be deleted inside the same Runtime rebuild change set that adds and verifies the replacement Admin Query API.
+They were deleted inside the same Runtime rebuild change set that added and verified the replacement Admin Query API.
 
 Maintained host repositories must be searched and every discovered use migrated, but:
 
@@ -1381,7 +1383,7 @@ The complete package contract has been reviewed and approved as one coherent blu
 - exact Runtime file inventory;
 - test, atomic-retirement, and host-integration gates.
 
-This approval authorizes a separate Runtime implementation task/PR. It does not authorize deviation from this contract, a tag, or a release.
+The approval covered the completed Runtime implementation described in this blueprint. It does not authorize deviation from this contract, a tag, or a release.
 
 ---
 
@@ -1398,7 +1400,7 @@ The implementation occurred across the following sequence:
 The Runtime change:
 
 1. implements the exact approved Admin Query public and internal contracts in this blueprint;
-2. preserves every protected `v1.0.0` primitive, schema, write-policy, and fail-open behavior;
+2. preserves every primitive, schema, write-policy, and fail-open behavior protected by legacy `maatify/event-logging` `v1.0.0`;
 3. applies the behavior-preserving native-PDO distinct-placeholder correction;
 4. adds the complete Unit, Regression, and strict real-MySQL Integration coverage defined here;
 5. adds the approved replacement and deletes the exact seven superseded Runtime/test artifacts inside the same Runtime rebuild change set;
@@ -1411,5 +1413,5 @@ No tag, release publication, reporting work, dashboard work, schema change, Comp
 Current status:
 
 ```text
-Owner Approved / Runtime Implemented
+Owner Approved / Runtime Implemented / Complete
 ```

@@ -19,7 +19,7 @@ This document defines the complete approved architecture for adding the new Admi
 ## 1. Classification and Strict Non-Scope Boundaries
 
 - This is a new Admin Query API, not a rebuild.
-- DiagnosticsTelemetry has no superseded post-v1 wrapper artifacts to delete.
+- DiagnosticsTelemetry has no superseded post-legacy-v1 wrapper artifacts to delete.
 - No schema, Composer, CI, host, factory/provider/binding, controller, route, permission, UI, export, dashboard, reporting, or framework-wiring change is authorized.
 - Primitive `find()` and legacy `read()` remain separate supported paths.
 
@@ -37,7 +37,7 @@ This document defines the complete approved architecture for adding the new Admi
   - Architecture (`ADMIN_QUERY_API_ARCHITECTURE.md`)
   - Roadmap (`ADMIN_QUERY_API_ROADMAP.md`)
   - Inventory (`DOCUMENTATION_INVENTORY.md`)
-- Explicit separation: The protected `v1.0.0` primitive Runtime and the approved new Admin Query API are explicitly separated. The Admin Query API does not replace or alter the protected primitive paths.
+- Explicit separation: The protected primitive Runtime inherited from the legacy `maatify/event-logging` `v1.0.0` compatibility baseline and the approved new Admin Query API are explicitly separated. The Admin Query API does not replace or alter the protected primitive paths. This document does not claim a published Stable release for `maatify/php-event-logging`.
 
 ## 3. Protected Primitive Contract
 
@@ -365,7 +365,7 @@ The primitive repository is policy-aware. To resolve this for the Admin Query AP
 
 ## 7. Approved File and Test Inventory
 
-The exact expected list of files for the later Runtime implementation:
+The exact Runtime implementation file and test inventory:
 
 ### Public Contracts
 - `src/DiagnosticsTelemetry/Contract/DiagnosticsTelemetryAdminQueryInterface.php`
@@ -410,8 +410,8 @@ The exact expected list of files for the later Runtime implementation:
 - MySQL `PDO` must be strictly configured with `PDO::ATTR_EMULATE_PREPARES => false`, `PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION`, and `PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC`.
 - Integration tests must gate: exact cursor behavior, microsecond formatting, transaction preservation, metadata hydration, policy behavior, count/data semantic alignment, sorting mechanics, pagination boundaries, and previous-throwable wrapping.
 
-### Later Runtime Sequence
-The later Runtime PR must follow these reviewed stages:
+### Completed Runtime Sequence
+The Runtime implementation followed these reviewed stages:
 1. public contracts, DTO validation/serialization, and exceptions;
 2. policy-aware mapper and descriptor builder;
 3. Admin MySQL repository and Unit exception/execution gates;
@@ -421,7 +421,7 @@ The later Runtime PR must follow these reviewed stages:
 
 ## 8. Protected Primitive Correction Details
 
-The distinct-placeholder correction must be applied to the primitive `find()` query (which currently reuses `:cursor_at`). It must use distinct native-PDO placeholders, for example:
+The distinct-placeholder correction was applied to the primitive `find()` query. At the pre-implementation baseline it reused `:cursor_at`; the completed implementation uses distinct native-PDO placeholders, for example:
 
 ```sql
 (

@@ -11,6 +11,7 @@ use Maatify\EventLogging\DeliveryOperations\DTO\DeliveryOperationsQueryDTO;
 use Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsLoggerMysqlRepository;
 use Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsQueryMysqlRepository;
 use Maatify\EventLogging\Tests\Integration\Support\MysqlIntegrationTestCase;
+use PDO;
 
 /**
  * @covers \Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsLoggerMysqlRepository
@@ -134,5 +135,38 @@ final class DeliveryOperationsRepositoryTest extends MysqlIntegrationTestCase
         $res3 = $this->query->find($query3);
         $this->assertCount(1, $res3);
         $this->assertSame('evt-1', $res3[0]->eventId);
+    }
+
+    public function testPrimitiveCursorWorksWithNativePdoPreparedStatements(): void
+    {
+        $pdo = $this->pdo;
+        self::assertNotNull($pdo);
+        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+        self::assertFalse((bool) $pdo->getAttribute(PDO::ATTR_EMULATE_PREPARES));
+
+        $occurredAt = new DateTimeImmutable('2024-01-01 12:00:00', new DateTimeZone('UTC'));
+        $first = new DeliveryOperationRecordDTO(
+            'native-cursor-1', 'email', 'op', null, null, null, null, 'queued', 0,
+            null, null, null, null, null, null, null, null, [], $occurredAt
+        );
+        $second = new DeliveryOperationRecordDTO(
+            'native-cursor-2', 'email', 'op', null, null, null, null, 'queued', 0,
+            null, null, null, null, null, null, null, null, [], $occurredAt
+        );
+
+        $this->logger->log($first);
+        $this->logger->log($second);
+
+        $firstPage = $this->query->find(new DeliveryOperationsQueryDTO(limit: 1));
+        self::assertCount(1, $firstPage);
+
+        $nextPage = $this->query->find(new DeliveryOperationsQueryDTO(
+            cursorOccurredAt: $firstPage[0]->occurredAt,
+            cursorId: $firstPage[0]->id,
+            limit: 1
+        ));
+
+        self::assertCount(1, $nextPage);
+        self::assertSame('native-cursor-1', $nextPage[0]->eventId);
     }
 }

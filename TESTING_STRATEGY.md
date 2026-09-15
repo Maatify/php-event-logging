@@ -1,8 +1,8 @@
 # Testing Strategy
 
-Recommended validation for `maatify/event-logging`:
+Recommended validation for `maatify/php-event-logging`:
 
-1. Run `composer validate` inside `packages/event-logging`.
+1. Run `composer validate --strict` from the repository root.
 2. Run PHP syntax checks over every copied PHP file.
 3. Add domain-level unit tests for recorder behavior, policy enforcement, DTO boundaries, and storage-contract calls.
 4. Add integration tests for MySQL repositories using disposable databases and the copied schema files.
@@ -32,7 +32,7 @@ vendor/bin/phpunit
 The integration test suite specifically tests MySQL repository round-trips.
 
 To run the integration tests, you must provide a valid MySQL DSN using environment variables.
-If the `EVENT_LOGGING_TEST_MYSQL_DSN` environment variable is not present, the integration tests will be safely skipped.
+If the `EVENT_LOGGING_TEST_MYSQL_DSN` environment variable is not present, the real-MySQL Integration gate is unavailable: shared integration fixtures may mark tests skipped, while strict repository integration tests fail fast with a configuration error. This must not be reported as a passing Integration result.
 
 ```bash
 EVENT_LOGGING_TEST_MYSQL_DSN="mysql:host=127.0.0.1;port=3306;dbname=test_db" \

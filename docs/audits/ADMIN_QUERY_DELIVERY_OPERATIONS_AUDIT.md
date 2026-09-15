@@ -1,14 +1,17 @@
-# DeliveryOperations Discovery and Compatibility Audit
+# DeliveryOperations Admin Query Runtime Audit
 
-**Status:** Discovery and Audit Baseline
-**Verdict:** PACKAGE AUDIT COMPLETE - WITH EXPLICIT HOST-USAGE VERIFICATION GAP
+**Status:** Current Runtime Audit
+**Verdict:** PACKAGE AUDIT COMPLETE - ADMIN QUERY RUNTIME IMPLEMENTED; HOST-USAGE VERIFICATION GAP RETAINED
 
 ## 1. Audited State
 
-- **Date:** 2026-07-23
-- **Audited main SHA:** `3d6abd502d7d82ac05828ac0beb2066e3dfc35d0`
+- **Historical discovery date:** 2026-07-23
+- **Historical discovery SHA:** `3d6abd502d7d82ac05828ac0beb2066e3dfc35d0`
+- **Current audited base SHA:** `7863f6797389a0037045725fe779ebae416cbbbb`
+- **Current Admin Query Runtime evidence:** historical implementation commit `e8c74f894baeef397fdbde0fbfe912b65bcfa2c7` is present in the current Runtime ancestry.
 - **Governing Documents Inspected:** `AGENTS.md`, `EVENT_LOGGING_PACKAGE_REFERENCE.md`, `CHANGELOG.md`, `docs/standards/PACKAGE_BUILDING_STANDARD.md`, `docs/architecture/ADMIN_QUERY_API_ARCHITECTURE.md`, `docs/roadmap/ADMIN_QUERY_API_ROADMAP.md`, `docs/audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md`, `docs/audits/DOCUMENTATION_INVENTORY.md`
-- **Released Baseline:** Tag `v1.0.0`
+- **Released Baseline:** Legacy `maatify/event-logging` tag `v1.0.0`
+- **Release identity:** Historical legacy `maatify/event-logging` `v1.0.0` compatibility/runtime baseline; this audit does not claim a Stable release for `maatify/php-event-logging`.
 - **Inspected Paths:** `src/DeliveryOperations/`, `tests/Unit/DeliveryOperations/`, `tests/Integration/DeliveryOperations/`, `src/Provider/`, `src/Factory/`, `src/Bootstrap/`, `schema/`, `EVENT_LOGGING_PACKAGE_REFERENCE.md`
 - **Verification Gaps:** Host repositories are inaccessible in this environment.
 
@@ -28,10 +31,10 @@
 - `src/DeliveryOperations/Enum/DeliveryOperationTypeEnum.php` - Protected contract
 - `src/DeliveryOperations/Enum/DeliveryStatusEnum.php` - Protected contract
 - `src/DeliveryOperations/Exception/DeliveryOperationsStorageException.php` - Protected contract
-- `src/DeliveryOperations/Infrastructure/Mysql/DeliveryOperationsLoggerMysqlRepository.php` - Protected published Runtime surface (internals may be refactored if behavior remains compatible)
-- `src/DeliveryOperations/Infrastructure/Mysql/DeliveryOperationsQueryMysqlRepository.php` - Protected published Runtime surface (internals may be refactored if behavior remains compatible)
+- `src/DeliveryOperations/Infrastructure/Mysql/DeliveryOperationsLoggerMysqlRepository.php` - Protected published Runtime surface inherited from legacy `maatify/event-logging` `v1.0.0` (internals may be refactored if behavior remains compatible)
+- `src/DeliveryOperations/Infrastructure/Mysql/DeliveryOperationsQueryMysqlRepository.php` - Protected published Runtime surface inherited from legacy `maatify/event-logging` `v1.0.0` (internals may be refactored if behavior remains compatible)
 - `src/DeliveryOperations/README.md` - Historical/irrelevant to Admin Query (current supporting documentation, not part of the protected Runtime compatibility surface)
-- `src/DeliveryOperations/Recorder/DeliveryOperationsDefaultPolicy.php` - Protected published Runtime surface (internals may be refactored if behavior remains compatible)
+- `src/DeliveryOperations/Recorder/DeliveryOperationsDefaultPolicy.php` - Protected published Runtime surface inherited from legacy `maatify/event-logging` `v1.0.0` (internals may be refactored if behavior remains compatible)
 - `src/DeliveryOperations/Recorder/DeliveryOperationsRecorder.php` - Protected contract (Write boundary)
 
 ### Tests
@@ -58,7 +61,18 @@
 - `src/Provider/EventLoggingProviderFactory.php` - Protected contract
 - `src/Bootstrap/EventLoggingBindings.php` - Protected contract
 
-*Note: No DeliveryOperations Regression test file exists.*
+*Current Regression coverage:* `tests/Regression/DeliveryOperations/Infrastructure/Mysql/DeliveryOperationsQueryMysqlRepositoryRegressionTest.php` and `tests/Regression/DeliveryOperations/Infrastructure/Mysql/DeliveryOperationsAdminQueryRegressionGateTest.php`.
+
+### Current Admin Query implementation (merged)
+- `src/DeliveryOperations/Contract/DeliveryOperationsAdminQueryInterface.php`
+- `src/DeliveryOperations/DTO/DeliveryOperationsAdminQueryRequestDTO.php`
+- `src/DeliveryOperations/DTO/DeliveryOperationsAdminPageResultDTO.php`
+- `src/DeliveryOperations/Exception/DeliveryOperationsAdminQueryInvalidArgumentException.php`
+- `src/DeliveryOperations/Exception/DeliveryOperationsAdminQueryExecutionException.php`
+- `src/DeliveryOperations/Infrastructure/Mysql/DeliveryOperationsAdminQueryMysqlRepository.php`
+- `src/DeliveryOperations/Infrastructure/Mysql/DeliveryOperationsRowMapper.php`
+- `src/DeliveryOperations/Infrastructure/Mysql/Pagination/DeliveryOperationsAdminQueryDescriptorBuilder.php`
+- Runtime implementation commit: `e8c74f894baeef397fdbde0fbfe912b65bcfa2c7`.
 
 ## 3. Protected Primitive Query Contract
 
@@ -189,7 +203,7 @@
 - `idx_delivery_ops_correlation_time` (correlation_id, occurred_at)
 - `idx_delivery_ops_request_time` (request_id, occurred_at)
 
-## 6. Existing Pagination-Artifact Search
+## 6. Historical Discovery Search and Current Runtime Reconciliation
 
 - Searched entire repository (`src/`, `tests/`, `docs/`) for `AdminQuery`, `PaginatedQuery`, `PdoPaginator`, `QueryCursorDTO`, `QueryPageDTO`, `PaginatedQueryService`, `PaginationQueryDescriptor`.
 - Exact matching paths:
@@ -202,6 +216,10 @@
   - `src/DiagnosticsTelemetry/Contract/DiagnosticsTelemetryAdminQueryInterface.php` (Protected Admin Query)
   - `src/DiagnosticsTelemetry/Infrastructure/Mysql/DiagnosticsTelemetryAdminQueryMysqlRepository.php` (Protected Admin Query)
   - `src/SecuritySignals/Contract/SecuritySignalsAdminQueryInterface.php` (Protected Admin Query)
+  - `src/DeliveryOperations/Contract/DeliveryOperationsAdminQueryInterface.php` (Protected Admin Query)
+  - `src/DeliveryOperations/DTO/DeliveryOperationsAdminQueryRequestDTO.php` (Protected Admin Query DTO)
+  - `src/DeliveryOperations/DTO/DeliveryOperationsAdminPageResultDTO.php` (Protected Admin Query DTO)
+  - `src/DeliveryOperations/Infrastructure/Mysql/DeliveryOperationsAdminQueryMysqlRepository.php` (Protected Admin Query)
   - `docs/architecture/ADMIN_QUERY_API_ARCHITECTURE.md` (Architecture)
   - `docs/architecture/ADMIN_QUERY_AUDIT_TRAIL_POC_BLUEPRINT.md` (Architecture)
   - `docs/architecture/ADMIN_QUERY_AUTHORITATIVE_AUDIT_REBUILD_BLUEPRINT.md` (Architecture)
@@ -258,8 +276,8 @@
   - `tests/Regression/DiagnosticsTelemetry/Infrastructure/Mysql/DiagnosticsTelemetryQueryMysqlRepositoryRegressionTest.php` (Regression Test)
   - `tests/Regression/SecuritySignals/SecuritySignalsQueryMysqlRepositoryRegressionTest.php` (Regression Test)
   - `tests/Unit/AuditTrail/DTO/AuditTrailAdminQueryRequestDTOTest.php` (Unit Test)
-  - `tests/Unit/AuditTrail/DTO/AuditTrailQueryCursorDTOTest.php` (Unit Test - Post-v1 Artifact)
-  - `tests/Unit/AuditTrail/DTO/AuditTrailQueryPageDTOTest.php` (Unit Test - Post-v1 Artifact)
+  - `tests/Unit/AuditTrail/DTO/AuditTrailQueryCursorDTOTest.php` (Unit Test - Post-legacy-v1 Artifact)
+  - `tests/Unit/AuditTrail/DTO/AuditTrailQueryPageDTOTest.php` (Unit Test - Post-legacy-v1 Artifact)
   - `tests/Unit/AuditTrail/Exception/AuditTrailAdminQueryExceptionTest.php` (Unit Test)
   - `tests/Unit/AuditTrail/Infrastructure/Mysql/AuditTrailAdminQueryMysqlRepositoryTest.php` (Unit Test)
   - `tests/Unit/AuditTrail/Infrastructure/Mysql/Pagination/AuditTrailAdminQueryDescriptorBuilderTest.php` (Unit Test)
@@ -282,9 +300,11 @@
   - `tests/Unit/SecuritySignals/Exception/SecuritySignalsAdminQueryInvalidArgumentExceptionTest.php` (Unit Test)
   - `tests/Unit/SecuritySignals/Infrastructure/Mysql/Pagination/SecuritySignalsAdminQueryDescriptorBuilderTest.php` (Unit Test)
   - `tests/Unit/SecuritySignals/Infrastructure/Mysql/SecuritySignalsAdminQueryMysqlRepositoryTest.php` (Unit Test)
-- **Conclusion:** No DeliveryOperations Admin or paginated artifact exists. No superseded post-v1 pagination experiment or partial implementation exists for this domain.
+- **Conclusion:** The DeliveryOperations Admin Query Runtime is implemented and present. No superseded post-legacy-v1 pagination experiment exists for this domain.
 
-## 7. Current Test Evidence and Gaps
+## 7. Historical Baseline Test Evidence and Gaps (2026-07-23)
+
+The following table records the pre-implementation discovery snapshot. It is historical evidence, not the current Runtime status; the current implementation and test inventory are recorded above and in the approved DeliveryOperations blueprint.
 
 | Behavior | Status |
 | --- | --- |
@@ -309,7 +329,9 @@
 - Repositories attempted: None (0 repositories searched).
 - Result: Host search was unperformed. Host usage is preserved as an unresolved verification gap.
 
-## 9. Blueprint Decision Matrix
+## 9. Historical Blueprint Decision Matrix (2026-07-23)
+
+This matrix records the Owner-decision gaps at the discovery baseline. The approved blueprint and completed Runtime implementation supersede these open questions.
 
 | Question | Status |
 | --- | --- |
@@ -330,8 +352,16 @@
 | Strict MySQL test matrix | EVIDENCE DETERMINES |
 | Schema-change requirement | OWNER DECISION REQUIRED (Current evidence does not justify schema change, but remains unresolved until filters/sorts approved) |
 
-## 10. Recommended Blueprint Scope
+## 10. Historical Blueprint Recommendation
 
 **AUDIT RECOMMENDATION — NOT OWNER APPROVAL**
 
-The recommended scope for the upcoming Blueprint is to define `DeliveryOperationsAdminQueryInterface`, `DeliveryOperationsAdminQueryRequestDTO`, `DeliveryOperationsAdminPageResultDTO`, and a `DeliveryOperationsAdminQueryMysqlRepository`. The Repository must use `PdoPaginator` from `maatify/persistence` to provide offset-based pagination while preserving the domain exception boundary. The exact allowed filters and sort mechanisms require Owner approval. No changes should be made to the schema or primitive write/query logic.
+The discovery recommendation was to define `DeliveryOperationsAdminQueryInterface`, `DeliveryOperationsAdminQueryRequestDTO`, `DeliveryOperationsAdminPageResultDTO`, and a `DeliveryOperationsAdminQueryMysqlRepository`. That recommendation was subsequently approved by the DeliveryOperations blueprint and delivered by the completed Runtime implementation. The schema and protected primitive write/query logic remain unchanged by the Admin Query path.
+
+## 11. Current State
+
+- DeliveryOperations Admin Query Runtime is complete and present in the current Runtime ancestry at historical commit `e8c74f894baeef397fdbde0fbfe912b65bcfa2c7`.
+- Phase 4 pagination implementation is complete across all six domains.
+- Phase 5 reporting/dashboard work remains separate and is not implemented merely because Phase 4 is complete.
+- The legacy `maatify/event-logging` `v1.0.0` reference remains historical compatibility evidence; this repository does not claim a Stable release under the `maatify/php-event-logging` identity.
+- Host-usage verification remains an explicit gap because the maintained host repositories were inaccessible during the original audit.

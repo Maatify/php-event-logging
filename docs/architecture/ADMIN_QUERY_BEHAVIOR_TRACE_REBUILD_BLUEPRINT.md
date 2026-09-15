@@ -1,4 +1,6 @@
-# Owner Approved / Runtime Implemented
+# Owner Approved / Runtime Implemented / Complete
+
+> **Identity and release-state note:** References below to the legacy `v1.0.0` baseline, first release, or post-v1 work refer to the inherited compatibility/runtime baseline of `maatify/event-logging` `v1.0.0`. They do not claim a published Stable release for `maatify/php-event-logging`.
 
 ## 1. Audit the Current Main State
 
@@ -25,7 +27,7 @@
 
 ## 2. Protected Primitive Behavior
 
-The following primitive BehaviorTrace contracts must be perfectly preserved by the future Runtime PR:
+The following primitive BehaviorTrace contracts are protected and were preserved by the completed Runtime implementation:
 
 * `src/BehaviorTrace/Contract/BehaviorTraceQueryInterface.php`
 * `src/BehaviorTrace/DTO/BehaviorTraceQueryDTO.php`
@@ -67,7 +69,7 @@ public function read(
 * current limit binding;
 * current storage and mapper exception messages.
 
-The future Admin Query API must not replace, merge, redesign, or remove either method.
+The implemented Admin Query API does not replace, merge, redesign, or remove either method.
 
 ## 3. Preserve the Existing Repository Constructor and Policy Semantics
 
@@ -130,7 +132,7 @@ public function __construct(
 }
 ```
 
-The future implementation must:
+The completed implementation:
 * remove the primitive repository’s private duplicated `mapRowToDTO()` method;
 * call `$this->mapper->map($row)` from both `find()` and `read()`;
 * preserve the constructor name, parameter order, defaults, and visibility;
@@ -138,9 +140,9 @@ The future implementation must:
 * preserve custom policy behavior;
 * make no change to the two public primitive method signatures.
 
-## 4. Inventory the Superseded Post-v1 Artifacts
+## 4. Inventory the Superseded Post-Legacy-v1 Artifacts
 
-The following current artifacts are explicitly classified as: **Superseded Post-v1 Experiment**
+The following current artifacts are explicitly classified as: **Superseded Post-Legacy-v1 Experiment**
 
 * `src/BehaviorTrace/Contract/BehaviorTracePaginatedQueryInterface.php`
 * `src/BehaviorTrace/DTO/BehaviorTraceQueryCursorDTO.php`
@@ -152,21 +154,21 @@ Related tests:
 * `tests/Unit/BehaviorTrace/DTO/BehaviorTraceQueryCursorDTOTest.php`
 * `tests/Unit/BehaviorTrace/DTO/BehaviorTraceQueryPageDTOTest.php`
 
-Documentation references to the superseded post-v1 BehaviorTrace pagination artifacts or their wildcard artifact family:
+Documentation references to the superseded post-legacy-v1 BehaviorTrace pagination artifacts or their wildcard artifact family:
 * `EVENT_LOGGING_PACKAGE_REFERENCE.md` (Contains wildcard artifact-family and architecture/history references; it does not list the four BehaviorTrace superseded classes by exact FQCN.)
 * `docs/architecture/ADMIN_QUERY_API_ARCHITECTURE.md` (Contains wildcard and roadmap/status references)
-* `docs/roadmap/ADMIN_QUERY_API_ROADMAP.md` (Contains roadmap/status references to the superseded post-v1 experiment)
+* `docs/roadmap/ADMIN_QUERY_API_ROADMAP.md` (Contains roadmap/status references to the superseded post-legacy-v1 experiment)
 * `docs/audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md` (Contains exact references and roadmap/status references)
 * `docs/audits/DOCUMENTATION_INVENTORY.md` (Contains roadmap/status references)
 
-These documentation references are updated or retained as architecture/history references; they are not Runtime consumers blocking future deletion.
+These documentation references are updated or retained as architecture/history references; they are not Runtime consumers, and the superseded artifacts were deleted as part of the completed rebuild.
 
-These are not protected `v1.0.0` primitive contracts.
-They must not be deleted until the replacement Runtime passes its complete compatibility gate.
+These are not primitive contracts protected by legacy `maatify/event-logging` `v1.0.0`.
+They were deleted only after the replacement Runtime passed its complete compatibility gate.
 
 ## 5. Define the Separate Public Admin Query API
 
-The future public interface:
+The implemented public interface:
 
 ```php
 namespace Maatify\EventLogging\BehaviorTrace\Contract;
@@ -428,7 +430,7 @@ JSON key must be `items`.
 
 ## 6. Define Pagination and SQL Architecture
 
-The future implementation must use the already-installed `maatify/persistence ^1.1.0`.
+The implemented Runtime uses the already-installed `maatify/persistence ^1.1.0`.
 
 Expected components:
 * `BehaviorTraceAdminQueryMysqlRepository`
@@ -707,7 +709,7 @@ Document every current fallback exactly:
 * `occurred_at`: non-string -> 1970-01-01 00:00:00 UTC
 * invalid DateTime string or policy exception: mapper throws Exception
 
-**Decision for mapper/policy failures:** The primitive repository catches `\Exception` around the mapping process and translates it to `BehaviorTraceStorageException`. The future shared mapper must throw its raw `\Exception` on failure. The `BehaviorTraceAdminQueryMysqlRepository` must catch this exception through the dedicated `mapRow` method and translate it to `BehaviorTraceStorageException`, explicitly preserving the original exception as the previous throwable, matching exactly the primitive boundary's translation strategy.
+**Decision for mapper/policy failures:** The primitive repository catches `\Exception` around the mapping process and translates it to `BehaviorTraceStorageException`. The shared mapper throws its raw `\Exception` on failure. The `BehaviorTraceAdminQueryMysqlRepository` catches this exception through the dedicated `mapRow` method and translates it to `BehaviorTraceStorageException`, explicitly preserving the original exception as the previous throwable, matching exactly the primitive boundary's translation strategy.
 
 Preserve the primitive exception messages exactly:
 * find PDO: Failed to query BehaviorTrace records: {message}
@@ -717,7 +719,7 @@ Preserve the primitive exception messages exactly:
 
 ## 8. Define Exception Architecture
 
-Future exceptions:
+Implemented Admin Query exceptions:
 * `BehaviorTraceAdminQueryInvalidArgumentException`
 * `BehaviorTraceAdminQueryExecutionException`
 
@@ -763,17 +765,17 @@ Always preserve `previous`.
 
 ## 9. Primitive Cursor Compatibility Hazard
 
-**Verdict:** Behavior-Preserving Primitive Compatibility Correction — Pending Owner Approval
+**Verdict:** Completed Behavior-Preserving Primitive Compatibility Correction
 
-Currently, `find()` uses the `cursor_at` placeholder in two places within the `OR` clause. Native prepared statements in MySQL strictly require unique placeholders when reusing values, meaning separate placeholders such as `cursor_at_before` and `cursor_at_equal` are required.
+At the pre-implementation baseline, `find()` used the `cursor_at` placeholder in two places within the `OR` clause. Native prepared statements in MySQL strictly require unique placeholders when reusing values, so the completed implementation uses separate placeholders such as `cursor_at_before` and `cursor_at_equal`.
 
 *   **Current behavior:** The package does not configure prepare emulation.
-*   **MySQL native-prepared-statement impact:** Reusing `cursor_at` causes PDO to throw an exception.
+*   **Historical MySQL native-prepared-statement impact:** Reusing `cursor_at` caused PDO to throw an exception.
 *   **Semantic impact:** There is absolutely no change to the query semantics or logic.
 *   **Backward-compatibility impact:** None. The API surface, query results, and external behavior remain exactly identical.
 *   **Required regression and integration evidence:** Real MySQL integration tests for `find()` must verify the correct descending cursor output using native prepared statements to prove that splitting the placeholder preserves the identical results.
 
-Approve only this behavior-preserving future correction:
+The approved and implemented behavior-preserving correction is:
 
 ```sql
 (occurred_at < :cursor_at_before
@@ -784,7 +786,7 @@ Both timestamp parameters receive the same formatted value.
 
 Document that `read()` already uses distinct placeholders and remains unchanged.
 
-## 10. Exact Future Runtime File Inventory
+## 10. Exact Runtime Implementation File Inventory
 
 **Create:**
 * `src/BehaviorTrace/Contract/BehaviorTraceAdminQueryInterface.php`
@@ -799,7 +801,7 @@ Document that `read()` already uses distinct placeholders and remains unchanged.
 **Modify:**
 * `src/BehaviorTrace/Infrastructure/Mysql/BehaviorTraceQueryMysqlRepository.php`
 
-**Delete (Superseded Post-v1 Experiment):**
+**Delete (Superseded Post-Legacy-v1 Experiment):**
 * `src/BehaviorTrace/Contract/BehaviorTracePaginatedQueryInterface.php`
 * `src/BehaviorTrace/DTO/BehaviorTraceQueryCursorDTO.php`
 * `src/BehaviorTrace/DTO/BehaviorTraceQueryPageDTO.php`
@@ -820,7 +822,7 @@ Document that `read()` already uses distinct placeholders and remains unchanged.
 **Tests to modify:**
 * `tests/Integration/BehaviorTrace/BehaviorTraceRepositoryTest.php` remains unchanged as the existing protected integration test unless a separately documented reason proves modification is unavoidable.
 
-**Tests to delete (Superseded Post-v1 Experiment):**
+**Tests to delete (Superseded Post-Legacy-v1 Experiment):**
 * `tests/Unit/BehaviorTrace/Service/BehaviorTracePaginatedQueryServiceTest.php`
 * `tests/Unit/BehaviorTrace/DTO/BehaviorTraceQueryCursorDTOTest.php`
 * `tests/Unit/BehaviorTrace/DTO/BehaviorTraceQueryPageDTOTest.php`
@@ -887,11 +889,11 @@ using native prepared statements.
 
 - [x] no schema change is required or authorized;
 - [x] no Composer change is required or authorized;
-- [x] no SecuritySignals or AuthoritativeAudit work is authorized;
+- [x] no SecuritySignals or AuthoritativeAudit work was part of this BehaviorTrace implementation;
 - [x] no tag or release is authorized;
 - [x] the complete BehaviorTrace blueprint is approved;
 - [x] BehaviorTrace Runtime implementation is complete;
-- [x] deletion of the superseded post-v1 artifacts is complete after the replacement Runtime and its complete tests passed.
+- [x] deletion of the superseded post-legacy-v1 artifacts is complete after the replacement Runtime and its complete tests passed.
 - [x] approve this behavior-preserving primitive correction:
 
   ```sql

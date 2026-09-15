@@ -1,15 +1,17 @@
-# Owner Approved / Runtime Implemented
+# Owner Approved / Runtime Implemented / Complete
 
 * Owner approval granted;
-* Runtime implementation is the subject of this PR;
+* Runtime implementation is complete and present in the current Runtime ancestry; this blueprint records the approved contract and implementation evidence;
 * package-wide exception marker prerequisite completed by PR #97;
 * prerequisite merge commit: `09d66172850a96dec431d16123cbb2e8c86fb17a`;
-* Composer dependency on `maatify/persistence ^1.1.0` authorized for this PR;
-* no schema change authorized;
-* superseded post-v1 AuditTrail pagination wrapper deletion authorized;
+* Composer dependency on `maatify/persistence ^1.1.0` was authorized for the implementation;
+* no schema change was authorized or introduced;
+* superseded post-legacy-v1 AuditTrail pagination wrapper deletion was completed with the implementation;
 * unreachable configuration-failure repository test replaced by direct persistence-boundary testing;
 * no production test seam added;
-* no tag or release is created by this PR.
+* no tag or release was created by the implementation.
+
+> **Identity and release-state note:** References below to the legacy `v1.0.0` baseline, first release, or post-v1 work refer to the inherited compatibility/runtime baseline of `maatify/event-logging` `v1.0.0`. They do not claim a published Stable release for `maatify/php-event-logging`.
 
 ## 1. Separate AuditTrail Admin Query Public Contract
 
@@ -504,9 +506,9 @@ Construct-time validation is performed immediately. No validators delegated. Pag
 ## 8. Exception Boundary
 
 **Exception Recommendation:**
-Before AuditTrail Admin Query Runtime implementation, a separate Owner-approved package-wide compatibility PR must introduce a unified package exception marker `Maatify\EventLogging\Exception\EventLoggingExceptionInterface` that extends `\Throwable`. All existing package-defined EventLogging exceptions must implement the marker directly or indirectly without changing their existing constructors, messages, error codes, or failure behavior. A partial AuditTrail-only marker strategy is prohibited.
+Before AuditTrail Admin Query Runtime implementation, a separate Owner-approved package-wide compatibility PR introduced a unified package exception marker `Maatify\EventLogging\Exception\EventLoggingExceptionInterface` that extends `\Throwable`. All existing package-defined EventLogging exceptions implemented the marker directly or indirectly without changing their existing constructors, messages, error codes, or failure behavior. A partial AuditTrail-only marker strategy was prohibited.
 
-This prerequisite must update exactly the following existing package-defined exceptions to implement the marker **directly** (because no package-owned common exception base currently exists):
+This prerequisite updated exactly the following existing package-defined exceptions to implement the marker **directly** (because no package-owned common exception base currently exists):
 * `src/AuditTrail/Exception/AuditTrailStorageException.php` (`AuditTrailStorageException`)
 * `src/AuthoritativeAudit/Exception/AuthoritativeAuditStorageException.php` (`AuthoritativeAuditStorageException`)
 * `src/BehaviorTrace/Exception/BehaviorTraceStorageException.php` (`BehaviorTraceStorageException`)
@@ -533,7 +535,7 @@ as part of the separate prerequisite PR, not PR #96.
 
 The prerequisite decision was approved and completed by PR #97 before this Runtime implementation.
 
-After the prerequisite is implemented, the Admin Query exception structure is:
+After the prerequisite was implemented, the Admin Query exception structure was:
 
 1. `AuditTrailAdminQueryInvalidArgumentException`
    - Implements the package marker.
@@ -543,7 +545,7 @@ After the prerequisite is implemented, the Admin Query exception structure is:
    - Implements the package marker.
    - Uses `ErrorCodeEnum::MAATIFY_ERROR`.
    - Used for invalid pagination configuration and invalid descriptor construction.
-3. `AuditTrailStorageException` (existing v1 exception)
+3. `AuditTrailStorageException` (existing exception protected by legacy `maatify/event-logging` `v1.0.0`)
    - `PDOException` and `PaginationExecutionException` from `maatify/persistence` are translated to `AuditTrailStorageException`.
    - Uses `ErrorCodeEnum::DATABASE_CONNECTION_FAILED`.
    - Preserves the original throwable as `previous`.
@@ -641,9 +643,9 @@ Unexpected mapper `Throwable` propagates unchanged unless it is explicitly class
 | `src/AuditTrail/Infrastructure/Mysql/AuditTrailRowMapper.php` | NEW | Internal row mapping | None (Strictly preserves DTO hydration) |
 | `src/AuditTrail/Exception/AuditTrailAdminQueryExecutionException.php` | NEW | Query execution boundary | None (Additive) |
 | `src/AuditTrail/Exception/AuditTrailAdminQueryInvalidArgumentException.php` | NEW | Query validation boundary | None (Additive) |
-| `src/AuditTrail/Contract/AuditTrailQueryInterface.php` | UNCHANGED | Primitive Interface | Protects v1.0 api |
-| `src/AuditTrail/DTO/AuditTrailQueryDTO.php` | UNCHANGED | Primitive Interface DTO | Protects v1.0 api |
-| `src/AuditTrail/DTO/AuditTrailViewDTO.php` | UNCHANGED | Protected public v1 DTO | Protects v1.0 api |
+| `src/AuditTrail/Contract/AuditTrailQueryInterface.php` | UNCHANGED | Primitive Interface | Protects the legacy `maatify/event-logging` `v1.0.0` API |
+| `src/AuditTrail/DTO/AuditTrailQueryDTO.php` | UNCHANGED | Primitive Interface DTO | Protects the legacy `maatify/event-logging` `v1.0.0` API |
+| `src/AuditTrail/DTO/AuditTrailViewDTO.php` | UNCHANGED | Protected public DTO from legacy `maatify/event-logging` `v1.0.0` | Protects the legacy `v1.0.0` API |
 | `src/AuditTrail/Infrastructure/Mysql/AuditTrailQueryMysqlRepository.php`| MODIFY | Internally construct shared mapper while preserving __construct(PDO $pdo) | Maintains 100% backwards compatibility |
 | `src/AuditTrail/Exception/AuditTrailStorageException.php` | MODIFY (Separate Owner-Approved Prerequisite) | Implement marker | Additive marker |
 | `src/AuthoritativeAudit/Exception/AuthoritativeAuditStorageException.php` | MODIFY (Separate Owner-Approved Prerequisite) | Implement marker | Additive marker |
@@ -670,14 +672,14 @@ Unexpected mapper `Throwable` propagates unchanged unless it is explicitly class
 | `tests/Unit/AuditTrail/Infrastructure/Mysql/AuditTrailRowMapperTest.php` | NEW | Verify mapping extraction | Additive |
 | `tests/Unit/AuditTrail/Infrastructure/Mysql/AuditTrailAdminQueryMysqlRepositoryTest.php` | NEW | Verify repository execution bounds | Additive |
 | `tests/Unit/AuditTrail/Exception/AuditTrailAdminQueryExceptionTest.php` | NEW | Verify invalid/execution exceptions | Additive |
-| `tests/Regression/AuditTrail/AuditTrailQueryMysqlRepositoryRegressionTest.php` | NEW | Verify protected v1 API remains completely unchanged | Additive |
-| `tests/Integration/AuditTrail/AuditTrailRepositoryTest.php` | UNCHANGED | UNCHANGED / REGRESSION-PROTECTED | Protects v1.0 api |
+| `tests/Regression/AuditTrail/AuditTrailQueryMysqlRepositoryRegressionTest.php` | NEW | Verify the protected legacy `maatify/event-logging` `v1.0.0` API remains completely unchanged | Additive |
+| `tests/Integration/AuditTrail/AuditTrailRepositoryTest.php` | UNCHANGED | UNCHANGED / REGRESSION-PROTECTED | Protects the legacy `v1.0.0` API |
 | `tests/Integration/AuditTrail/AuditTrailAdminQueryMysqlRepositoryTest.php`| NEW | Real MySQL Integration Test | Additive |
 | `tests/Integration/AuditTrail/AuditTrailQueryMysqlRepositoryTest.php` | NEW | Ensure primitive unchanged via real DB test | Additive |
 
 ## 11. Atomic Retirement Sequence
 
-The implementation PR must follow this exact sequence:
+The Runtime implementation followed this exact sequence:
 1. Complete Owner-approved package exception marker prerequisite PR.
 2. add `maatify/persistence ^1.1.0`;
 3. add domain Admin Query contracts;
@@ -819,7 +821,7 @@ The implementation PR must follow this exact sequence:
 | Composer Impact | `COMPOSER_PACKAGE_STANDARD.md` | Validate dependencies | Adds `maatify/persistence` | Composer require update | No Conflict |
 | No `composer.lock` | `COMPOSER_PACKAGE_STANDARD.md` | Lock must not be tracked | Lock omitted | Not committed | No Conflict |
 | Unit Tests | `TESTING_STRATEGY.md` | Cover logic fully | Defined explicitly | Unit Test Matrix | No Conflict |
-| Regression Tests | `TESTING_STRATEGY.md` | Prove V1 API preserved | Defined explicitly | Regression Matrix | No Conflict |
+| Regression Tests | `TESTING_STRATEGY.md` | Prove the legacy `maatify/event-logging` `v1.0.0` API is preserved | Defined explicitly | Regression Matrix | No Conflict |
 | MySQL Integration Tests| `TESTING_STRATEGY.md` | Cover DB Queries | Defined explicitly | Integration Matrix | No Conflict |
 | PHPStan Max-Level | `PACKAGE_BUILDING_STANDARD.md` | Full types, no ignore | Adhering fully without suppressions | Strict DTO types | No Conflict |
 | CI Compliance | `CI_WORKFLOW_STANDARD.md` | Automated execution | CI Gate commands required | Execution listed | No Conflict |
@@ -835,7 +837,7 @@ The previously proposed unreachable repository-level invalid-configuration test 
 
 ## 14. Validation Gate
 
-The later implementation PR must require successful execution of:
+The implementation gate required successful execution of:
 ```bash
 composer validate --strict
 composer dump-autoload --optimize --strict-psr
@@ -860,8 +862,8 @@ vendor/bin/phpunit tests/Integration/AuditTrail/AuditTrailAdminQueryMysqlReposit
 * no `composer.lock`;
 * no schema migration expected;
 * new additive public Admin Query API;
-* removal of unreleased superseded post-v1 artifacts;
-* compatibility with protected `v1.0.0` primitive contracts;
+* removal of unreleased superseded post-legacy-v1 artifacts;
+* compatibility with primitive contracts protected by legacy `maatify/event-logging` `v1.0.0`;
 * expected Semantic Versioning impact: minor version update;
 * expected future event-logging release: `v1.1.0`;
 * no tag or release during blueprint work;
@@ -892,7 +894,7 @@ vendor/bin/phpunit tests/Integration/AuditTrail/AuditTrailAdminQueryMysqlReposit
 * no transaction ownership;
 * no keyset pagination;
 * no cursor pagination for the new Admin API;
-* no implementation for the other five domains;
+* no implementation for the other five domains is part of this AuditTrail POC;
 * no tag;
 * no release.
 
@@ -926,4 +928,4 @@ vendor/bin/phpunit tests/Integration/AuditTrail/AuditTrailAdminQueryMysqlReposit
 * [x] documentation update plan;
 * [x] standards compliance matrix.
 
-Runtime implementation is authorized for the AuditTrail POC only. Phase 3 and every other domain remain separate future architecture targets.
+AuditTrail Runtime implementation was authorized and completed for the POC. Phase 3 and Phase 4 implementations are complete under their separate approved blueprints; Phase 5 reporting/dashboard remains a separate future architecture target.

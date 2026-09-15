@@ -1,6 +1,6 @@
 # LOG_DOMAINS_OVERVIEW
 
-> **Project:** maatify/event-logging
+> **Project:** maatify/php-event-logging
 > **Status:** CANONICAL (Binding — Subordinate to unified-logging-system.* as Source of Truth)
 > **Scope:** Defines the **six** logging domains, their intent, boundaries, and classification rules.
 > **Authority Rule:** This document MUST fully align with:

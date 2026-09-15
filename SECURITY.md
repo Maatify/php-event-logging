@@ -1,16 +1,11 @@
 # Security Policy
 
-[![Maatify Event Logging](https://img.shields.io/badge/Maatify-EVENT--LOGGING-blue?style=for-the-badge)](https://github.com/Maatify/event-logging)
+[![Maatify Event Logging](https://img.shields.io/badge/Maatify-EVENT--LOGGING-blue?style=for-the-badge)](https://github.com/Maatify/php-event-logging)
 [![Maatify Ecosystem](https://img.shields.io/badge/Maatify-Ecosystem-9C27B0?style=for-the-badge)](https://github.com/Maatify)
 
 ## Supported Versions
 
-The following versions of **Maatify Event Logging** are currently supported with security updates.
-
-| Version | Supported |
-|---------|-----------|
-| 1.x     | ✅ Yes     |
-| < 1.0   | ❌ No      |
+No Stable release of `maatify/php-event-logging` has been published yet. The project is in Development and currently has no supported Stable release line.
 
 ---
 

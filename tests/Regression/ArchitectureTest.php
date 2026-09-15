@@ -240,7 +240,7 @@ class ArchitectureTest extends TestCase
         $composerData = json_decode((string) file_get_contents($composerJsonPath), true);
         $this->assertIsArray($composerData, "composer.json must be valid JSON array/object");
 
-        $this->assertEquals('maatify/event-logging', $composerData['name'] ?? null);
+        $this->assertEquals('maatify/php-event-logging', $composerData['name'] ?? null);
         $this->assertEquals('library', $composerData['type'] ?? null);
         $this->assertEquals('MIT', $composerData['license'] ?? null);
 
