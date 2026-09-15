@@ -13,11 +13,10 @@ use Maatify\Persistence\Pdo\Pagination\SortDirectionEnum;
 use Maatify\Persistence\Pdo\Pagination\SortWhitelist;
 use PDO;
 use PDOException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Maatify\EventLogging\DiagnosticsTelemetry\Infrastructure\Mysql\DiagnosticsTelemetryAdminQueryMysqlRepository
- */
+#[CoversClass(DiagnosticsTelemetryAdminQueryMysqlRepository::class)]
 final class DiagnosticsTelemetryAdminQueryMysqlRepositoryTest extends TestCase
 {
     public function testRepositoryUsesCanonicalPaginationConfiguration(): void

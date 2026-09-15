@@ -8,12 +8,11 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Maatify\EventLogging\AuthoritativeAudit\DTO\AuthoritativeAuditAdminQueryRequestDTO;
 use Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\Pagination\AuthoritativeAuditAdminQueryDescriptorBuilder;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-/**
- * @covers \Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\Pagination\AuthoritativeAuditAdminQueryDescriptorBuilder
- */
+#[CoversClass(AuthoritativeAuditAdminQueryDescriptorBuilder::class)]
 final class AuthoritativeAuditAdminQueryDescriptorBuilderTest extends TestCase
 {
     private AuthoritativeAuditAdminQueryDescriptorBuilder $builder;

@@ -12,11 +12,10 @@ use Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperati
 use Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsQueryMysqlRepository;
 use Maatify\EventLogging\Tests\Integration\Support\MysqlIntegrationTestCase;
 use PDO;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * @covers \Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsLoggerMysqlRepository
- * @covers \Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsQueryMysqlRepository
- */
+#[CoversClass(DeliveryOperationsLoggerMysqlRepository::class)]
+#[CoversClass(DeliveryOperationsQueryMysqlRepository::class)]
 final class DeliveryOperationsRepositoryTest extends MysqlIntegrationTestCase
 {
     private DeliveryOperationsLoggerMysqlRepository $logger;

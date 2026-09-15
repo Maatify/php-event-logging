@@ -8,11 +8,11 @@ use DateTimeImmutable;
 use DateTimeZone;
 use Maatify\EventLogging\DiagnosticsTelemetry\DTO\DiagnosticsTelemetryAdminQueryRequestDTO;
 use Maatify\EventLogging\DiagnosticsTelemetry\Exception\DiagnosticsTelemetryAdminQueryInvalidArgumentException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Maatify\EventLogging\DiagnosticsTelemetry\DTO\DiagnosticsTelemetryAdminQueryRequestDTO
- */
+#[CoversClass(DiagnosticsTelemetryAdminQueryRequestDTO::class)]
 final class DiagnosticsTelemetryAdminQueryRequestDTOTest extends TestCase
 {
     public function testItInitializesEmpty(): void
@@ -152,9 +152,7 @@ final class DiagnosticsTelemetryAdminQueryRequestDTOTest extends TestCase
         new DiagnosticsTelemetryAdminQueryRequestDTO(actorId: 0);
     }
 
-    /**
-     * @dataProvider lengthValidationDataProvider
-     */
+    #[DataProvider('lengthValidationDataProvider')]
     public function testLengthValidation(string $field, int $maxLength, bool $shouldThrow): void
     {
         if ($shouldThrow) {
@@ -200,9 +198,7 @@ final class DiagnosticsTelemetryAdminQueryRequestDTOTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider invalidUtf8DataProvider
-     */
+    #[DataProvider('invalidUtf8DataProvider')]
     public function testItRejectsInvalidUtf8(string $field): void
     {
         $this->expectException(DiagnosticsTelemetryAdminQueryInvalidArgumentException::class);
