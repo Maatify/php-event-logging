@@ -150,7 +150,7 @@ The primitive `find()` and `read()` methods remain protected compatibility contr
 >
 > The read-side provided by this module is a **primitive, cursor-based reader**
 > intended strictly for archiving and sequential processing.
-> Statements saying the reader is not designed for UI pagination, searching, or analytics apply only to this protected primitive `v1.0.0` reader. BehaviorTrace now provides the separate Admin Query API for deterministic administrative offset pagination.
+> Statements saying the reader is not designed for UI pagination, searching, or analytics apply only to this protected primitive reader inherited from legacy `maatify/event-logging` `v1.0.0`. BehaviorTrace now provides the separate Admin Query API for deterministic administrative offset pagination.
 
 ### Constraints & Guards
 

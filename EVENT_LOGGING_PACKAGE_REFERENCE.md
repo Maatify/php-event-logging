@@ -419,14 +419,14 @@ The package does not provide HTTP controllers, routes, authorization, middleware
 
 ### Superseded Post-v1 Pagination Artifacts
 
-The following pagination artifacts were added after the `v1.0.0` release and are considered superseded experiments pending replacement by the approved Admin Query API:
+The following pagination artifacts were added after the legacy `maatify/event-logging` `v1.0.0` release and are considered superseded experiments pending replacement by the approved Admin Query API:
 
 - `*PaginatedQueryInterface`
 - `*QueryCursorDTO`
 - `*QueryPageDTO`
 - `*PaginatedQueryService`
 
-The AuditTrail, BehaviorTrace, SecuritySignals, and AuthoritativeAudit versions of these artifacts have been removed by their Admin Query implementations because they were unreleased post-v1 experiments, not protected `v1.0.0` contracts. Remaining domains must not use these artifacts as the architecture for new integrations or extend them to additional domains. Advanced domain-scoped Admin Query and reporting contracts remain governed by the approved architecture and roadmap.
+The AuditTrail, BehaviorTrace, SecuritySignals, and AuthoritativeAudit versions of these artifacts have been removed by their Admin Query implementations because they were unreleased post-legacy-v1 experiments, not protected contracts of legacy `maatify/event-logging` `v1.0.0`. Remaining domains must not use these artifacts as the architecture for new integrations or extend them to additional domains. Advanced domain-scoped Admin Query and reporting contracts remain governed by the approved architecture and roadmap.
 
 Advanced querying (UI-driven generic search, arbitrary filtering, complex host analytics) remains the responsibility of the host application outside this package.
 

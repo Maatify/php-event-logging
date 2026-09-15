@@ -124,7 +124,7 @@ The module is designed to support future archiving via the `DiagnosticsTelemetry
 
 > **Reader Scope Clarification**
 >
-> The protected primitive `v1.0.0` read-side provided by this module (`DiagnosticsTelemetryQueryInterface`) is a **primitive, cursor-based reader** intended strictly for archiving and sequential processing.
+> The protected primitive read-side compatibility contract inherited from legacy `maatify/event-logging` `v1.0.0` and provided by this module (`DiagnosticsTelemetryQueryInterface`) is a **primitive, cursor-based reader** intended strictly for archiving and sequential processing.
 >
 > For administrative UI dashboards, the package provides a separate offset-based Admin Query API (`DiagnosticsTelemetryAdminQueryInterface`). The Admin Query API supports filtering by actor, event key, severity, request ID, correlation ID, and date range. The Admin Query API uses strict deterministic sorting by `occurred_at DESC` and `id DESC`. Note that generic search, free-text search, event ID lookup, and complex reporting aggregations remain explicitly out of scope for the package.
 

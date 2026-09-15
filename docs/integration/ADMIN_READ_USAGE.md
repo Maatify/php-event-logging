@@ -1,6 +1,6 @@
 # Admin Read Usage
 
-> **Scope Boundary Notice:** This guide covers the protected primitive `v1.0.0` read/query path and the separate AuthoritativeAudit, AuditTrail, BehaviorTrace, SecuritySignals, DiagnosticsTelemetry, and DeliveryOperations Admin Query APIs. The existing post-v1 pagination wrappers are superseded experiments and must not be used for new integrations. This includes:
+> **Scope Boundary Notice:** This guide covers the protected primitive read/query compatibility baseline inherited from legacy `maatify/event-logging` `v1.0.0` and the separate AuthoritativeAudit, AuditTrail, BehaviorTrace, SecuritySignals, DiagnosticsTelemetry, and DeliveryOperations Admin Query APIs. The existing post-legacy-v1 pagination wrappers are superseded experiments and must not be used for new integrations. This includes:
 > - `*PaginatedQueryInterface`
 > - `*QueryCursorDTO`
 > - `*QueryPageDTO`

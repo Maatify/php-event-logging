@@ -1,7 +1,7 @@
 # Deferred Scope & Future Considerations
 
 **Status:** CANONICAL
-**Scope:** Documents capabilities, strategies, and implementation details that are deferred to future phases and are **not part of the v1.0.0 runtime baseline**.
+**Scope:** Documents capabilities, strategies, and implementation details that are deferred to future phases and are **not part of the inherited legacy `maatify/event-logging` `v1.0.0` runtime baseline**.
 
 ---
 

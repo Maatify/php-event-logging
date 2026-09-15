@@ -265,7 +265,7 @@ How examples should be validated:
 
 ## 13. Final Hardening Gate
 
-Gate before v1.0 stable release:
+Gate before the first Stable release under the new package identity:
 - All unit tests pass.
 - Integration tests pass (or are documented as optional CI job).
 - Examples syntax pass.
@@ -290,5 +290,5 @@ Gate before v1.0 stable release:
 
 The testing and examples hardening described in this roadmap are:
 - **NOT required** for current Integration Release Readiness (the package is already ready for integration).
-- **Recommended** before v1.0 stable.
-- **Required** before public stable release.
+- **Recommended** before the first Stable release under the new package identity.
+- **Required** before the first public Stable release under the new package identity.
