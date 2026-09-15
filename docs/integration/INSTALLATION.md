@@ -9,14 +9,14 @@ This repository is currently under Development and is not published on Packagist
 ```bash
 git clone https://github.com/Maatify/php-event-logging.git
 cd php-event-logging
-composer install
+composer update --no-interaction --prefer-dist --no-progress
 ```
 
 Consumer installation through `composer require maatify/php-event-logging` is not available until an Owner-approved release is published.
 
 ### System Requirements
 
-- **PHP:** `^8.2`
+- **PHP:** `^8.4`
 - **Extensions required:**
   - `ext-json` (For safe metadata and payload decoding)
   - `ext-pdo` (For database integration)

@@ -20,7 +20,7 @@ The final repository has exactly one canonical root Package Reference: this file
 
 The package intentionally uses explicit runtime dependencies rather than hiding host or framework assumptions:
 
-- PHP `^8.2`.
+- PHP `^8.4`.
 - PHP extensions: `ext-json`, `ext-pdo`.
 - `maatify/exceptions`.
 - `maatify/persistence` for AuditTrail, BehaviorTrace, SecuritySignals, AuthoritativeAudit, DiagnosticsTelemetry, and DeliveryOperations Admin Query offset pagination mechanics.

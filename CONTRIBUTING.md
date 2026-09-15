@@ -31,7 +31,7 @@ Before submitting a Pull Request, please ensure all tests and static analysis ch
 
 1. Install dependencies:
    ```bash
-   composer install
+   composer update --no-interaction --prefer-dist --no-progress
    ```
 
 2. Validate composer configuration:

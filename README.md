@@ -41,7 +41,7 @@ This package provides strict domain isolation, MySQL persistence, and fail-open/
 
 ## 📋 Requirements
 
-* PHP `^8.2`
+* PHP `^8.4`
 * `ext-json`
 * `ext-pdo`
 
@@ -61,7 +61,7 @@ This repository is currently under Development and is not published on Packagist
 ```bash
 git clone https://github.com/Maatify/php-event-logging.git
 cd php-event-logging
-composer install
+composer update --no-interaction --prefer-dist --no-progress
 ```
 
 Consumer installation through `composer require maatify/php-event-logging` is not available until an Owner-approved release is published.
@@ -179,7 +179,7 @@ The `examples/` directory contains plain PHP illustrative skeletons covering int
 
 ## ✅ Quality Status
 
-* PHP 8.2+
+* PHP `^8.4`
 * PHPStan Level Max
 * PHPUnit testing available
 * GitHub Actions CI validated
