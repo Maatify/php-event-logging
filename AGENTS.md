@@ -105,9 +105,9 @@ A roadmap does not redefine a stable public contract and does not override an ap
 
 ### 2.7 Historical audits and inventories
 
-Historical audits, archive indexes, file inventories, compatibility findings, and review snapshots are not retained in the current package tree.
+Historical audits, archive indexes, file inventories, compatibility findings, and review snapshots are not retained in the current package tree when their content is only implemented/represented behavior, superseded material, or historical evidence. Before deleting any such document, perform a complete Content Preservation Audit over the entire file. If any part contains a current authoritative rule, future/deferred scope, Owner decision or constraint, or unique information without a current authoritative home, retain the file until that content is moved without changing its meaning.
 
-Git and PR history are the source for implementation history and past review evidence. Historical records are evidence only, not independent design authorities, and must never silently redefine the current contract.
+Git and PR history remain the source for implementation history and past review evidence. Retained preservation documents are evidence only, not independent design authorities, and must never silently redefine the current contract.
 
 ### 2.8 Integration guides, domain READMEs, and examples
 
@@ -248,6 +248,7 @@ For package-owned Admin Query work:
 - PR descriptions are review aids, not long-term canonical documentation.
 - Documentation-only PRs must not claim Runtime implementation, deletion, release, or Integration success.
 - Historical documents must be archived or clearly marked historical.
+- Retained documents identified by Content Preservation Audit as carrying current, future, Owner, or unique information must remain clearly classified and must not be deleted until their preserved content has a current authoritative home.
 
 ---
 
