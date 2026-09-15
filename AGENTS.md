@@ -103,17 +103,11 @@ define sequencing, status, dependencies, and future work.
 
 A roadmap does not redefine a stable public contract and does not override an approved architecture contract.
 
-### 2.7 Audits and inventories
+### 2.7 Historical audits and inventories
 
-Documents under:
+Historical audits, archive indexes, file inventories, compatibility findings, and review snapshots are not retained in the current package tree.
 
-```text
-docs/audits/
-```
-
-record evidence, snapshots, file inventories, compatibility findings, and review history.
-
-They are evidence sources, not independent design authorities. Their dates and audited SHAs must be checked before use.
+Git and PR history are the source for implementation history and past review evidence. Historical records are evidence only, not independent design authorities, and must never silently redefine the current contract.
 
 ### 2.8 Integration guides, domain READMEs, and examples
 
@@ -147,7 +141,7 @@ When active sources conflict:
    - blueprint;
    - Owner-decision document;
    - roadmap;
-   - documentation inventory;
+   - current documentation references;
    - canonical Package Reference when the stable public contract changes;
    - integration documentation when usage changes.
 7. Archive or explicitly mark obsolete documents instead of leaving two active sources of truth.
@@ -219,7 +213,7 @@ Unless an explicit Owner decision says otherwise, a rebuild that replaces a supe
 5. Preserve the protected release contract.
 6. Delete the exact superseded Runtime and test artifacts in the same Runtime change set.
 7. Remove package-owned references that present the deleted artifacts as usable API.
-8. Update the Package Reference, integration docs, roadmap, inventory, and changelog as applicable.
+8. Update the Package Reference, integration docs, and roadmap as applicable; keep implementation history in Git and PR records.
 
 Do not keep a superseded API as active or deprecated compatibility merely because it previously existed. Retaining it requires a new explicit Owner decision.
 
@@ -247,7 +241,7 @@ For package-owned Admin Query work:
 ## 7. Documentation Rules
 
 - The root Package Reference is the only canonical stable package reference.
-- New active documents must be registered in `docs/audits/DOCUMENTATION_INVENTORY.md` when they are part of the documented repository architecture.
+- New active documents must be linked from the relevant current Package Reference, architecture, integration, or roadmap document when they are part of the documented repository architecture.
 - A blueprint must contain the complete coherent contract needed for implementation; do not scatter required rules across comments or PR descriptions.
 - A separate Owner-decision document may clarify a decision, but the affected blueprint must also be aligned before approval.
 - Temporary PR numbers, branch names, SHAs, Draft states, and stacked-merge steps must be identified as snapshots. Before merging, remove or update lifecycle instructions that have become false.
@@ -352,7 +346,7 @@ Do not describe a PR as correct merely because it is mergeable or because docume
 5. relevant domain rebuild blueprint
 6. relevant domain Owner-decision documents
 7. `docs/roadmap/ADMIN_QUERY_API_ROADMAP.md`
-8. relevant compatibility audits and documentation inventory
+8. current documentation references and repository evidence
 9. current domain Runtime, schema, and tests
 10. maintained host usage search when integration impact is in scope
 
@@ -365,7 +359,7 @@ Do not describe a PR as correct merely because it is mergeable or because docume
 5. Unit and Regression evidence
 6. strict real-database Integration evidence
 7. static analysis and Composer validation
-8. documentation and deletion inventory
+8. documentation and deletion scope
 
 ---
 
