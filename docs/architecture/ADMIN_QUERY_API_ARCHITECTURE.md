@@ -88,7 +88,7 @@ These domains already contain incorrect post-legacy-v1.0 pagination work and mus
 
 ### 4.2 New implementation domains
 
-These domains never received the incorrect post-v1.0 pagination experiment and require a new Admin Query API path:
+These domains never received the incorrect post-legacy-v1.0 pagination experiment and require a new Admin Query API path:
 
 5. `DiagnosticsTelemetry` — new implementation. (Runtime Implemented)
 6. `DeliveryOperations` — new implementation after the simpler domains because of its broader state and provider-related query surface. (Runtime Implemented)
