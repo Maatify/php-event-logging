@@ -6,7 +6,7 @@ namespace Maatify\EventLogging\DeliveryOperations\DTO;
 
 use Maatify\EventLogging\DeliveryOperations\Exception\DeliveryOperationsAdminQueryInvalidArgumentException;
 
-final class DeliveryOperationsAdminQueryRequestDTO implements \JsonSerializable
+final readonly class DeliveryOperationsAdminQueryRequestDTO implements \JsonSerializable
 {
     public readonly int|string|null $page;
     public readonly int|string|null $perPage;

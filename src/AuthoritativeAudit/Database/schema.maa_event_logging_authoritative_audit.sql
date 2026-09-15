@@ -1,32 +1,32 @@
 CREATE TABLE maa_event_logging_authoritative_audit_outbox (
-                                            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                                            id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT 'Database-generated outbox row identifier.',
 
     -- UUID string for idempotency / tracing across systems (portable, no BINARY dependency)
-                                            event_id CHAR(36) NOT NULL,
+                                            event_id CHAR(36) NOT NULL COMMENT 'Application event identifier used for idempotency and tracing.',
 
     -- Who caused the event (ADMIN / SYSTEM / SERVICE ...)
-                                            actor_type VARCHAR(32) NOT NULL,
-                                            actor_id BIGINT NULL,
+                                            actor_type VARCHAR(32) NOT NULL COMMENT 'Actor category supplied by the host application.',
+                                            actor_id BIGINT NULL COMMENT 'Host-provided actor identifier; no foreign key.',
 
     -- What happened (authoritative state change)
-                                            action VARCHAR(128) NOT NULL,
+                                            action VARCHAR(128) NOT NULL COMMENT 'Authoritative state-change action name.',
 
     -- What was affected
-                                            target_type VARCHAR(64) NOT NULL,
-                                            target_id BIGINT NULL,
+                                            target_type VARCHAR(64) NOT NULL COMMENT 'Type of resource affected by the event.',
+                                            target_id BIGINT NULL COMMENT 'Host-provided affected-resource identifier; no foreign key.',
 
     -- Risk level (portable VARCHAR; values should be controlled at app-level)
     -- Recommended values: LOW|MEDIUM|HIGH|CRITICAL
-                                            risk_level VARCHAR(16) NOT NULL,
+                                            risk_level VARCHAR(16) NOT NULL COMMENT 'Application-controlled risk classification for the event.',
 
     -- Authoritative event payload (MUST NOT contain secrets)
-                                            payload JSON NOT NULL,
+                                            payload JSON NOT NULL COMMENT 'Structured authoritative event payload; no secrets.',
 
     -- Correlation between different log domains and request pipeline
-                                            correlation_id CHAR(36) NOT NULL,
+                                            correlation_id CHAR(36) NOT NULL COMMENT 'Identifier correlating this event with related logs.',
 
     -- Outbox enqueue timestamp (transactional)
-                                            created_at DATETIME(6) NOT NULL,
+                                            created_at DATETIME(6) NOT NULL COMMENT 'Timestamp when the event entered the transactional outbox.',
 
     -- Idempotency: same event MUST NOT be written twice
                                             UNIQUE KEY uq_auth_audit_outbox_event_id (event_id),
@@ -43,34 +43,34 @@ CREATE TABLE maa_event_logging_authoritative_audit_outbox (
 
 
 CREATE TABLE maa_event_logging_authoritative_audit_log (
-                                         id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                                         id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT 'Database-generated materialized-log row identifier.',
 
     -- Same event_id from outbox (idempotency & cross-reference)
-                                         event_id CHAR(36) NOT NULL,
+                                         event_id CHAR(36) NOT NULL COMMENT 'Event identifier materialized from the outbox.',
 
     -- Who caused the event
-                                         actor_type VARCHAR(32) NOT NULL,
-                                         actor_id BIGINT NULL,
+                                         actor_type VARCHAR(32) NOT NULL COMMENT 'Actor category supplied by the host application.',
+                                         actor_id BIGINT NULL COMMENT 'Host-provided actor identifier; no foreign key.',
 
     -- What happened (authoritative state change)
-                                         action VARCHAR(128) NOT NULL,
+                                         action VARCHAR(128) NOT NULL COMMENT 'Authoritative state-change action name.',
 
     -- What was affected
-                                         target_type VARCHAR(64) NOT NULL,
-                                         target_id BIGINT NULL,
+                                         target_type VARCHAR(64) NOT NULL COMMENT 'Type of resource affected by the event.',
+                                         target_id BIGINT NULL COMMENT 'Host-provided affected-resource identifier; no foreign key.',
 
     -- Optional structured changes (MUST remain minimal; never store secrets)
-                                         changes JSON NULL,
+                                         changes JSON NULL COMMENT 'Minimal structured state changes; no secrets.',
 
     -- Request context
-                                         ip_address VARCHAR(45) NULL,
-                                         user_agent VARCHAR(512) NULL,
+                                         ip_address VARCHAR(45) NULL COMMENT 'Request IP address captured according to host policy.',
+                                         user_agent VARCHAR(512) NULL COMMENT 'Request user-agent value captured according to host policy.',
 
     -- Correlation to other logs / traces
-                                         correlation_id CHAR(36) NULL,
+                                         correlation_id CHAR(36) NULL COMMENT 'Identifier correlating this event with related logs.',
 
     -- Materialized timestamp (usually equals business occurred time)
-                                         occurred_at DATETIME(6) NOT NULL,
+                                         occurred_at DATETIME(6) NOT NULL COMMENT 'Timestamp of the authoritative event.',
 
                                          UNIQUE KEY uq_auth_audit_log_event_id (event_id),
 

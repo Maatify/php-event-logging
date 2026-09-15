@@ -9,9 +9,18 @@ use DateTimeZone;
 use Maatify\EventLogging\DeliveryOperations\DTO\DeliveryOperationsAdminQueryRequestDTO;
 use Maatify\EventLogging\DeliveryOperations\Exception\DeliveryOperationsAdminQueryInvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 final class DeliveryOperationsAdminQueryRequestDTOTest extends TestCase
 {
+    public function testItIsAFinalReadonlyClass(): void
+    {
+        $reflection = new ReflectionClass(DeliveryOperationsAdminQueryRequestDTO::class);
+
+        $this->assertTrue($reflection->isFinal());
+        $this->assertTrue($reflection->isReadOnly());
+    }
+
     public function testItNormalizesAndValidatesAllProperties(): void
     {
         $dto = new DeliveryOperationsAdminQueryRequestDTO(
