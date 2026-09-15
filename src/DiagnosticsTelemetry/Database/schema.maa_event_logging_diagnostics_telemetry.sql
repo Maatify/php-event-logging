@@ -1,31 +1,31 @@
 CREATE TABLE maa_event_logging_diagnostics_telemetry (
-                                       id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                                       id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT 'Database-generated diagnostics row identifier.',
 
-                                       event_id CHAR(36) NOT NULL,
+                                       event_id CHAR(36) NOT NULL COMMENT 'Application event identifier used for idempotency and tracing.',
 
     -- Examples: http.request, db.query, exception, cache.miss...
-                                       event_key VARCHAR(255) NOT NULL,
+                                       event_key VARCHAR(255) NOT NULL COMMENT 'Technical diagnostic event key.',
 
     -- Portable severity; recommended values: INFO|WARNING|ERROR|CRITICAL
-                                       severity VARCHAR(16) NOT NULL DEFAULT 'INFO',
+                                       severity VARCHAR(16) NOT NULL DEFAULT 'INFO' COMMENT 'Diagnostic severity classification.',
 
-                                       actor_type VARCHAR(32) NOT NULL,
-                                       actor_id BIGINT NULL,
+                                       actor_type VARCHAR(32) NOT NULL COMMENT 'Actor category supplied by the host application.',
+                                       actor_id BIGINT NULL COMMENT 'Host-provided actor identifier; no foreign key.',
 
-                                       correlation_id CHAR(36) NULL,
-                                       request_id VARCHAR(64) NULL,
-                                       route_name VARCHAR(255) NULL,
+                                       correlation_id CHAR(36) NULL COMMENT 'Identifier correlating this event with related logs.',
+                                       request_id VARCHAR(64) NULL COMMENT 'Host request identifier for pipeline tracing.',
+                                       route_name VARCHAR(255) NULL COMMENT 'Application route name associated with the diagnostic.',
 
-                                       ip_address VARCHAR(45) NULL,
-                                       user_agent VARCHAR(512) NULL,
+                                       ip_address VARCHAR(45) NULL COMMENT 'Request IP address captured according to host policy.',
+                                       user_agent VARCHAR(512) NULL COMMENT 'Request user-agent value captured according to host policy.',
 
     -- Duration for timing metrics (optional)
-                                       duration_ms INT UNSIGNED NULL,
+                                       duration_ms INT UNSIGNED NULL COMMENT 'Optional operation duration in milliseconds.',
 
     -- Additional diagnostics metadata (avoid PII; never store secrets)
-                                       metadata JSON NULL,
+                                       metadata JSON NULL COMMENT 'Optional structured diagnostic metadata; avoid PII and secrets.',
 
-                                       occurred_at DATETIME(6) NOT NULL,
+                                       occurred_at DATETIME(6) NOT NULL COMMENT 'Timestamp when the diagnostic event occurred.',
 
                                        UNIQUE KEY uq_el_diag_telemetry_event_id (event_id),
 

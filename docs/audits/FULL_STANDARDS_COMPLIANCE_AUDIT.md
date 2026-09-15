@@ -133,7 +133,7 @@
 
 - **Severity:** Medium
 - **Standard / rule:** `std-package-building` §6 يطلب meaningful `COMMENT` على الأعمدة عند امتلاك package لجداول persistence، إضافة إلى table-level policy comments.
-- **Repository evidence:** ملفات schema السبعة تحت `src/*/Database/` (`AuditTrail`, `AuthoritativeAudit`, `BehaviorTrace`, `DeliveryOperations`, `DiagnosticsTelemetry`, `SecuritySignals`) تحتوي table-level `COMMENT` فقط، كما يظهر مثلًا في `src/BehaviorTrace/Database/schema.maa_event_logging_behavior_trace.sql:44` و`src/DeliveryOperations/Database/schema.maa_event_logging_delivery_operations.sql:64`. لا توجد column definitions منتهية بـ SQL `COMMENT`; تعليقات `--` النصية لا تنشئ column metadata.
+- **Repository evidence:** ملفات schema الستة تحت `src/*/Database/` (`AuditTrail`, `AuthoritativeAudit`, `BehaviorTrace`, `DeliveryOperations`, `DiagnosticsTelemetry`, `SecuritySignals`) تحتوي table-level `COMMENT` فقط، كما يظهر مثلًا في `src/BehaviorTrace/Database/schema.maa_event_logging_behavior_trace.sql:44` و`src/DeliveryOperations/Database/schema.maa_event_logging_delivery_operations.sql:64`. لا توجد column definitions منتهية بـ SQL `COMMENT`; تعليقات `--` النصية لا تنشئ column metadata.
 - **سبب المخالفة:** الجداول package-owned وتحقق naming/index/policy metadata جزئيًا، لكن metadata المطلوبة على مستوى الأعمدة غير موجودة في المجموعة الفعلية.
 - **Required remediation boundary:** Schema migration/DDL metadata وschema verification المرافق، مع مراجعة أي documentation تعتمد على DDL. ممنوع تنفيذ schema change في هذا التدقيق.
 

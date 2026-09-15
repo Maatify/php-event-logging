@@ -7,44 +7,44 @@
 -- ==========================================================
 
 CREATE TABLE maa_event_logging_audit_trail (
-                             id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                             id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY COMMENT 'Database-generated audit trail row identifier.',
 
     -- UUID per row/event (portable)
-                             event_id CHAR(36) NOT NULL,
+                             event_id CHAR(36) NOT NULL COMMENT 'Application event identifier used for idempotency and tracing.',
 
     -- Who performed the access
-                             actor_type VARCHAR(32) NOT NULL,
-                             actor_id BIGINT NULL,
+                             actor_type VARCHAR(32) NOT NULL COMMENT 'Actor category supplied by the host application.',
+                             actor_id BIGINT NULL COMMENT 'Host-provided actor identifier; no foreign key.',
 
     -- Examples: customer.view, customer.export, page.visit, invoice.download
-                             event_key VARCHAR(255) NOT NULL,
+                             event_key VARCHAR(255) NOT NULL COMMENT 'Application-defined key describing the accessed event.',
 
     -- Accessed resource (what was touched)
-                             entity_type VARCHAR(64) NOT NULL,
-                             entity_id BIGINT NULL,
+                             entity_type VARCHAR(64) NOT NULL COMMENT 'Type of resource accessed by the event.',
+                             entity_id BIGINT NULL COMMENT 'Host-provided resource identifier; no foreign key.',
 
     -- "On behalf of" / data subject (e.g., the customer whose data was viewed)
-                             subject_type VARCHAR(64) NULL,
-                             subject_id BIGINT NULL,
+                             subject_type VARCHAR(64) NULL COMMENT 'Type of data subject represented by the event.',
+                             subject_id BIGINT NULL COMMENT 'Host-provided data subject identifier; no foreign key.',
 
     -- Navigation context (store sanitized values; DO NOT store sensitive query strings)
-                             referrer_route_name VARCHAR(255) NULL,
-                             referrer_path VARCHAR(1024) NULL,  -- recommended: path only, no query
-                             referrer_host VARCHAR(255) NULL,   -- optional
+                             referrer_route_name VARCHAR(255) NULL COMMENT 'Sanitized route name that led to the access.',
+                             referrer_path VARCHAR(1024) NULL COMMENT 'Sanitized referrer path without query secrets.',  -- recommended: path only, no query
+                             referrer_host VARCHAR(255) NULL COMMENT 'Optional host portion of the sanitized referrer.',   -- optional
 
     -- Correlation to request pipeline
-                             correlation_id CHAR(36) NULL,
-                             request_id VARCHAR(64) NULL,
-                             route_name VARCHAR(255) NULL,
+                             correlation_id CHAR(36) NULL COMMENT 'Identifier correlating this event with related logs.',
+                             request_id VARCHAR(64) NULL COMMENT 'Host request identifier for pipeline tracing.',
+                             route_name VARCHAR(255) NULL COMMENT 'Application route name associated with the request.',
 
     -- Request context
-                             ip_address VARCHAR(45) NULL,
-                             user_agent VARCHAR(512) NULL,
+                             ip_address VARCHAR(45) NULL COMMENT 'Request IP address captured according to host policy.',
+                             user_agent VARCHAR(512) NULL COMMENT 'Request user-agent value captured according to host policy.',
 
     -- Extra metadata (MUST NOT contain secrets)
-                             metadata JSON NOT NULL,
+                             metadata JSON NOT NULL COMMENT 'Structured event metadata; must not contain secrets.',
 
-                             occurred_at DATETIME(6) NOT NULL,
+                             occurred_at DATETIME(6) NOT NULL COMMENT 'Timestamp when the access event occurred.',
 
                              UNIQUE KEY uq_el_audit_trail_event_id (event_id),
 
