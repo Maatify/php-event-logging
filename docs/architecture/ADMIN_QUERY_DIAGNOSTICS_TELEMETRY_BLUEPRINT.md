@@ -365,7 +365,7 @@ The primitive repository is policy-aware. To resolve this for the Admin Query AP
 
 ## 7. Approved File and Test Inventory
 
-The exact expected list of files for the later Runtime implementation:
+The exact Runtime implementation file and test inventory:
 
 ### Public Contracts
 - `src/DiagnosticsTelemetry/Contract/DiagnosticsTelemetryAdminQueryInterface.php`
@@ -410,8 +410,8 @@ The exact expected list of files for the later Runtime implementation:
 - MySQL `PDO` must be strictly configured with `PDO::ATTR_EMULATE_PREPARES => false`, `PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION`, and `PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC`.
 - Integration tests must gate: exact cursor behavior, microsecond formatting, transaction preservation, metadata hydration, policy behavior, count/data semantic alignment, sorting mechanics, pagination boundaries, and previous-throwable wrapping.
 
-### Later Runtime Sequence
-The later Runtime PR must follow these reviewed stages:
+### Completed Runtime Sequence
+The Runtime implementation followed these reviewed stages:
 1. public contracts, DTO validation/serialization, and exceptions;
 2. policy-aware mapper and descriptor builder;
 3. Admin MySQL repository and Unit exception/execution gates;
@@ -421,7 +421,7 @@ The later Runtime PR must follow these reviewed stages:
 
 ## 8. Protected Primitive Correction Details
 
-The distinct-placeholder correction must be applied to the primitive `find()` query (which currently reuses `:cursor_at`). It must use distinct native-PDO placeholders, for example:
+The distinct-placeholder correction was applied to the primitive `find()` query. At the pre-implementation baseline it reused `:cursor_at`; the completed implementation uses distinct native-PDO placeholders, for example:
 
 ```sql
 (

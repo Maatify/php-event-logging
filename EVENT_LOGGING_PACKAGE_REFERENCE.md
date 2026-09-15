@@ -419,7 +419,7 @@ The package does not provide HTTP controllers, routes, authorization, middleware
 
 ### Superseded Post-Legacy-v1 Pagination Artifacts
 
-The following pagination artifacts were added after the legacy `maatify/event-logging` `v1.0.0` release and are considered superseded experiments pending replacement by the approved Admin Query API:
+The following pagination artifacts were added after the legacy `maatify/event-logging` `v1.0.0` release and are superseded post-legacy-v1 experiments, not current API. The four remediation-domain variants were replaced and removed when their approved Admin Query implementations completed; this artifact family must not be used or extended:
 
 - `*PaginatedQueryInterface`
 - `*QueryCursorDTO`

@@ -41,12 +41,11 @@ The following capabilities must be implemented by the host application and will 
 - Host-specific search and reporting implementations (e.g., specific CSV exports or cross-table JOINs).
 
 **Future Package Scope (Deferred):**
-While the above are strictly forbidden, existing domain-scoped primitive read/query interfaces are part of the current Runtime and are **not** deferred. These existing primitive APIs remain governed by the `EVENT_LOGGING_PACKAGE_REFERENCE.md` and `PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md`.
+While the above are strictly forbidden, existing domain-scoped primitive read/query interfaces and the six domain-scoped Admin Query pagination APIs are part of the current Runtime and are **not** deferred. The primitive APIs remain governed by the `EVENT_LOGGING_PACKAGE_REFERENCE.md` and `PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md`; Admin Query contracts remain governed by the approved Admin Query architecture and roadmap.
 
-The deferred scope specifically applies to the new Admin Query API. See the [Admin Query API Roadmap](../roadmap/ADMIN_QUERY_API_ROADMAP.md) for details on the deferred:
-- PHP-level Admin Query API contracts and offset pagination adapters.
-- Domain-scoped admin listing and dashboard summary read models.
-- Reporting summaries.
+The deferred scope now applies to the remaining Phase 5 reporting and dashboard work, not to Admin Query pagination. See the [Admin Query API Roadmap](../roadmap/ADMIN_QUERY_API_ROADMAP.md) for the deferred:
+- Domain-scoped reporting and dashboard summary contracts.
+- Reporting summaries and aggregates.
 
 *Note on Admin Query API Dependency:*
-The necessary standardized pagination mechanics are now available in the `maatify/persistence v1.1.0` package. However, the implementation of the deferred Admin Query API path remains strictly **Deferred** by architectural decision. No runtime dependencies (`maatify/persistence`), public API changes, or internal PHP logic modifications will be added to this package without explicit, separate Owner approval.
+The standardized pagination mechanics are used by the completed Admin Query implementations through `maatify/persistence v1.1.0`. Future Phase 5 reporting and dashboard work remains separately governed and requires explicit Owner approval; this document does not authorize that work or a Stable release.

@@ -1,12 +1,12 @@
 # SecuritySignals Admin Query Rebuild Blueprint
 
-**Status:** Owner Approved / Runtime Implemented
+**Status:** Owner Approved / Runtime Implemented / Complete
 
 This document defines the complete approved architecture for replacing the superseded post-legacy-v1 SecuritySignals pagination wrapper with a package-owned Admin Query API. The Runtime implementation is now present, covered, and verified.
 
 > **Identity and release-state note:** All references below to `v1.0.0`, the first release, or post-v1 work refer to the inherited compatibility/runtime baseline of legacy `maatify/event-logging` `v1.0.0`. They do not claim a published Stable release for `maatify/php-event-logging`.
 
-It records the Owner decisions made on `2026-07-14`, the post-legacy-v1 retirement rule recorded by `ADMIN_QUERY_SECURITY_SIGNALS_POST_V1_RETIREMENT_DECISION.md`, and final approval of the complete coherent blueprint on `2026-07-15`. It authorizes a separate Runtime implementation task/PR, but it does **not** itself implement Runtime, tagging, or release work.
+It records the Owner decisions made on `2026-07-14`, the post-legacy-v1 retirement rule recorded by `ADMIN_QUERY_SECURITY_SIGNALS_POST_V1_RETIREMENT_DECISION.md`, and final approval of the complete coherent blueprint on `2026-07-15`. The approved Runtime implementation task/PR delivered the documented Runtime; this blueprint does **not** authorize tagging or release work.
 
 ---
 
@@ -264,7 +264,7 @@ The primitive repository:
 - catches `Throwable` for row mapping;
 - preserves the original throwable as `previous`.
 
-A future mapper extraction must not alter the constructor, public signatures, filters, cursor activation, ordering, limit behavior, hydration fallbacks, catch boundaries, or message prefixes.
+The completed mapper extraction did not alter the constructor, public signatures, filters, cursor activation, ordering, limit behavior, hydration fallbacks, catch boundaries, or message prefixes.
 
 ---
 
@@ -1004,7 +1004,7 @@ The current primitive SQL reuses the named placeholder `:cursor_at` twice.
 
 Repeated named placeholders are prohibited by the project standard and are not an Owner choice.
 
-The Runtime implementation must use:
+The completed Runtime implementation uses:
 
 ```sql
 (
@@ -1026,9 +1026,9 @@ This required correction:
 - does not change limit behavior;
 - does not change page semantics;
 - does not change returned records;
-- must be delivered with focused unit coverage;
-- must be delivered with primitive regression coverage;
-- must be proven using real MySQL with native prepared statements.
+- was delivered with focused unit coverage;
+- was delivered with primitive regression coverage;
+- was proven using real MySQL with native prepared statements.
 
 PR #102 documented the requirement but did not implement it.
 
@@ -1271,7 +1271,7 @@ tests/Unit/SecuritySignals/DTO/SecuritySignalsQueryPageDTOTest.php
 tests/Unit/SecuritySignals/Service/SecuritySignalsPaginatedQueryServiceTest.php
 ```
 
-The Runtime rebuild must contain both the approved replacement and these exact deletions.
+The completed Runtime rebuild contains both the approved replacement and these exact deletions.
 
 Package-level completion requires:
 
@@ -1359,7 +1359,7 @@ This is required by the project standard and is not an optional Owner choice.
 
 The exact seven superseded artifacts are outside the contract protected by legacy `maatify/event-logging` `v1.0.0`.
 
-They must be deleted inside the same Runtime rebuild change set that adds and verifies the replacement Admin Query API.
+They were deleted inside the same Runtime rebuild change set that added and verified the replacement Admin Query API.
 
 Maintained host repositories must be searched and every discovered use migrated, but:
 
@@ -1383,7 +1383,7 @@ The complete package contract has been reviewed and approved as one coherent blu
 - exact Runtime file inventory;
 - test, atomic-retirement, and host-integration gates.
 
-This approval authorizes a separate Runtime implementation task/PR. It does not authorize deviation from this contract, a tag, or a release.
+The approval covered the completed Runtime implementation described in this blueprint. It does not authorize deviation from this contract, a tag, or a release.
 
 ---
 

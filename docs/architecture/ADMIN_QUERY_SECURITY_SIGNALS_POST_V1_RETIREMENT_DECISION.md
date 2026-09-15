@@ -1,12 +1,12 @@
 # SecuritySignals Post-Legacy-v1 Wrapper Retirement Decision
 
-**Status:** Owner Decision / Required by SecuritySignals Rebuild
+**Status:** Owner Decision / Applied to Completed SecuritySignals Rebuild
 
 This document records the retirement rule for the SecuritySignals pagination artifacts introduced after the legacy `maatify/event-logging` `v1.0.0` baseline.
 
 > **Identity and release-state note:** The protected release references in this decision refer to the inherited legacy `maatify/event-logging` `v1.0.0` compatibility/runtime baseline. They do not claim a published Stable release for `maatify/php-event-logging`.
 
-It applies to the SecuritySignals Admin Query rebuild documented by PR #102 and supersedes any wording that delays package-level deletion of the superseded wrapper until a later host-migration or cleanup phase.
+It applied to the SecuritySignals Admin Query rebuild documented by PR #102 and supersedes any wording that delayed package-level deletion of the superseded wrapper until a later host-migration or cleanup phase.
 
 ---
 
@@ -155,6 +155,6 @@ Host usage: search and migrate, without preserving the obsolete package API.
 
 ## 8. Authorization Boundary
 
-This documentation decision does not itself implement Runtime changes.
+This documentation decision did not itself implement Runtime changes.
 
-It defines the mandatory deletion and compatibility scope for the future SecuritySignals Runtime rebuild PR.
+It defined the mandatory deletion and compatibility scope for the completed SecuritySignals Runtime rebuild PR.

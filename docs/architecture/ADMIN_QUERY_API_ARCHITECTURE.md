@@ -1,7 +1,7 @@
 # Admin Query API Architecture
 
 **Status:** Approved Architecture
-**Phase:** Phase 4 Active
+**Phase:** Phase 4 Complete
 
 ## 1. Purpose
 
@@ -198,7 +198,7 @@ Cross-domain reporting queries remain prohibited unless a separate approved arch
 - [PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md](PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md) remains authoritative for the legacy first-release primitive query path.
 - [ADMIN_QUERY_API_ROADMAP.md](../roadmap/ADMIN_QUERY_API_ROADMAP.md) defines the approved post-legacy-v1.0 execution order.
 - [ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md](../audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md) defines the historical Phase 1 baseline. Current per-domain truth is established by the latest approved/reviewable domain blueprint and actual main state.
-- This architecture becomes Runtime truth only through separately approved implementation PRs and a later release update.
+- The approved Runtime implementation PRs have now delivered all six Admin Query paths. A future package release remains separately governed and is not implied by this development state.
 
 ## 10. Absolute Prohibitions
 
@@ -227,10 +227,9 @@ The approved implementation sequence is:
 ## 12. Implementation Gate
 
 Phase 3 Remediation Complete.
-Phase 4 Active.
-DiagnosticsTelemetry Runtime complete
-DeliveryOperations Runtime Implemented / Pending Merge
-Reporting/dashboard blocked
+Phase 4 Complete.
+All six Admin Query Runtime implementations complete.
+Reporting/dashboard remains blocked pending separate Phase 5 work.
 No release or tag authorized
 
 - `AuditTrail`: Runtime implemented.
