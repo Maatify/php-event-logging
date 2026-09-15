@@ -194,7 +194,7 @@ Cross-domain reporting queries remain prohibited unless a separate approved arch
 
 ## 9. Current Contract Precedence
 
-- [EVENT_LOGGING_PACKAGE_REFERENCE.md](../../EVENT_LOGGING_PACKAGE_REFERENCE.md) remains the canonical current stable Runtime and public API contract.
+- [EVENT_LOGGING_PACKAGE_REFERENCE.md](../../EVENT_LOGGING_PACKAGE_REFERENCE.md) remains the canonical current Runtime and public API contract.
 - [PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md](PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md) remains authoritative for the legacy first-release primitive query path.
 - [ADMIN_QUERY_API_ROADMAP.md](../roadmap/ADMIN_QUERY_API_ROADMAP.md) defines the approved post-legacy-v1.0 execution order.
 - [ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md](../audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md) defines the historical Phase 1 baseline. Current per-domain truth is established by the latest approved/reviewable domain blueprint and actual main state.
