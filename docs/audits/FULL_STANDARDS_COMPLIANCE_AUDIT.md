@@ -221,11 +221,11 @@ PR #6 was observed as open and Draft with base `main@04c6cf0de050300122c11095934
 
 هذه كانت خطة التقسيم الأصلية على snapshot التدقيق. بعد تصحيح dispositions، أصبح WU-1 مسؤولًا فعليًا عن F-002 فقط من المجموعة الأصلية.
 
-### WU-1 — Composer/PHP contract and lock-aware CI policy
+### WU-1 — PHP contract and CI compatibility policy
 
 - **Closes:** F-002.
 - **Scope:** رفع PHP baseline إلى `^8.4`، مواءمة Composer platform والوثائق الحالية ومصفوفة CI، مع تغييرات CI اللازمة مباشرة لعقد PHP. سياسة lockfile و`composer update` وغياب `composer.lock` حالات صحيحة وليست remediation في WU-1.
-- **Expected areas:** `composer.json`, `.github/workflows/ci.yml`, `README.md`, `EVENT_LOGGING_PACKAGE_REFERENCE.md`, `docs/integration/INSTALLATION.md`, `CONTRIBUTING.md`، وChangelog/roadmap عند توثيق عقد PHP.
+- **Expected areas:** `composer.json`, `.github/workflows/ci.yml`, `README.md`, `EVENT_LOGGING_PACKAGE_REFERENCE.md`, `docs/integration/INSTALLATION.md`، وChangelog/roadmap عند توثيق عقد PHP.
 - **Dependencies:** لا توجد Owner Decision dependency؛ يُنفذ بعد تثبيت ترتيب remediation، ويجب أن يسبق WU-3 لأن Harness وCI يحتاجان resolution policy مستقرة.
 - **Type:** Composer + CI + Docs.
 - **Required gate:** `composer validate --strict`, dependency resolution وفق السياسة المعتمدة، `composer check-platform-reqs`, `composer audit --no-interaction --abandoned=fail`، مصفوفة PHP المعتمدة، ثم workflow lint.
