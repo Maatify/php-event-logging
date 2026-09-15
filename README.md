@@ -46,18 +46,25 @@ This package provides strict domain isolation, MySQL persistence, and fail-open/
 * `ext-pdo`
 
 **Composer/Runtime Dependencies:**
+* `maatify/exceptions`
+* `maatify/persistence`
+* `maatify/shared-common`
 * `psr/log`
 * `ramsey/uuid`
-* `maatify/exceptions`
-* `maatify/shared-common`
 
 ---
 
 ## 📦 Installation
 
+This repository is currently under Development and is not published on Packagist. To work on the package from its source repository:
+
 ```bash
-composer require maatify/php-event-logging
+git clone https://github.com/Maatify/php-event-logging.git
+cd php-event-logging
+composer install
 ```
+
+Consumer installation through `composer require maatify/php-event-logging` is not available until an Owner-approved release is published.
 
 ---
 

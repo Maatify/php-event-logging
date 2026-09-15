@@ -4,11 +4,15 @@
 
 ## Composer Requirements
 
-You can install the package using Composer:
+This repository is currently under Development and is not published on Packagist. To work on the package from its source repository:
 
 ```bash
-composer require maatify/php-event-logging
+git clone https://github.com/Maatify/php-event-logging.git
+cd php-event-logging
+composer install
 ```
+
+Consumer installation through `composer require maatify/php-event-logging` is not available until an Owner-approved release is published.
 
 ### System Requirements
 
@@ -16,6 +20,14 @@ composer require maatify/php-event-logging
 - **Extensions required:**
   - `ext-json` (For safe metadata and payload decoding)
   - `ext-pdo` (For database integration)
+
+## Composer runtime dependencies
+
+- `maatify/exceptions`
+- `maatify/persistence`
+- `maatify/shared-common`
+- `psr/log`
+- `ramsey/uuid`
 
 ## Schema Setup
 

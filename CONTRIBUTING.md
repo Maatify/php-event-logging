@@ -54,7 +54,7 @@ Before submitting a Pull Request, please ensure all tests and static analysis ch
    ```
 
    **Note on Integration Tests**:
-   Integration tests require a real MySQL database. `EVENT_LOGGING_TEST_MYSQL_DSN` must be set; otherwise integration tests are skipped. For example, to match the GitHub Actions environment, you might use:
+   Integration tests require a real MySQL database. `EVENT_LOGGING_TEST_MYSQL_DSN` must be set; otherwise the real-MySQL Integration gate is unavailable: shared integration fixtures may be skipped, while strict repository integration tests fail fast with a configuration error. This must not be reported as a passing Integration result. For example, to match the GitHub Actions environment, you might use:
    ```bash
    EVENT_LOGGING_TEST_MYSQL_DSN="mysql:host=127.0.0.1;port=3306;dbname=event_logging_test"
    EVENT_LOGGING_TEST_MYSQL_USER="root"

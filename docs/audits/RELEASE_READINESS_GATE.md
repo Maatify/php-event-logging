@@ -1,5 +1,11 @@
 # Release Readiness Gate
 
+> **Status:** Historical audit — not current repository state.
+>
+> **Audited identity:** Legacy `maatify/event-logging` v1.0.0 / predecessor snapshot.
+>
+> This document records a historical release-readiness snapshot. It must not be used as the current release verdict for `maatify/php-event-logging`.
+
 ## Verdict
 
 PASS

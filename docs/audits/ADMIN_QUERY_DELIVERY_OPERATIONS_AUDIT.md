@@ -7,7 +7,7 @@
 
 - **Historical discovery date:** 2026-07-23
 - **Historical discovery SHA:** `3d6abd502d7d82ac05828ac0beb2066e3dfc35d0`
-- **Current audited base SHA:** `f955d53d3d70397b53da88c2d803895309a2927e`
+- **Current audited base SHA:** `7863f6797389a0037045725fe779ebae416cbbbb`
 - **Current Admin Query Runtime evidence:** historical implementation commit `e8c74f894baeef397fdbde0fbfe912b65bcfa2c7` is present in the current Runtime ancestry.
 - **Governing Documents Inspected:** `AGENTS.md`, `EVENT_LOGGING_PACKAGE_REFERENCE.md`, `CHANGELOG.md`, `docs/standards/PACKAGE_BUILDING_STANDARD.md`, `docs/architecture/ADMIN_QUERY_API_ARCHITECTURE.md`, `docs/roadmap/ADMIN_QUERY_API_ROADMAP.md`, `docs/audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md`, `docs/audits/DOCUMENTATION_INVENTORY.md`
 - **Released Baseline:** Legacy `maatify/event-logging` tag `v1.0.0`
@@ -61,7 +61,7 @@
 - `src/Provider/EventLoggingProviderFactory.php` - Protected contract
 - `src/Bootstrap/EventLoggingBindings.php` - Protected contract
 
-*Current Regression coverage:* `tests/Regression/DeliveryOperations/Infrastructure/Mysql/DeliveryOperationsQueryMysqlRepositoryRegressionTest.php`.
+*Current Regression coverage:* `tests/Regression/DeliveryOperations/Infrastructure/Mysql/DeliveryOperationsQueryMysqlRepositoryRegressionTest.php` and `tests/Regression/DeliveryOperations/Infrastructure/Mysql/DeliveryOperationsAdminQueryRegressionGateTest.php`.
 
 ### Current Admin Query implementation (merged)
 - `src/DeliveryOperations/Contract/DeliveryOperationsAdminQueryInterface.php`
