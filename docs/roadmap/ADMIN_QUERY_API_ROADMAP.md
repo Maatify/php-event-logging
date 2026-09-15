@@ -54,10 +54,10 @@ The six domains must not be treated as one bulk implementation. Each domain requ
 ### Phase 1 — Current Runtime and Post-Legacy-v1.0 Compatibility Inventory
 
 - **Goal:** Audit the six domains, identify which post-legacy-v1.0 pagination work must be rebuilt, identify which domains require a new implementation, and verify compatibility with `maatify/persistence v1.1.0`.
-- **Status:** Complete.
+- **Status:** Complete. ([View Audit](../audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md))
 
 ### Phase 2 — `AuditTrail` Pagination Rebuild POC
-**Status:** Implemented and Merged / Pending v1.1.0 Release.
+**Status:** [Implemented and Merged / Pending v1.1.0 Release](../architecture/ADMIN_QUERY_AUDIT_TRAIL_POC_BLUEPRINT.md)
 
 - **Classification:** Rebuild of incorrect post-legacy-v1.0 work.
 - **Goal:** Replace the existing post-legacy-v1.0 `AuditTrail` pagination experiment with the correct separate Admin Query API architecture using `maatify/persistence`.
@@ -82,9 +82,9 @@ For each rebuild domain:
 - Do not copy pagination mechanics owned by `maatify/persistence`.
 
 - **Status:**
-  - `BehaviorTrace`: Owner Approved / Runtime Implemented / Complete
-  - `SecuritySignals`: Owner Approved / Runtime Implemented / Complete
-  - `AuthoritativeAudit`: Implemented / Complete
+  - `BehaviorTrace`: [Owner Approved / Runtime Implemented / Complete](../architecture/ADMIN_QUERY_BEHAVIOR_TRACE_REBUILD_BLUEPRINT.md)
+  - `SecuritySignals`: [Owner Approved / Runtime Implemented / Complete](../architecture/ADMIN_QUERY_SECURITY_SIGNALS_REBUILD_BLUEPRINT.md); [post-legacy-v1 retirement decision recorded](../architecture/ADMIN_QUERY_SECURITY_SIGNALS_POST_V1_RETIREMENT_DECISION.md)
+  - `AuthoritativeAudit`: [Implemented / Complete](../architecture/ADMIN_QUERY_AUTHORITATIVE_AUDIT_REBUILD_BLUEPRINT.md)
 
 ### Phase 4 — New Pagination Implementations for Missing Domains
 
@@ -96,8 +96,8 @@ Implement the Admin Query API for domains that never received the incorrect post
 These are new post-legacy-v1.0 features, not corrections to the legacy first-release Runtime.
 
 - **Status:** Phase 4 pagination implementation is complete across both new domains and all six domains overall.
-  - `DiagnosticsTelemetry`: Owner Approved / Runtime Implemented / Complete
-  - `DeliveryOperations`: Owner Approved / Runtime Implemented / Complete
+  - `DiagnosticsTelemetry`: [Owner Approved / Runtime Implemented / Complete](../architecture/ADMIN_QUERY_DIAGNOSTICS_TELEMETRY_BLUEPRINT.md)
+  - `DeliveryOperations`: [Owner Approved / Runtime Implemented / Complete](../architecture/ADMIN_QUERY_DELIVERY_OPERATIONS_BLUEPRINT.md)
 
 ### Phase 5 — Reporting and Dashboard Summary Contracts
 
