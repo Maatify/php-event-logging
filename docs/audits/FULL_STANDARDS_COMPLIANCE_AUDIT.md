@@ -16,7 +16,9 @@
 | Package identity | `maatify/php-event-logging` |
 | Namespace root | `Maatify\EventLogging\` |
 
-تم فحص الملفات الفعلية على الـ exact base أعلاه. لم يبدأ التدقيق من `main`، ولم تُنفذ أي Work Unit من المقترحة أدناه.
+تم فحص الملفات الفعلية على الـ exact base أعلاه. لم يبدأ التدقيق من `main`، ولم تُنفذ أي Work Unit من المقترحة أدناه وقت إنشاء snapshot التدقيق.
+
+> **تصحيح disposition لاحق:** بعد إعادة التحقق من الـ exact audited base ومن base الـ remediation الحالية، ثبت أن `composer.lock` غير متتبع في الحالتين، وأن `.gitignore` يحتوي قاعدة `composer.lock`. لذلك أُبطلت Findings `F-001` و`F-003` و`F-004` في هذه الوثيقة، مع الحفاظ على أرقام بقية Findings للتتبع.
 
 ## 2. Standards وProfiles المستخدمة
 
@@ -55,45 +57,45 @@
 
 ## 3. Executive verdict
 
-**النتيجة: NOT COMPLIANT — توجد 11 Confirmed Findings.**
+**النتيجة: NOT COMPLIANT — توجد 8 Confirmed Findings، مع 3 Findings أُبطلت (Invalidated) بسبب تعارض دليل المستودع مع صياغة Finding الأصلية.**
 
-المخالَفات موزعة بين Composer/PHP، CI، اختبار المستهلك، توثيق التحقق المحلي، metadata الخاصة بالـ schema، وDTO واحد. توجد أيضًا مناطق واسعة متوافقة أو غير منطبقة، موضحة صراحة في القسمين 5 و6. لم تُصلح أي مخالفة في هذا التدقيق.
+المخالفات المؤكدة موزعة بين PHP contract، CI، اختبار المستهلك، توثيق التحقق المحلي، metadata الخاصة بالـ schema، وDTO واحد. أما Findings الثلاث الخاصة بسياسة lockfile فقد أُبطلت بعد إعادة فحص الدليل. توجد أيضًا مناطق واسعة متوافقة أو غير منطبقة، موضحة صراحة في القسمين 5 و6. لم تُصلح أي مخالفة داخل commit التدقيق نفسه.
 
-## 4. Confirmed Findings
+## 4. Findings and dispositions
 
-كل Finding أدناه يجمع نصًا معياريًا محددًا مع دليل قابل لإعادة الفحص من الـ repository. اختلاف الأسلوب وحده لم يُسجل مخالفة.
+كل Finding أدناه يجمع نصًا معياريًا محددًا مع دليل قابل لإعادة الفحص من الـ repository، ويحافظ على رقم Finding الأصلي. العدد المؤكد هو 8: `F-002` و`F-005` إلى `F-011`. اختلاف الأسلوب وحده لم يُسجل مخالفة.
 
-### F-001 — Composer lockfile متتبَّع في مكتبة Maatify قابلة لإعادة الاستخدام
+### F-001 — Composer lockfile متتبَّع في مكتبة Maatify قابلة لإعادة الاستخدام — INVALIDATED
 
-- **Severity:** High
+- **Disposition:** `INVALIDATED` — repository evidence disproves the finding.
 - **Standard / rule:** `std-composer-package` §25، وقاعدة المكتبات القابلة لإعادة الاستخدام التي تمنع committed `composer.lock`؛ وتدعمها مراجعة package composition في §4.
-- **Repository evidence:** الملف `composer.lock` موجود في جذر المستودع ويظهر ضمن `git ls-files composer.lock`. وفي المقابل يذكر `CONTRIBUTING.md:5` أن `composer.lock` يجب ألا يُلتزم به، كما أن `.gitignore` يحتوي قاعدة تجاهله.
-- **سبب المخالفة:** حالة Git الفعلية تخالف سياسة المكتبة المعلنة وسياسة Composer للمكتبات القابلة لإعادة الاستخدام؛ وجود قاعدة ignore لا يلغي ملفًا متتبَّعًا بالفعل.
-- **Required remediation boundary:** تطبيق سياسة lockfile الإلزامية داخل Composer/package workflow، مع إزالة الملف من التتبع في Work Unit remediation مستقلة. لا يتضمن هذا التدقيق الحذف.
+- **Repository evidence:** إعادة الفحص على `351769df5769f4ab6bd947667c847c79c3f06821` لا تُظهر `composer.lock` في Git tree ولا في `git ls-files composer.lock`. والـ base الحالية `366896d66f250770856d0ec8ba2aee6e6112de52` كذلك لا تتبعه، بينما يحتوي `.gitignore` على `composer.lock`.
+- **Disposition rationale:** الحالة الأصلية كانت lockless reusable library ومتوافقة مع سياسة §25؛ وجود ملف محلي ignored، إن وُجد، لا يثبت tracking ولا committed distribution.
+- **Remediation:** لا توجد remediation مطلوبة لهذه Finding. يجب إبقاء `composer.lock` غير متتبع وعدم إضافته إلى المستودع.
 
-### F-002 — PHP compatibility contract أدنى من baseline الحالي
+### F-002 — PHP compatibility contract أدنى من baseline الحالي — CONFIRMED
 
 - **Severity:** High
 - **Standard / rule:** `std-package-building` §1 يفرض PHP `>=8.4` للمكتبات الجديدة؛ و`std-composer-package` §15.1 يقرر نفس baseline للمكتبة الجديدة أو غير المنشورة Stable، مع استثناء المكتبة المنشورة سابقًا عند نفس الهوية والعقد.
 - **Repository evidence:** `composer.json:48` يعلن `"php": "^8.2"`، و`composer.json:68-70` يثبت Composer platform على `8.2.0`. وتكرر ذلك `README.md:44,182`، و`EVENT_LOGGING_PACKAGE_REFERENCE.md:23`، و`docs/integration/INSTALLATION.md` في متطلبات PHP. `README.md:20` و`EVENT_LOGGING_PACKAGE_REFERENCE.md:5` يثبتان أن هوية `maatify/php-event-logging` ما زالت Development بلا Stable release. الإصدار التاريخي ذو الهوية المختلفة `maatify/event-logging` لا يفعّل استثناء الهوية الحالية، كما أن تسجيل Packagist الموثق في [PR #6](https://github.com/Maatify/php-event-logging/pull/6) لا يساوي Published state وفق `std-library-presentation` §14.
 - **سبب المخالفة:** الحزمة الحالية لا تملك Published Stable/RC exact version وفق تعريف §14، ومع ذلك تستخدم baseline `8.2` بدل baseline الحالي الإلزامي `8.4`.
-- **Required remediation boundary:** مواءمة PHP constraint وComposer platform والوثائق ومصفوفة CI مع baseline `>=8.4`. لا يُسمح بتغيير العقد في هذا PR.
+- **Required remediation boundary:** مواءمة PHP constraint وComposer platform والوثائق ومصفوفة CI مع baseline `^8.4` ضمن WU-1. لا تشمل remediation سياسة lockfile التي كانت متوافقة أصلًا.
 
-### F-003 — CI يستخدم `composer update` رغم وجود lockfile متتبَّع
+### F-003 — CI يستخدم `composer update` رغم وجود lockfile متتبَّع — INVALIDATED
 
-- **Severity:** High
+- **Disposition:** `INVALIDATED` — lockless `composer update` was compliant already.
 - **Standard / rule:** `std-ci-workflow` §5: عند تتبع `composer.lock` يجب استخدام `composer install` وألا يعاد توليد lockfile داخل CI؛ أما `composer update` فهو مسار المكتبات التي لا تتتبع lockfile.
-- **Repository evidence:** `composer.lock` متتبَّع. ويستخدم `.github/workflows/ci.yml:133` `composer update` في Quality، و`:190` في Latest Dependency Tests، و`:241` في Integration، و`:296` في Lowest Dependencies.
-- **سبب المخالفة:** workflow resolution mode لا يطابق حالة lockfile الفعلية؛ jobs قد تعيد حل الاعتمادات بدل اختبار الحالة المثبتة.
-- **Required remediation boundary:** مواءمة سياسة lockfile وdependency-resolution jobs مع F-001، مع الحفاظ على مصفوفة latest/lowest المقصودة فقط حيث يسمح بها الـ Standard.
+- **Repository evidence:** لا يوجد `composer.lock` متتبع على الـ exact audited base أو base الحالية. وتستخدم وظائف `.github/workflows/ci.yml` `composer update` للمسار العادي و`composer update --prefer-lowest --prefer-stable` لمسار lowest.
+- **Disposition rationale:** وفق §5، استخدام `composer update` هو مسار dependency resolution الصحيح لمكتبة reusable لا تتتبع lockfile؛ لذلك لا توجد مخالفة في هذه الوظائف.
+- **Remediation:** لا توجد remediation مطلوبة لهذه Finding. تغييرات CI في WU-1 محصورة في مصفوفة PHP وما يلزم مباشرة من رفع baseline.
 
-### F-004 — Change Detection لا يعتبر `composer.lock` مسارًا مؤثرًا
+### F-004 — Change Detection لا يعتبر `composer.lock` مسارًا مؤثرًا — INVALIDATED
 
-- **Severity:** Medium
+- **Disposition:** `INVALIDATED` — `composer.lock` relevance is not applicable because the repository does not track it.
 - **Standard / rule:** `std-ci-workflow` §4: إذا كان `composer.lock` متتبعًا، فيجب أن يدخل في relevance detection حتى تؤدي تغييرات الاعتمادات إلى الـ heavy gates المناسبة.
-- **Repository evidence:** `.github/workflows/ci.yml:60-70` تفحص `composer.json` و`phpstan.neon` و`phpunit.xml.dist` ومسارات المصدر والاختبارات والـ workflows، لكنها لا تتضمن `composer.lock`.
-- **سبب المخالفة:** تغيير lockfile المتتبَّع يمكن أن يصنف كتغيير غير مؤثر، فيُتجاوز عنه مسار الاختبارات الثقيلة.
-- **Required remediation boundary:** تعديل change detector ضمن CI policy بعد حسم سياسة lockfile؛ لا تعديل في هذا PR.
+- **Repository evidence:** `.github/workflows/ci.yml:60-70` تفحص `composer.json` و`phpstan.neon` و`phpunit.xml.dist` ومسارات المصدر والاختبارات والـ workflows، ولا تتضمن `composer.lock` لأن الملف غير متتبع.
+- **Disposition rationale:** قاعدة §4 تجعل إدخال `composer.lock` مشروطًا بكون repository يتتبعه؛ هذا الشرط غير منطبق، و`composer.json` هو مسار Composer contract المؤثر الموجود فعليًا.
+- **Remediation:** لا توجد remediation مطلوبة لهذه Finding، ولا ينبغي إضافة `composer.lock` إلى Change Detection لمجرد إغلاقها.
 
 ### F-005 — لا يوجد whitespace / patch-hygiene gate في CI
 
@@ -156,14 +158,14 @@
 هذه ليست claims مبنية على غياب الأخطاء فقط؛ تم فحص الملفات والـ configurations ذات الصلة:
 
 - adoption manifest يثبت `Resolution Status: VALID`، والـ active Profiles والـ resolved Standards والـ upstream commit متسقة.
-- Composer identity، PSR-4 namespace، direct runtime dependencies، scripts الأساسية، و`type: library` موجودة ومتسقة مع standalone package composition، مع استثناءات F-001/F-002/F-003 الخاصة بالـ lock/PHP resolution.
+- Composer identity، PSR-4 namespace، direct runtime dependencies، scripts الأساسية، و`type: library` موجودة ومتسقة مع standalone package composition، مع الاستثناء المؤكد F-002 الخاص بعقد PHP؛ أما F-001 وF-003 وF-004 فقد أُبطلت بعد إعادة فحص lockfile evidence.
 - `phpstan.neon` يضبط Level Max ويفحص `src` و`tests` دون baseline أو `ignoreErrors`، وPHPStan المحلي مرّ.
 - namespace root هو `Maatify\EventLogging\`، وأسماء interfaces/enums/exceptions تتبع suffix rules في الملفات المفحوصة. المخالفة المسجلة في DTO declarations محددة في F-010 فقط.
 - مسارات Admin Query تستخدم shared `Maatify\Persistence\Pdo\Pagination` وتستخدم selected columns صريحة؛ لم تُسجل مخالفة duplicated pagination engine.
 - مصادر الوقت تستخدم shared `ClockInterface`، ولم يظهر `date_default_timezone_set` في package source.
 - exception boundaries وfail-open/fail-closed semantics الحالية موثقة ومغطاة ضمن الاختبارات الحالية؛ لا يثبت هذا التدقيق أي runtime violation إضافية.
 - schema table prefixes، primary keys، indexes، table-level policy comments، وعدم وجود host foreign keys/JOINs تطابق القواعد المفحوصة؛ F-009 محدود إلى column comments.
-- CI يحوي action pinning، permissions read، MySQL 8.0 health check، timeouts، concurrency، `fail-fast: false`، explicit audit، workflow lint مع checksum، ومصفوفات PHP؛ findings CI أعلاه محددة فقط فيما ثبت نقصه.
+- CI يحوي action pinning، permissions read، MySQL 8.0 health check، timeouts، concurrency، `fail-fast: false`، explicit audit، workflow lint مع checksum، ومصفوفات PHP؛ findings CI المؤكدة أعلاه محددة فقط فيما ثبت نقصه بعد إبطال F-003 وF-004.
 - README وSECURITY وCODE_OF_CONDUCT وCHANGELOG موجودة؛ استمرار عدم وجود Stable/RC exact published version وغياب live Stable badges ما زالا متسقين، لكن نفي Packagist registration في README/installation wording مسجل في F-011. README footer هو العنصر النهائي.
 - Unit وRegression وIntegration suites معرفة في `phpunit.xml.dist`، وPHPUnit architecture الحالية تفصل suites؛ نتيجة Integration المحلية غير متاحة بسبب البيئة كما هو موضح في §7.
 
@@ -203,7 +205,7 @@ The local blobs for the adoption standard, both profiles, and all seven resolved
 
 ### 7.2 Current GitHub CI context
 
-PR #6 was observed as open and Draft with base `main@04c6cf0de050300122c110959343aacb70b8ac10`, head `draft/php-event-logging-standards-remediation@351769df5769f4ab6bd947667c847c79c3f06821`, and `MERGEABLE`. Its current checks showed successful Change Detection, Workflow Lint، and aggregate CI Gate، while Quality, Latest Dependency Tests، Integration، and Lowest Dependencies were skipped for that PR state. This result لا يبرئ workflow من findings المعيارية أعلاه؛ تم فحص workflow نفسه.
+PR #6 was observed as open and Draft with base `main@04c6cf0de050300122c110959343aacb70b8ac10`, head `draft/php-event-logging-standards-remediation@351769df5769f4ab6bd947667c847c79c3f06821`, and `MERGEABLE`. Its current checks showed successful Change Detection, Workflow Lint، and aggregate CI Gate، while Quality, Latest Dependency Tests، Integration، and Lowest Dependencies were skipped for that PR state. هذا السياق لا يغيّر Findings المؤكدة المتبقية؛ أما F-001 وF-003 وF-004 فقد أُبطلت لأن repository evidence لا يثبت شروطها.
 
 ## 8. Owner Decisions المطلوبة
 
@@ -217,13 +219,13 @@ PR #6 was observed as open and Draft with base `main@04c6cf0de050300122c11095934
 
 ## 9. Proposed Remediation Work Units
 
-هذه خطة تقسيم فقط. لم يبدأ أي Work Unit في هذا الفرع.
+هذه كانت خطة التقسيم الأصلية على snapshot التدقيق. بعد تصحيح dispositions، أصبح WU-1 مسؤولًا فعليًا عن F-002 فقط من المجموعة الأصلية.
 
 ### WU-1 — Composer/PHP contract and lock-aware CI policy
 
-- **Closes:** F-001, F-002, F-003, F-004.
-- **Scope:** تطبيق lockfile policy وPHP baseline الإلزاميين، ثم مواءمة Composer metadata والوثائق ذات الصلة وchange detection وdependency resolution.
-- **Expected areas:** `composer.json`, `composer.lock`, `.gitignore`, `.github/workflows/ci.yml`, `README.md`, `EVENT_LOGGING_PACKAGE_REFERENCE.md`, `docs/integration/INSTALLATION.md`, `CONTRIBUTING.md`.
+- **Closes:** F-002.
+- **Scope:** رفع PHP baseline إلى `^8.4`، مواءمة Composer platform والوثائق الحالية ومصفوفة CI، مع تغييرات CI اللازمة مباشرة لعقد PHP. سياسة lockfile و`composer update` وغياب `composer.lock` حالات صحيحة وليست remediation في WU-1.
+- **Expected areas:** `composer.json`, `.github/workflows/ci.yml`, `README.md`, `EVENT_LOGGING_PACKAGE_REFERENCE.md`, `docs/integration/INSTALLATION.md`, `CONTRIBUTING.md`، وChangelog/roadmap عند توثيق عقد PHP.
 - **Dependencies:** لا توجد Owner Decision dependency؛ يُنفذ بعد تثبيت ترتيب remediation، ويجب أن يسبق WU-3 لأن Harness وCI يحتاجان resolution policy مستقرة.
 - **Type:** Composer + CI + Docs.
 - **Required gate:** `composer validate --strict`, dependency resolution وفق السياسة المعتمدة، `composer check-platform-reqs`, `composer audit --no-interaction --abandoned=fail`، مصفوفة PHP المعتمدة، ثم workflow lint.
