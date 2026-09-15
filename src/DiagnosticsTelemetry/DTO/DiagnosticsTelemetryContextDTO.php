@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Maatify\EventLogging\DiagnosticsTelemetry\DTO;
+
+use Maatify\EventLogging\DiagnosticsTelemetry\Enum\DiagnosticsTelemetryActorTypeInterface;
+use DateTimeImmutable;
+
+final readonly class DiagnosticsTelemetryContextDTO implements \JsonSerializable
+{
+    public function __construct(
+        public DiagnosticsTelemetryActorTypeInterface $actorType,
+        public ?int $actorId,
+        public ?string $correlationId,
+        public ?string $requestId,
+        public ?string $routeName,
+        public ?string $ipAddress,
+        public ?string $userAgent,
+        public DateTimeImmutable $occurredAt
+    ) {
+    }
+    /**
+     * @return array<string, mixed>
+     */
+    public function jsonSerialize(): mixed
+    {
+        return [
+            'actorType' => $this->actorType->value(),
+            'actorId' => $this->actorId,
+            'correlationId' => $this->correlationId,
+            'requestId' => $this->requestId,
+            'routeName' => $this->routeName,
+            'ipAddress' => $this->ipAddress,
+            'userAgent' => $this->userAgent,
+            'occurredAt' => $this->occurredAt->format(DATE_ATOM),
+        ];
+    }
+
+}

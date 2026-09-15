@@ -1,0 +1,150 @@
+# AuthoritativeAudit Module (Compliance & Governance)
+
+**Project:** maatify/event-logging
+**Module:** AuthoritativeAudit
+**Namespace:** `Maatify\EventLogging\AuthoritativeAudit`
+
+## Purpose
+This module provides a framework-agnostic, host-independent logging mechanism for **Authoritative Audit** events. It represents compliance-grade, governance-critical changes (e.g., Privileged account creation, Role assignment, System ownership changes).
+
+**Key Characteristics:**
+- **Fail-Closed:** If writing to the outbox fails, the operation MUST fail.
+- **Transactional:** Writes must occur within the business transaction.
+- **Outbox Pattern:** The `maa_event_logging_authoritative_audit_outbox` is the source of truth.
+
+## Architecture
+
+The module follows the Canonical Logger Design Standard:
+
+1.  **Recorder** (`AuthoritativeAuditRecorder`): The policy layer. It accepts audit data, validates it (no secrets), enforces DB constraints, creates DTOs, and ensures fail-closed behavior.
+2.  **Contract** (`AuthoritativeAuditOutboxWriterInterface`): The interface for the storage driver (outbox writer).
+3.  **DTOs**: Strict Data Transfer Objects for Outbox Write.
+4.  **Infrastructure** (`AuthoritativeAuditOutboxWriterMysqlRepository`): The MySQL implementation of the writer using PDO.
+5.  **Policy** (`AuthoritativeAuditPolicyInterface`): Interface for normalizing inputs and validating payloads. A default implementation (`AuthoritativeAuditDefaultPolicy`) is provided.
+
+### Module Boundary / Public Surface
+
+Consumers should strictly use the defined Public API:
+- **Write:** `AuthoritativeAuditRecorder::record(...)`
+- **Configure:** `AuthoritativeAuditPolicyInterface`
+
+### Reading Data
+
+There are two supported read paths: the new Admin Query API and the protected primitive v1 API.
+
+Reads target **exclusively** the materialized log table (`maa_event_logging_authoritative_audit_log`), and never the outbox.
+
+#### Admin Query API
+Use `AuthoritativeAuditAdminQueryInterface` (implemented by `AuthoritativeAuditAdminQueryMysqlRepository`) for fully-featured offset pagination supporting explicit filters and strict boundaries.
+
+```php
+use Maatify\EventLogging\AuthoritativeAudit\DTO\AuthoritativeAuditAdminQueryRequestDTO;
+use Maatify\EventLogging\AuthoritativeAudit\DTO\AuthoritativeAuditAdminPageResultDTO;
+
+$request = new AuthoritativeAuditAdminQueryRequestDTO(
+    actorType: 'admin',
+    action: 'role.assign',
+    page: 1,
+    perPage: 50
+);
+
+/** @var AuthoritativeAuditAdminPageResultDTO $result */
+$result = $adminQueryRepository->paginate($request);
+
+// Access mapped items (AuthoritativeAuditViewDTO)
+foreach ($result->items as $event) {
+    echo $event->eventId;
+}
+```
+Supported filters include `eventId`, `actorType`, `actorId`, `targetType`, `targetId`, `action`, `correlationId`, `after`, and `before`. Validation errors throw `AuthoritativeAuditAdminQueryInvalidArgumentException`, invalid pagination constraints throw `AuthoritativeAuditAdminQueryExecutionException`, and database failures throw `AuthoritativeAuditStorageException`.
+
+#### Protected Primitive Query API (`v1.0.0`)
+The domain provides a primitive, protected query contract for retrieving logged events:
+- **Query:** `AuthoritativeAuditQueryInterface::find(AuthoritativeAuditQueryDTO $query)`
+- **Behavior:** Primitive cursor-based pagination (`cursorOccurredAt`, `cursorId`, `limit`).
+
+
+### Data Flow
+
+```
+Caller (Business Service)
+  |
+  v
+Start Transaction
+  |
+  v
+Perform Business Logic (e.g. Change Role)
+  |
+  v
+Call AuthoritativeAuditRecorder::record(...)
+  |
+  v
+AuthoritativeAuditRecorder
+  - Validates Payload (No Secrets)
+  - Enforces DB Constraints
+  - Normalizes Actor Type
+  - Constructs DTO
+  |
+  v
+AuthoritativeAuditOutboxWriterInterface::write(DTO)
+  |
+  v
+AuthoritativeAuditOutboxWriterMysqlRepository (Infrastructure)
+  - Serializes Payload (JSON)
+  - Formats Dates (UTC)
+  - Executes INSERT SQL (maa_event_logging_authoritative_audit_outbox)
+  |
+  v
+Commit Transaction
+```
+
+## Database Schema
+
+The module requires the `maa_event_logging_authoritative_audit_outbox` (and `maa_event_logging_authoritative_audit_log` for consumers) table. A canonical schema definition is provided within the module:
+
+`src/AuthoritativeAudit/Database/schema.maa_event_logging_authoritative_audit.sql`
+
+This file should be used to initialize the database table.
+
+## Usage
+
+```php
+use Maatify\EventLogging\AuthoritativeAudit\Recorder\AuthoritativeAuditRecorder;
+use Maatify\EventLogging\AuthoritativeAudit\Enum\AuthoritativeAuditRiskLevelEnum;
+use Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditOutboxWriterMysqlRepository;
+use Maatify\EventLogging\Common\SystemClock;
+
+// Dependencies
+$writer = new AuthoritativeAuditOutboxWriterMysqlRepository($pdo);
+$clock = new SystemClock();
+$recorder = new AuthoritativeAuditRecorder($writer, $clock);
+
+// Record Event (Inside Transaction)
+$pdo->beginTransaction();
+try {
+    // ... business logic ...
+
+    $recorder->record(
+        action: 'role.assign',
+        targetType: 'user',
+        targetId: 456,
+        riskLevel: AuthoritativeAuditRiskLevelEnum::HIGH,
+        actorType: 'ADMIN',
+        actorId: 123,
+        payload: ['role' => 'super-admin', 'reason' => 'Ticket #102'],
+        correlationId: 'abc-123'
+    );
+
+    $pdo->commit();
+} catch (\Throwable $e) {
+    $pdo->rollBack();
+    throw $e;
+}
+```
+
+### Constraints & Guards
+
+- **Timezone**: Dates are strictly enforced as UTC.
+- **Fail-Closed**: Exceptions during logging are PROPAGATED.
+- **Payload**: MUST be an array. Secrets (password, token, etc.) are forbidden and will cause validation failure.
+- **String Constraints**: Strings are truncated to safe limits (action: 128, targetType: 64, correlationId: 36).
