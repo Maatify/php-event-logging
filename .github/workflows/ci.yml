@@ -247,9 +247,7 @@ jobs:
           set -euo pipefail
           if [[ "${{ matrix.php }}" == "8.2" ]]; then
             composer test
-            composer test:integration
           else
-            composer test:integration
             composer test:integration
           fi
 

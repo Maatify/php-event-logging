@@ -82,8 +82,8 @@ For each rebuild domain:
 - Do not copy pagination mechanics owned by `maatify/persistence`.
 
 - **Status:**
-  - `BehaviorTrace`: [Owner Approved / Runtime Implemented](../architecture/ADMIN_QUERY_BEHAVIOR_TRACE_REBUILD_BLUEPRINT.md)
-  - `SecuritySignals`: [Owner Approved / Runtime Implemented](../architecture/ADMIN_QUERY_SECURITY_SIGNALS_REBUILD_BLUEPRINT.md); [post-legacy-v1 retirement decision recorded](../architecture/ADMIN_QUERY_SECURITY_SIGNALS_POST_V1_RETIREMENT_DECISION.md)
+  - `BehaviorTrace`: [Owner Approved / Runtime Implemented / Complete](../architecture/ADMIN_QUERY_BEHAVIOR_TRACE_REBUILD_BLUEPRINT.md)
+  - `SecuritySignals`: [Owner Approved / Runtime Implemented / Complete](../architecture/ADMIN_QUERY_SECURITY_SIGNALS_REBUILD_BLUEPRINT.md); [post-legacy-v1 retirement decision recorded](../architecture/ADMIN_QUERY_SECURITY_SIGNALS_POST_V1_RETIREMENT_DECISION.md)
   - `AuthoritativeAudit`: [Implemented / Complete](../architecture/ADMIN_QUERY_AUTHORITATIVE_AUDIT_REBUILD_BLUEPRINT.md)
 
 ### Phase 4 — New Pagination Implementations for Missing Domains
