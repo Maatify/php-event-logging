@@ -9,17 +9,19 @@
 - Merge commit: `f5ff025c9a539162c7e8dd42c0d7b43044894a6f`.
 - Runtime must be implemented in a subsequent PR from the latest `main`.
 - The implementation is strictly bound to the contracts documented in this blueprint, including covering all persisted fields with package-owned, safe filter contracts.
-- No authorization to modify the protected `v1.0.0` primitive Runtime.
+- No authorization to modify the protected primitive Runtime inherited from legacy `maatify/event-logging` `v1.0.0`.
 - No schema, Composer, CI, host, reporting, dashboard, tag, or release work is authorized.
 
 This document defines the complete approved contract for adding the new Admin Query API path for `DeliveryOperations`.
 
+> **Identity and release-state note:** References below to the legacy `v1.0.0` baseline refer to the inherited compatibility/runtime baseline of `maatify/event-logging`. They do not claim a published Stable release for `maatify/php-event-logging`.
+
 ## 1. Scope and Design Principle
-The DeliveryOperations domain has no superseded post-v1 pagination experiment to rebuild. This is a new post-v1 implementation.
+The DeliveryOperations domain has no superseded post-legacy-v1 pagination experiment to rebuild. This is a new post-legacy-v1 implementation.
 The goal is to provide a complete, package-owned Admin filtering capability over every persisted field in `maa_event_logging_delivery_operations`. The package exposes these capabilities; the host application decides what to use.
 
 ## 2. Protected Runtime Boundary
-The complete published `v1.0.0` DeliveryOperations Runtime is strictly preserved:
+The complete DeliveryOperations Runtime protected by legacy `maatify/event-logging` `v1.0.0` is strictly preserved:
 - writer and recorder behavior;
 - primitive query interface and DTO (`DeliveryOperationsQueryInterface`, `DeliveryOperationsQueryDTO`);
 - view DTO (`DeliveryOperationsViewDTO`);

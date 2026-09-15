@@ -1,6 +1,6 @@
 # LOGGING_ASCII_OVERVIEW
 
-> **Project:** maatify/event-logging
+> **Project:** maatify/php-event-logging
 > **Status:** NON-BINDING (ASCII overview of unified logging architecture)
 > **Legend Source of Truth:** `ASCII_FLOW_LEGENDS.md`
 > **Terminology Source of Truth:** `../../architecture/logging/LOG_DOMAINS_OVERVIEW.md`

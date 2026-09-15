@@ -1,6 +1,6 @@
 # DeliveryOperations Module
 
-**Project:** maatify/event-logging
+**Project:** maatify/php-event-logging
 **Module:** DeliveryOperations
 **Namespace:** `Maatify\EventLogging\DeliveryOperations`
 

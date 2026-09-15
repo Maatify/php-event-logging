@@ -1,6 +1,6 @@
 # AuthoritativeAudit Module (Compliance & Governance)
 
-**Project:** maatify/event-logging
+**Project:** maatify/php-event-logging
 **Module:** AuthoritativeAudit
 **Namespace:** `Maatify\EventLogging\AuthoritativeAudit`
 
@@ -30,7 +30,7 @@ Consumers should strictly use the defined Public API:
 
 ### Reading Data
 
-There are two supported read paths: the new Admin Query API and the protected primitive v1 API.
+There are two supported read paths: the new Admin Query API and the protected primitive compatibility API inherited from legacy `maatify/event-logging` `v1.0.0`.
 
 Reads target **exclusively** the materialized log table (`maa_event_logging_authoritative_audit_log`), and never the outbox.
 
@@ -58,7 +58,7 @@ foreach ($result->items as $event) {
 ```
 Supported filters include `eventId`, `actorType`, `actorId`, `targetType`, `targetId`, `action`, `correlationId`, `after`, and `before`. Validation errors throw `AuthoritativeAuditAdminQueryInvalidArgumentException`, invalid pagination constraints throw `AuthoritativeAuditAdminQueryExecutionException`, and database failures throw `AuthoritativeAuditStorageException`.
 
-#### Protected Primitive Query API (`v1.0.0`)
+#### Protected Legacy Primitive Query API (`maatify/event-logging` `v1.0.0`)
 The domain provides a primitive, protected query contract for retrieving logged events:
 - **Query:** `AuthoritativeAuditQueryInterface::find(AuthoritativeAuditQueryDTO $query)`
 - **Behavior:** Primitive cursor-based pagination (`cursorOccurredAt`, `cursorId`, `limit`).

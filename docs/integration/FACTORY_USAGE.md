@@ -1,6 +1,6 @@
 # Factory Usage
 
-The `maatify/event-logging` library provides optional, framework-agnostic factories to help wire the various logging domains in your application without enforcing any specific dependency injection container.
+The `maatify/php-event-logging` library provides optional, framework-agnostic factories to help wire the various logging domains in your application without enforcing any specific dependency injection container.
 
 ## Dependencies Provided by the Host
 

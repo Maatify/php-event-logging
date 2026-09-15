@@ -1,13 +1,13 @@
 # Installation
 
-`maatify/event-logging` is a standalone PHP library designed to integrate with any host application without being bound to a specific framework.
+`maatify/php-event-logging` is a standalone PHP library designed to integrate with any host application without being bound to a specific framework.
 
 ## Composer Requirements
 
 You can install the package using Composer:
 
 ```bash
-composer require maatify/event-logging
+composer require maatify/php-event-logging
 ```
 
 ### System Requirements

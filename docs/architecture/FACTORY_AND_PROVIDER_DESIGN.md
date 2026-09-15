@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-To simplify the integration of the `maatify/event-logging` package without dictating a specific Dependency Injection container, the package will provide optional, framework-agnostic **Factories** and a **Provider** (Service Map).
+To simplify the integration of the `maatify/php-event-logging` package without dictating a specific Dependency Injection container, the package will provide optional, framework-agnostic **Factories** and a **Provider** (Service Map).
 
 These components are designed to construct domain-specific loggers/recorders with explicit dependencies, preserving the isolated boundaries of each logging domain.
 

@@ -1,10 +1,12 @@
 # Event Logging Package Reference
 
-`maatify/event-logging` is the canonical framework-agnostic Composer package for Maatify event logging. This document is the single root package-reference source of truth for the stable package contract, public runtime API, infrastructure adapters, schema ownership, and package-specific standards decisions.
+`maatify/php-event-logging` is the canonical successor framework-agnostic Composer package for Maatify event logging. This document is the single root package-reference source of truth for the package contract, public runtime API, infrastructure adapters, schema ownership, and package-specific standards decisions.
+
+The legacy `maatify/event-logging` `v1.0.0` release remains historical evidence from before this successor package identity was adopted. This repository does not claim that `maatify/php-event-logging` has a published Stable release.
 
 ## 1. Package identity and stable contract
 
-- Composer package: `maatify/event-logging`.
+- Composer package: `maatify/php-event-logging`.
 - PHP namespace root: `Maatify\EventLogging\`.
 - Package type: standalone, framework-agnostic Composer library.
 - Persistence model: host-provided `PDO` with domain-owned MySQL repositories and schemas.
@@ -415,16 +417,16 @@ DiagnosticsTelemetry Admin Query exception boundaries:
 
 The package does not provide HTTP controllers, routes, authorization, middleware, UI, exports, localization, dashboards, free-text search, metadata search, arbitrary SQL, joins, caching, or approximate counts for Admin Query. Event ID, route name, duration, and metadata filtering are explicitly unsupported. Hosts own those concerns.
 
-### Superseded Post-v1 Pagination Artifacts
+### Superseded Post-Legacy-v1 Pagination Artifacts
 
-The following pagination artifacts were added after the `v1.0.0` release and are considered superseded experiments pending replacement by the approved Admin Query API:
+The following pagination artifacts were added after the legacy `maatify/event-logging` `v1.0.0` release and are considered superseded experiments pending replacement by the approved Admin Query API:
 
 - `*PaginatedQueryInterface`
 - `*QueryCursorDTO`
 - `*QueryPageDTO`
 - `*PaginatedQueryService`
 
-The AuditTrail, BehaviorTrace, SecuritySignals, and AuthoritativeAudit versions of these artifacts have been removed by their Admin Query implementations because they were unreleased post-v1 experiments, not protected `v1.0.0` contracts. Remaining domains must not use these artifacts as the architecture for new integrations or extend them to additional domains. Advanced domain-scoped Admin Query and reporting contracts remain governed by the approved architecture and roadmap.
+The AuditTrail, BehaviorTrace, SecuritySignals, and AuthoritativeAudit versions of these artifacts have been removed by their Admin Query implementations because they were unreleased post-legacy-v1 experiments, not protected contracts of legacy `maatify/event-logging` `v1.0.0`. Remaining domains must not use these artifacts as the architecture for new integrations or extend them to additional domains. Advanced domain-scoped Admin Query and reporting contracts remain governed by the approved architecture and roadmap.
 
 Advanced querying (UI-driven generic search, arbitrary filtering, complex host analytics) remains the responsibility of the host application outside this package.
 

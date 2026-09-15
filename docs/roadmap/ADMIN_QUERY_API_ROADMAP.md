@@ -4,24 +4,26 @@
 
 ## 1. Scope Boundary
 
-This roadmap applies only to Admin pagination, reporting, and dashboard work that started **after the first stable release (`v1.0.0`)**.
+> **Identity and release-state note:** All references below to `v1.0.0`, the first release, or post-v1 work refer to the inherited compatibility/runtime baseline of legacy `maatify/event-logging` `v1.0.0`. They do not claim a published Stable release for `maatify/php-event-logging`.
 
-The published `v1.0.0` Runtime baseline is frozen and out of scope for remediation. The following first-release behavior and contracts must remain unchanged:
+This roadmap applies only to Admin pagination, reporting, and dashboard work that started **after the legacy package's first Stable release (`maatify/event-logging` `v1.0.0`)**.
+
+The Runtime compatibility baseline inherited from legacy `maatify/event-logging` `v1.0.0` is frozen and out of scope for remediation. The following legacy first-release behavior and contracts must remain unchanged:
 
 - Event-writing and logging Runtime behavior.
-- Existing domain contracts published in `v1.0.0`.
+- Existing domain contracts protected by legacy `maatify/event-logging` `v1.0.0`.
 - Existing primitive read/query APIs.
 - Existing query DTOs, view/event DTOs, repositories, schemas, and exception behavior.
-- Existing cursor behavior that belongs to the first-release Runtime.
-- Existing host integrations that depend on the first-release contracts.
+- Existing cursor behavior that belongs to the legacy first-release Runtime.
+- Existing host integrations that depend on the legacy first-release contracts.
 
-No phase in this roadmap may redesign, replace, or remove the first-release Runtime baseline unless a separate explicitly approved compatibility decision authorizes it.
+No phase in this roadmap may redesign, replace, or remove the legacy first-release Runtime baseline unless a separate explicitly approved compatibility decision authorizes it.
 
-## 2. Post-v1.0 Work Being Corrected and Completed
+## 2. Post-Legacy-v1.0 Work Being Corrected and Completed
 
-After `v1.0.0`, pagination work started as a separate feature track. Part of that work was implemented with the wrong architecture and then stopped before all domains were completed.
+After the legacy `maatify/event-logging` `v1.0.0` release, pagination work started as a separate feature track. Part of that work was implemented with the wrong architecture and then stopped before all domains were completed.
 
-The post-v1.0 pagination artifacts are not treated as protected `v1.0.0` contracts. They are the remediation scope of this roadmap.
+The post-legacy-v1.0 pagination artifacts are not treated as contracts protected by legacy `maatify/event-logging` `v1.0.0`. They are the remediation scope of this roadmap.
 
 The correct target is a separate Admin Query API using `maatify/persistence v1.1.0` for page/per-page normalization, deterministic sorting, count execution, offset calculation, mapper invocation, and canonical pagination metadata.
 
@@ -29,15 +31,15 @@ The package remains responsible for domain filters, trusted SQL and parameters, 
 
 ## 3. Domain Classification and Required Order
 
-The pagination work must proceed in this exact order so that incorrectly implemented post-v1.0 work is rebuilt first, then the domains that never received that work are implemented for the first time.
+The pagination work must proceed in this exact order so that incorrectly implemented post-legacy-v1.0 work is rebuilt first, then the domains that never received that work are implemented for the first time.
 
 | Order | Domain | Classification | Required action |
 |---:|---|---|---|
-| 1 | `AuditTrail` | **REBUILD** | Replace the incorrect post-v1.0 pagination experiment with the approved `maatify/persistence`-based Admin Query API POC. |
-| 2 | `BehaviorTrace` | **REBUILD** | Rebuild the incorrect post-v1.0 pagination implementation using the approved POC architecture. |
-| 3 | `SecuritySignals` | **REBUILD** | Rebuild the incorrect post-v1.0 pagination implementation, delete its superseded wrapper in the same Runtime change set, and preserve only the protected `v1.0.0` security and failure semantics. |
-| 4 | `AuthoritativeAudit` | **REBUILD** | Rebuild the incorrect post-v1.0 pagination implementation last among the remediation domains because of its fail-closed behavior and outbox/materialized-log boundary. |
-| 5 | `DiagnosticsTelemetry` | **NEW** | Add the Admin Query API pagination path for the first time. No post-v1.0 wrapper remediation exists in this domain. |
+| 1 | `AuditTrail` | **REBUILD** | Replace the incorrect post-legacy-v1.0 pagination experiment with the approved `maatify/persistence`-based Admin Query API POC. |
+| 2 | `BehaviorTrace` | **REBUILD** | Rebuild the incorrect post-legacy-v1.0 pagination implementation using the approved POC architecture. |
+| 3 | `SecuritySignals` | **REBUILD** | Rebuild the incorrect post-legacy-v1.0 pagination implementation, delete its superseded wrapper in the same Runtime change set, and preserve only the security and failure semantics protected by legacy `maatify/event-logging` `v1.0.0`. |
+| 4 | `AuthoritativeAudit` | **REBUILD** | Rebuild the incorrect post-legacy-v1.0 pagination implementation last among the remediation domains because of its fail-closed behavior and outbox/materialized-log boundary. |
+| 5 | `DiagnosticsTelemetry` | **NEW** | Add the Admin Query API pagination path for the first time. No post-legacy-v1.0 wrapper remediation exists in this domain. |
 | 6 | `DeliveryOperations` | **NEW** | Add the Admin Query API pagination path for the first time after the simpler domains are proven, because of its broader state and provider-related query surface. |
 
 The six domains must not be treated as one bulk implementation. Each domain requires its own reviewed design details, Runtime changes, tests, and documentation update.
@@ -46,23 +48,23 @@ The six domains must not be treated as one bulk implementation. Each domain requ
 
 ### Phase 0 — Documentation and Architecture Alignment
 
-- **Goal:** Separate the first-release Primitive Read/Query Runtime from the later Admin pagination and reporting track.
+- **Goal:** Separate the legacy first-release Primitive Read/Query Runtime from the later Admin pagination and reporting track.
 - **Status:** Complete.
 
-### Phase 1 — Current Runtime and Post-v1.0 Compatibility Inventory
+### Phase 1 — Current Runtime and Post-Legacy-v1.0 Compatibility Inventory
 
-- **Goal:** Audit the six domains, identify which post-v1.0 pagination work must be rebuilt, identify which domains require a new implementation, and verify compatibility with `maatify/persistence v1.1.0`.
+- **Goal:** Audit the six domains, identify which post-legacy-v1.0 pagination work must be rebuilt, identify which domains require a new implementation, and verify compatibility with `maatify/persistence v1.1.0`.
 - **Status:** Complete. ([View Audit](../audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md))
 
 ### Phase 2 — `AuditTrail` Pagination Rebuild POC
 **Status:** [Implemented and Merged / Pending v1.1.0 Release](../architecture/ADMIN_QUERY_AUDIT_TRAIL_POC_BLUEPRINT.md)
 
-- **Classification:** Rebuild of incorrect post-v1.0 work.
-- **Goal:** Replace the existing post-v1.0 `AuditTrail` pagination experiment with the correct separate Admin Query API architecture using `maatify/persistence`.
-- **Requirements:** Approved blueprint, package-owned public contract, shared count/data filter source, mapper strategy, exception translation, sort whitelist, and complete regression coverage proving that `v1.0.0` behavior remains unchanged.
+- **Classification:** Rebuild of incorrect post-legacy-v1.0 work.
+- **Goal:** Replace the existing post-legacy-v1.0 `AuditTrail` pagination experiment with the correct separate Admin Query API architecture using `maatify/persistence`.
+- **Requirements:** Approved blueprint, package-owned public contract, shared count/data filter source, mapper strategy, exception translation, sort whitelist, and complete regression coverage proving that legacy `maatify/event-logging` `v1.0.0` behavior remains unchanged.
 - **Status:** Implemented and Merged / Pending v1.1.0 Release.
 
-### Phase 3 — Remaining Post-v1.0 Pagination Rebuilds
+### Phase 3 — Remaining Post-Legacy-v1.0 Pagination Rebuilds
 
 Apply the approved `AuditTrail` POC architecture in this order:
 
@@ -72,26 +74,26 @@ Apply the approved `AuditTrail` POC architecture in this order:
 
 For each rebuild domain:
 
-- Replace the incorrect post-v1.0 pagination implementation with the approved package-owned Admin Query API.
-- Treat post-v1.0 wrapper interfaces, page DTOs, cursor DTOs, service shapes, serialization, and cursor-wrapper mechanics as remediation inputs rather than protected compatibility contracts.
-- Delete the superseded post-v1.0 Runtime/test artifacts in the same Runtime rebuild change set after the replacement and its complete tests are present; do not defer deletion to a later cleanup phase.
-- Preserve every `v1.0.0` contract and Runtime behavior.
-- Search maintained host repositories and migrate any discovered post-v1 wrapper usage, without keeping the obsolete package API alive or postponing its package-level deletion.
+- Replace the incorrect post-legacy-v1.0 pagination implementation with the approved package-owned Admin Query API.
+- Treat post-legacy-v1.0 wrapper interfaces, page DTOs, cursor DTOs, service shapes, serialization, and cursor-wrapper mechanics as remediation inputs rather than protected compatibility contracts.
+- Delete the superseded post-legacy-v1.0 Runtime/test artifacts in the same Runtime rebuild change set after the replacement and its complete tests are present; do not defer deletion to a later cleanup phase.
+- Preserve every contract and Runtime behavior protected by legacy `maatify/event-logging` `v1.0.0`.
+- Search maintained host repositories and migrate any discovered post-legacy-v1 wrapper usage, without keeping the obsolete package API alive or postponing its package-level deletion.
 - Do not copy pagination mechanics owned by `maatify/persistence`.
 
 - **Status:**
   - `BehaviorTrace`: [Owner Approved / Runtime Implemented](../architecture/ADMIN_QUERY_BEHAVIOR_TRACE_REBUILD_BLUEPRINT.md)
-  - `SecuritySignals`: [Owner Approved / Runtime Implemented](../architecture/ADMIN_QUERY_SECURITY_SIGNALS_REBUILD_BLUEPRINT.md); [post-v1 retirement decision recorded](../architecture/ADMIN_QUERY_SECURITY_SIGNALS_POST_V1_RETIREMENT_DECISION.md)
+  - `SecuritySignals`: [Owner Approved / Runtime Implemented](../architecture/ADMIN_QUERY_SECURITY_SIGNALS_REBUILD_BLUEPRINT.md); [post-legacy-v1 retirement decision recorded](../architecture/ADMIN_QUERY_SECURITY_SIGNALS_POST_V1_RETIREMENT_DECISION.md)
   - `AuthoritativeAudit`: [Implemented / Complete](../architecture/ADMIN_QUERY_AUTHORITATIVE_AUDIT_REBUILD_BLUEPRINT.md)
 
 ### Phase 4 — New Pagination Implementations for Missing Domains
 
-Implement the Admin Query API for domains that never received the incorrect post-v1.0 pagination experiment:
+Implement the Admin Query API for domains that never received the incorrect post-legacy-v1.0 pagination experiment:
 
 1. `DiagnosticsTelemetry` — new implementation.
 2. `DeliveryOperations` — new implementation after `DiagnosticsTelemetry` because its query surface is more complex.
 
-These are new post-v1.0 features, not corrections to the first-release Runtime.
+These are new post-legacy-v1.0 features, not corrections to the legacy first-release Runtime.
 
 - **Status:** Phase 4 is active. DiagnosticsTelemetry Runtime is complete and merged.
   - `DiagnosticsTelemetry`: [Owner Approved / Runtime Implemented / Complete](../architecture/ADMIN_QUERY_DIAGNOSTICS_TELEMETRY_BLUEPRINT.md)
@@ -101,7 +103,7 @@ These are new post-v1.0 features, not corrections to the first-release Runtime.
 
 After all six Admin pagination paths are complete and stable, define and implement reporting and dashboard summary contracts for **all six domains**.
 
-This work is new post-v1.0 functionality for every domain. It must proceed domain by domain and must not be mixed into the pagination remediation PRs.
+This work is new post-legacy-v1.0 functionality for every domain. It must proceed domain by domain and must not be mixed into the pagination remediation PRs.
 
 Default reporting order:
 
@@ -128,13 +130,13 @@ Reporting scope may include domain-appropriate aggregates, counts, trends, and d
 
 Every implementation phase must prove all of the following:
 
-1. No first-release `v1.0.0` public contract is removed or changed.
+1. No public contract protected by legacy `maatify/event-logging` `v1.0.0` is removed or changed.
 2. Existing primitive read/query behavior remains identical.
 3. Existing write/logging Runtime behavior remains identical.
-4. Existing schemas remain compatible unless a separately approved migration is strictly required for the new post-v1.0 feature.
-5. Existing host integrations that depend on the protected first-release contracts continue to work without modification.
-6. Incorrect post-v1.0 pagination artifacts are not preserved merely because they already exist or expose public PHP symbols; rebuild phases replace and delete them atomically.
-7. Post-v1 wrapper page/cursor contracts and cursor-wrapper mechanics are not compatibility targets unless a separate explicit Owner decision says otherwise.
+4. Existing schemas remain compatible unless a separately approved migration is strictly required for the new post-legacy-v1.0 feature.
+5. Existing host integrations that depend on the protected legacy first-release contracts continue to work without modification.
+6. Incorrect post-legacy-v1.0 pagination artifacts are not preserved merely because they already exist or expose public PHP symbols; rebuild phases replace and delete them atomically.
+7. Post-legacy-v1 wrapper page/cursor contracts and cursor-wrapper mechanics are not compatibility targets unless a separate explicit Owner decision says otherwise.
 8. Host repositories are searched and migrated as integration work, but host migration does not keep superseded package artifacts alive or defer deletion to a later package cleanup.
 9. No domain is skipped from the final pagination and reporting coverage.
 

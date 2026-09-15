@@ -6,12 +6,13 @@
 
 ## Scope Boundary Notice
 
-*   This document governs only the protected `v1.0.0` primitive cursor read/query path.
-*   Its cursor requirements do not govern the separate post-v1 Admin Query API.
+*   This document governs only the protected primitive cursor read/query compatibility baseline inherited from legacy `maatify/event-logging` `v1.0.0`.
+*   It does not indicate that `maatify/php-event-logging` has a published Stable release.
+*   Its cursor requirements do not govern the separate post-legacy-v1 Admin Query API.
 *   It must not be used to justify extending the superseded cursor-wrapper experiment.
 
 ## 1. Overview
-This design document outlines the required primitive read/query support for the `maatify/event-logging` library, allowing host applications to build admin viewing functionality. It defines strict boundaries: the package provides pure query contracts and DTOs, while the host application owns controllers, dashboard UI, presentation, permissions, localization, exports, and complex host-specific analytics. Future domain-scoped reporting/dashboard summary contracts may be package-owned under the approved Admin Query architecture.
+This design document outlines the required primitive read/query support for the `maatify/php-event-logging` library, allowing host applications to build admin viewing functionality. It defines strict boundaries: the package provides pure query contracts and DTOs, while the host application owns controllers, dashboard UI, presentation, permissions, localization, exports, and complex host-specific analytics. Future domain-scoped reporting/dashboard summary contracts may be package-owned under the approved Admin Query architecture.
 
 ## 2. Public Read/Query Contracts
 Each domain MUST implement its own isolated query interface. There MUST NOT be any shared or generic readers.

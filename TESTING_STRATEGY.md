@@ -1,8 +1,8 @@
 # Testing Strategy
 
-Recommended validation for `maatify/event-logging`:
+Recommended validation for `maatify/php-event-logging`:
 
-1. Run `composer validate` inside `packages/event-logging`.
+1. Run `composer validate --strict` from the repository root.
 2. Run PHP syntax checks over every copied PHP file.
 3. Add domain-level unit tests for recorder behavior, policy enforcement, DTO boundaries, and storage-contract calls.
 4. Add integration tests for MySQL repositories using disposable databases and the copied schema files.

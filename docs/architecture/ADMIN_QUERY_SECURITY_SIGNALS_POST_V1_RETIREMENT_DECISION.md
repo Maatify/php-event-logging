@@ -1,16 +1,18 @@
-# SecuritySignals Post-v1 Wrapper Retirement Decision
+# SecuritySignals Post-Legacy-v1 Wrapper Retirement Decision
 
 **Status:** Owner Decision / Required by SecuritySignals Rebuild
 
-This document records the retirement rule for the SecuritySignals pagination artifacts introduced after `v1.0.0`.
+This document records the retirement rule for the SecuritySignals pagination artifacts introduced after the legacy `maatify/event-logging` `v1.0.0` baseline.
+
+> **Identity and release-state note:** The protected release references in this decision refer to the inherited legacy `maatify/event-logging` `v1.0.0` compatibility/runtime baseline. They do not claim a published Stable release for `maatify/php-event-logging`.
 
 It applies to the SecuritySignals Admin Query rebuild documented by PR #102 and supersedes any wording that delays package-level deletion of the superseded wrapper until a later host-migration or cleanup phase.
 
 ---
 
-## 1. Protected Compatibility Boundary
+## 1. Protected Legacy Compatibility Boundary
 
-Only the published `v1.0.0` SecuritySignals Runtime contract is protected.
+Only the SecuritySignals Runtime contract protected by the legacy `maatify/event-logging` `v1.0.0` release is protected.
 
 The protected boundary includes:
 
@@ -29,9 +31,9 @@ The required distinct-placeholder correction inside the primitive cursor SQL rem
 
 ---
 
-## 2. Superseded Post-v1 Artifacts
+## 2. Superseded Post-Legacy-v1 Artifacts
 
-The following Runtime files were introduced after `v1.0.0` and are outside the frozen compatibility boundary:
+The following Runtime files were introduced after the legacy `maatify/event-logging` `v1.0.0` baseline and are outside the frozen compatibility boundary:
 
 ```text
 src/SecuritySignals/Contract/SecuritySignalsPaginatedQueryInterface.php
@@ -51,7 +53,7 @@ tests/Unit/SecuritySignals/Service/SecuritySignalsPaginatedQueryServiceTest.php
 These seven files are classified as:
 
 ```text
-Superseded Post-v1 Experiment
+Superseded Post-Legacy-v1 Experiment
 ```
 
 They are remediation inputs, not compatibility contracts.
@@ -72,7 +74,7 @@ The rebuild has no obligation to preserve the superseded wrapper's:
 - wrapper pagination semantics;
 - internal coupling to the primitive query path.
 
-The existence of public PHP symbols in this post-v1 experiment does not make them part of the protected `v1.0.0` package surface.
+The existence of public PHP symbols in this post-legacy-v1 experiment does not make them part of the package surface protected by legacy `maatify/event-logging` `v1.0.0`.
 
 The replacement contract is the separately approved package-owned SecuritySignals Admin Query API using `maatify/persistence`.
 
@@ -93,8 +95,8 @@ The Runtime rebuild is atomic at the package level:
 
 1. add the approved SecuritySignals Admin Query implementation;
 2. add its Unit, Regression, and strict real-MySQL Integration coverage;
-3. preserve the protected `v1.0.0` primitive behavior;
-4. delete the exact seven superseded post-v1 artifacts;
+3. preserve the primitive behavior protected by legacy `maatify/event-logging` `v1.0.0`;
+4. delete the exact seven superseded post-legacy-v1 artifacts;
 5. update package and integration documentation.
 
 A Runtime PR that keeps the superseded wrapper as an active or deprecated compatibility layer is incomplete unless a new explicit Owner decision authorizes that exception.
@@ -139,13 +141,13 @@ This decision supersedes any statement in the SecuritySignals rebuild blueprint 
 - the seven artifacts must remain until after host search or migration;
 - deletion belongs to a later cleanup phase;
 - the old page/cursor contracts must be preserved;
-- the superseded cursor-wrapper behavior is part of the protected `v1.0.0` contract.
+- the superseded cursor-wrapper behavior is part of the contract protected by legacy `maatify/event-logging` `v1.0.0`.
 
 The correct rule is:
 
 ```text
-Protected v1.0.0 primitive contract: preserve.
-Superseded post-v1 pagination wrapper: rebuild and delete atomically.
+Protected legacy `maatify/event-logging` `v1.0.0` primitive contract: preserve.
+Superseded post-legacy-v1 pagination wrapper: rebuild and delete atomically.
 Host usage: search and migrate, without preserving the obsolete package API.
 ```
 

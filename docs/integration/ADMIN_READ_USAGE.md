@@ -1,6 +1,6 @@
 # Admin Read Usage
 
-> **Scope Boundary Notice:** This guide covers the protected primitive `v1.0.0` read/query path and the separate AuthoritativeAudit, AuditTrail, BehaviorTrace, SecuritySignals, DiagnosticsTelemetry, and DeliveryOperations Admin Query APIs. The existing post-v1 pagination wrappers are superseded experiments and must not be used for new integrations. This includes:
+> **Scope Boundary Notice:** This guide covers the protected primitive read/query compatibility baseline inherited from legacy `maatify/event-logging` `v1.0.0` and the separate AuthoritativeAudit, AuditTrail, BehaviorTrace, SecuritySignals, DiagnosticsTelemetry, and DeliveryOperations Admin Query APIs. The existing post-legacy-v1 pagination wrappers are superseded experiments and must not be used for new integrations. This includes:
 > - `*PaginatedQueryInterface`
 > - `*QueryCursorDTO`
 > - `*QueryPageDTO`
@@ -8,7 +8,7 @@
 >
 > AuthoritativeAudit, AuditTrail, BehaviorTrace, SecuritySignals, and DeliveryOperations use rebuilt/new Admin Query paths. DiagnosticsTelemetry uses a new Admin Query implementation. All six domains now have Admin Query Runtime implemented; see the [Admin Query API Architecture](../architecture/ADMIN_QUERY_API_ARCHITECTURE.md) and [Roadmap](../roadmap/ADMIN_QUERY_API_ROADMAP.md).
 
-The `maatify/event-logging` library provides both protected primitive read/query contracts and separate Admin Query offset pagination contracts, strictly scoped to each domain, intended to serve as the foundation for administrative viewing capabilities.
+The `maatify/php-event-logging` library provides both protected primitive read/query contracts and separate Admin Query offset pagination contracts, strictly scoped to each domain, intended to serve as the foundation for administrative viewing capabilities.
 
 **Note: The package does not provide generic readers, admin controllers, routes, middleware, permissions, UI dashboards, exports, complex analytics, labels/localization, or actor resolution.** The host application retains complete responsibility for building out those features on top of these query interfaces.
 

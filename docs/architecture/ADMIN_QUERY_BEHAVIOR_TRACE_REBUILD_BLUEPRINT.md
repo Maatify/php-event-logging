@@ -1,5 +1,7 @@
 # Owner Approved / Runtime Implemented
 
+> **Identity and release-state note:** References below to the legacy `v1.0.0` baseline, first release, or post-v1 work refer to the inherited compatibility/runtime baseline of `maatify/event-logging` `v1.0.0`. They do not claim a published Stable release for `maatify/php-event-logging`.
+
 ## 1. Audit the Current Main State
 
 * **Exact audited main SHA:** `59ac1afee2313172d11de4f008169c5fd9c824a6`
@@ -138,9 +140,9 @@ The future implementation must:
 * preserve custom policy behavior;
 * make no change to the two public primitive method signatures.
 
-## 4. Inventory the Superseded Post-v1 Artifacts
+## 4. Inventory the Superseded Post-Legacy-v1 Artifacts
 
-The following current artifacts are explicitly classified as: **Superseded Post-v1 Experiment**
+The following current artifacts are explicitly classified as: **Superseded Post-Legacy-v1 Experiment**
 
 * `src/BehaviorTrace/Contract/BehaviorTracePaginatedQueryInterface.php`
 * `src/BehaviorTrace/DTO/BehaviorTraceQueryCursorDTO.php`
@@ -152,16 +154,16 @@ Related tests:
 * `tests/Unit/BehaviorTrace/DTO/BehaviorTraceQueryCursorDTOTest.php`
 * `tests/Unit/BehaviorTrace/DTO/BehaviorTraceQueryPageDTOTest.php`
 
-Documentation references to the superseded post-v1 BehaviorTrace pagination artifacts or their wildcard artifact family:
+Documentation references to the superseded post-legacy-v1 BehaviorTrace pagination artifacts or their wildcard artifact family:
 * `EVENT_LOGGING_PACKAGE_REFERENCE.md` (Contains wildcard artifact-family and architecture/history references; it does not list the four BehaviorTrace superseded classes by exact FQCN.)
 * `docs/architecture/ADMIN_QUERY_API_ARCHITECTURE.md` (Contains wildcard and roadmap/status references)
-* `docs/roadmap/ADMIN_QUERY_API_ROADMAP.md` (Contains roadmap/status references to the superseded post-v1 experiment)
+* `docs/roadmap/ADMIN_QUERY_API_ROADMAP.md` (Contains roadmap/status references to the superseded post-legacy-v1 experiment)
 * `docs/audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md` (Contains exact references and roadmap/status references)
 * `docs/audits/DOCUMENTATION_INVENTORY.md` (Contains roadmap/status references)
 
 These documentation references are updated or retained as architecture/history references; they are not Runtime consumers blocking future deletion.
 
-These are not protected `v1.0.0` primitive contracts.
+These are not primitive contracts protected by legacy `maatify/event-logging` `v1.0.0`.
 They must not be deleted until the replacement Runtime passes its complete compatibility gate.
 
 ## 5. Define the Separate Public Admin Query API
@@ -799,7 +801,7 @@ Document that `read()` already uses distinct placeholders and remains unchanged.
 **Modify:**
 * `src/BehaviorTrace/Infrastructure/Mysql/BehaviorTraceQueryMysqlRepository.php`
 
-**Delete (Superseded Post-v1 Experiment):**
+**Delete (Superseded Post-Legacy-v1 Experiment):**
 * `src/BehaviorTrace/Contract/BehaviorTracePaginatedQueryInterface.php`
 * `src/BehaviorTrace/DTO/BehaviorTraceQueryCursorDTO.php`
 * `src/BehaviorTrace/DTO/BehaviorTraceQueryPageDTO.php`
@@ -820,7 +822,7 @@ Document that `read()` already uses distinct placeholders and remains unchanged.
 **Tests to modify:**
 * `tests/Integration/BehaviorTrace/BehaviorTraceRepositoryTest.php` remains unchanged as the existing protected integration test unless a separately documented reason proves modification is unavoidable.
 
-**Tests to delete (Superseded Post-v1 Experiment):**
+**Tests to delete (Superseded Post-Legacy-v1 Experiment):**
 * `tests/Unit/BehaviorTrace/Service/BehaviorTracePaginatedQueryServiceTest.php`
 * `tests/Unit/BehaviorTrace/DTO/BehaviorTraceQueryCursorDTOTest.php`
 * `tests/Unit/BehaviorTrace/DTO/BehaviorTraceQueryPageDTOTest.php`
@@ -891,7 +893,7 @@ using native prepared statements.
 - [x] no tag or release is authorized;
 - [x] the complete BehaviorTrace blueprint is approved;
 - [x] BehaviorTrace Runtime implementation is complete;
-- [x] deletion of the superseded post-v1 artifacts is complete after the replacement Runtime and its complete tests passed.
+- [x] deletion of the superseded post-legacy-v1 artifacts is complete after the replacement Runtime and its complete tests passed.
 - [x] approve this behavior-preserving primitive correction:
 
   ```sql

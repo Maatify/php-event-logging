@@ -1,6 +1,6 @@
 # Optional DI Bindings
 
-The `maatify/event-logging` package provides an optional convenience helper, `EventLoggingBindings::definitions()`, designed to simplify wiring the package domains within host applications that utilize Dependency Injection (DI) containers.
+The `maatify/php-event-logging` package provides an optional convenience helper, `EventLoggingBindings::definitions()`, designed to simplify wiring the package domains within host applications that utilize Dependency Injection (DI) containers.
 
 ## ⚠️ Key Architectural Guarantees
 

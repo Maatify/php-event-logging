@@ -1,6 +1,6 @@
 # Manual Wiring
 
-The `maatify/event-logging` library is completely container and framework agnostic. While you can use the provided factories, you might prefer or need to manually wire the dependencies yourself (e.g. to inject custom policies or when adhering to specific DI paradigms). This document outlines how to manually wire the components of a logging domain.
+The `maatify/php-event-logging` library is completely container and framework agnostic. While you can use the provided factories, you might prefer or need to manually wire the dependencies yourself (e.g. to inject custom policies or when adhering to specific DI paradigms). This document outlines how to manually wire the components of a logging domain.
 
 ## Preserving Domain Isolation
 

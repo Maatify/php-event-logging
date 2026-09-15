@@ -1,12 +1,12 @@
 # Unified Logging Architecture
 
 **Status:** CANONICAL
-**Scope:** Defines the unified logging architecture, layering, authority boundaries, storage semantics, and forbidden patterns for the `maatify/event-logging` package.
+**Scope:** Defines the unified logging architecture, layering, authority boundaries, storage semantics, and forbidden patterns for the `maatify/php-event-logging` package.
 **Audience:** Architects, Backend Developers, Reviewers
 
 ## 1. System Purpose
 
-This document serves as the canonical source of truth for the event logging architecture provided by the `maatify/event-logging` package.
+This document serves as the canonical source of truth for the event logging architecture provided by the `maatify/php-event-logging` package.
 
 The architecture strictly enforces:
 - Domain isolation (no generic loggers)

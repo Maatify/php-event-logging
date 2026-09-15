@@ -2,7 +2,7 @@
 
 ## 1. Library Responsibility vs Host Application Responsibility
 
-The boundary between the `maatify/event-logging` library and host applications is strictly defined to preserve the package's framework-agnostic, standalone nature.
+The boundary between the `maatify/php-event-logging` library and host applications is strictly defined to preserve the package's framework-agnostic, standalone nature.
 
 **Library owns:**
 *   Domain commands and input contracts (`Command\*`)

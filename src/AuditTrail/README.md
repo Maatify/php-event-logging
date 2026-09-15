@@ -77,7 +77,7 @@ $page = $adminQuery->paginate(new AuditTrailAdminQueryRequestDTO(
 
 The Admin Query API supports actor, event key, entity, subject, request, correlation, and inclusive date-range filters. Type-only filters are valid; ID-only filters are invalid. The response contains `items`, `page`, `perPage`, `total`, `filtered`, `totalPages`, `hasNext`, `hasPrevious`, `sortBy`, and `sortDirection`.
 
-The primitive `AuditTrailQueryInterface` remains available and unchanged. The removed AuditTrail cursor wrapper artifacts were unreleased post-v1 experiments, not v1 contracts.
+The primitive `AuditTrailQueryInterface` remains available and unchanged. The removed AuditTrail cursor wrapper artifacts were unreleased post-legacy-v1 experiments, not contracts protected by the legacy `maatify/event-logging` `v1.0.0` compatibility baseline.
 
 This package does not provide HTTP controllers, authorization, routes, UI, exports, localization, free-text search, metadata search, or dashboards.
 

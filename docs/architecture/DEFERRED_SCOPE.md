@@ -1,13 +1,13 @@
 # Deferred Scope & Future Considerations
 
 **Status:** CANONICAL
-**Scope:** Documents capabilities, strategies, and implementation details that are deferred to future phases and are **not part of the v1.0.0 runtime baseline**.
+**Scope:** Documents capabilities, strategies, and implementation details that are deferred to future phases and are **not part of the inherited legacy `maatify/event-logging` `v1.0.0` runtime baseline**.
 
 ---
 
 ## 1. Archiving Strategy
 
-While the unified logging architecture contemplates archiving to manage large data volumes, **archive support is deferred and optional**. It is not required for the correct functioning of the `maatify/event-logging` package.
+While the unified logging architecture contemplates archiving to manage large data volumes, **archive support is deferred and optional**. It is not required for the correct functioning of the `maatify/php-event-logging` package.
 
 **Deferred Archive Features:**
 - Dedicated `*_archive` tables (e.g., `maa_event_logging_behavior_trace_archive`).

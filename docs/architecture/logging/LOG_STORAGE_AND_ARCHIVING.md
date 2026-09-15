@@ -1,6 +1,6 @@
 # LOG_STORAGE_AND_ARCHIVING
 
-> **Project:** maatify/event-logging
+> **Project:** maatify/php-event-logging
 > **Status:** CANONICAL (Binding — Subordinate to unified-logging-system.*)
 > **Scope:** Defines **baseline storage** and **optional archiving** rules for the Unified Logging System.
 > **Terminology Source of Truth:** `docs/architecture/logging/LOG_DOMAINS_OVERVIEW.md`
