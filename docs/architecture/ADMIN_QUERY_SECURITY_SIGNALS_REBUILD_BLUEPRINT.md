@@ -249,13 +249,13 @@ The protected behavior is:
 The protected query failure prefix is exactly:
 
 ```text
-Failed to query SecuritySignals records:\x20
+Failed to query SecuritySignals records: 
 ```
 
 The protected row-mapping failure prefix is exactly:
 
 ```text
-Failed to map SecuritySignals row:\x20
+Failed to map SecuritySignals row: 
 ```
 
 The primitive repository:
