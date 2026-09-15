@@ -67,13 +67,13 @@ If current code contradicts the published stable contract, treat that as a defec
 
 ### 2.4 Repository standards
 
-Documents under:
+Documents under the local pinned standards root:
 
 ```text
-docs/standards/
+docs/php-engineering-standards/
 ```
 
-govern new code, unpublished APIs, package construction, Composer configuration, CI, naming, DTO shape, persistence use, testing, and presentation.
+The local `STANDARDS_MANIFEST.md` is the resolver record for the active Profiles, Scopes, and final Resolved Applicable Standards Set. The pinned Adoption Standard and Profile manifests under `docs/php-engineering-standards/standards/` govern how that set is resolved; the copied Engineering Standards govern new code, unpublished APIs, package construction, Composer configuration, CI, naming, DTO shape, persistence use, testing, and presentation.
 
 Standards govern how new work is built. They do not retroactively erase published compatibility guarantees. A documented legacy exception remains protected for its approved major line until separately changed.
 
@@ -347,7 +347,7 @@ Do not describe a PR as correct merely because it is mergeable or because docume
 
 1. `AGENTS.md`
 2. `EVENT_LOGGING_PACKAGE_REFERENCE.md`
-3. `docs/standards/PACKAGE_BUILDING_STANDARD.md`
+3. `docs/php-engineering-standards/STANDARDS_MANIFEST.md`, then the applicable pinned Package Building Standard recorded there
 4. `docs/architecture/ADMIN_QUERY_API_ARCHITECTURE.md`
 5. relevant domain rebuild blueprint
 6. relevant domain Owner-decision documents
