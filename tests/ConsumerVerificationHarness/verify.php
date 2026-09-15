@@ -83,15 +83,32 @@ try {
     }
 
     $result = $results[0];
-    if ($result->channel !== DeliveryChannelEnum::EMAIL->value
-        || $result->operationType !== DeliveryOperationTypeEnum::NOTIFICATION->value
-        || $result->status !== DeliveryStatusEnum::QUEUED->value
-        || $result->actorType !== 'SYSTEM'
-        || $result->requestId !== $requestId
-        || $result->provider !== 'consumer-harness'
-        || $result->metadata !== ['consumer' => 'verification-harness', 'run' => $run]
-    ) {
-        throw new RuntimeException('Consumer workflow returned an unexpected persisted public result.');
+    $actual = [
+        'channel' => $result->channel,
+        'operationType' => $result->operationType,
+        'status' => $result->status,
+        'actorType' => $result->actorType,
+        'targetType' => $result->targetType,
+        'requestId' => $result->requestId,
+        'provider' => $result->provider,
+        'metadata' => $result->metadata,
+    ];
+    $expected = [
+        'channel' => DeliveryChannelEnum::EMAIL->value,
+        'operationType' => DeliveryOperationTypeEnum::NOTIFICATION->value,
+        'status' => DeliveryStatusEnum::QUEUED->value,
+        'actorType' => 'SYSTEM',
+        'targetType' => 'consumer',
+        'requestId' => $requestId,
+        'provider' => 'consumer-harness',
+        'metadata' => ['consumer' => 'verification-harness', 'run' => $run],
+    ];
+    if ($actual !== $expected) {
+        throw new RuntimeException(sprintf(
+            'Consumer workflow returned an unexpected persisted public result. Expected %s, got %s.',
+            var_export($expected, true),
+            var_export($actual, true)
+        ));
     }
 
     echo "Consumer Verification Harness passed for clean run {$run}: persisted {$result->eventId}.\n";
