@@ -55,7 +55,7 @@
 
 ## 3. Executive verdict
 
-**النتيجة: NOT COMPLIANT — توجد 10 Confirmed Findings.**
+**النتيجة: NOT COMPLIANT — توجد 11 Confirmed Findings.**
 
 المخالَفات موزعة بين Composer/PHP، CI، اختبار المستهلك، توثيق التحقق المحلي، metadata الخاصة بالـ schema، وDTO واحد. توجد أيضًا مناطق واسعة متوافقة أو غير منطبقة، موضحة صراحة في القسمين 5 و6. لم تُصلح أي مخالفة في هذا التدقيق.
 
@@ -69,15 +69,15 @@
 - **Standard / rule:** `std-composer-package` §25، وقاعدة المكتبات القابلة لإعادة الاستخدام التي تمنع committed `composer.lock`؛ وتدعمها مراجعة package composition في §4.
 - **Repository evidence:** الملف `composer.lock` موجود في جذر المستودع ويظهر ضمن `git ls-files composer.lock`. وفي المقابل يذكر `CONTRIBUTING.md:5` أن `composer.lock` يجب ألا يُلتزم به، كما أن `.gitignore` يحتوي قاعدة تجاهله.
 - **سبب المخالفة:** حالة Git الفعلية تخالف سياسة المكتبة المعلنة وسياسة Composer للمكتبات القابلة لإعادة الاستخدام؛ وجود قاعدة ignore لا يلغي ملفًا متتبَّعًا بالفعل.
-- **Required remediation boundary:** قرار وسياسة lockfile داخل Composer/package workflow، مع إزالة الملف من التتبع عند تنفيذ Work Unit مصرح بها. لا يتضمن هذا التدقيق الحذف.
+- **Required remediation boundary:** تطبيق سياسة lockfile الإلزامية داخل Composer/package workflow، مع إزالة الملف من التتبع في Work Unit remediation مستقلة. لا يتضمن هذا التدقيق الحذف.
 
 ### F-002 — PHP compatibility contract أدنى من baseline الحالي
 
 - **Severity:** High
 - **Standard / rule:** `std-package-building` §1 يفرض PHP `>=8.4` للمكتبات الجديدة؛ و`std-composer-package` §15.1 يقرر نفس baseline للمكتبة الجديدة أو غير المنشورة Stable، مع استثناء المكتبة المنشورة سابقًا عند نفس الهوية والعقد.
-- **Repository evidence:** `composer.json:48` يعلن `"php": "^8.2"`، و`composer.json:68-70` يثبت Composer platform على `8.2.0`. وتكرر ذلك `README.md:44,182`، و`EVENT_LOGGING_PACKAGE_REFERENCE.md:23`، و`docs/integration/INSTALLATION.md` في متطلبات PHP. `README.md:20` و`EVENT_LOGGING_PACKAGE_REFERENCE.md:5` يثبتان أن هوية `maatify/php-event-logging` ما زالت Development بلا Stable release؛ الإصدار التاريخي ذو الهوية المختلفة `maatify/event-logging` لا يفعّل استثناء الهوية الحالية.
-- **سبب المخالفة:** الحزمة الحالية غير المنشورة Stable تستخدم baseline `8.2` بدل baseline الحالي `8.4`.
-- **Required remediation boundary:** Owner-approved PHP support decision ثم مواءمة Composer والوثائق ومصفوفة CI. لا يُسمح بتغيير العقد في هذا PR.
+- **Repository evidence:** `composer.json:48` يعلن `"php": "^8.2"`، و`composer.json:68-70` يثبت Composer platform على `8.2.0`. وتكرر ذلك `README.md:44,182`، و`EVENT_LOGGING_PACKAGE_REFERENCE.md:23`، و`docs/integration/INSTALLATION.md` في متطلبات PHP. `README.md:20` و`EVENT_LOGGING_PACKAGE_REFERENCE.md:5` يثبتان أن هوية `maatify/php-event-logging` ما زالت Development بلا Stable release. الإصدار التاريخي ذو الهوية المختلفة `maatify/event-logging` لا يفعّل استثناء الهوية الحالية، كما أن تسجيل Packagist الموثق في [PR #6](https://github.com/Maatify/php-event-logging/pull/6) لا يساوي Published state وفق `std-library-presentation` §14.
+- **سبب المخالفة:** الحزمة الحالية لا تملك Published Stable/RC exact version وفق تعريف §14، ومع ذلك تستخدم baseline `8.2` بدل baseline الحالي الإلزامي `8.4`.
+- **Required remediation boundary:** مواءمة PHP constraint وComposer platform والوثائق ومصفوفة CI مع baseline `>=8.4`. لا يُسمح بتغيير العقد في هذا PR.
 
 ### F-003 — CI يستخدم `composer update` رغم وجود lockfile متتبَّع
 
@@ -85,7 +85,7 @@
 - **Standard / rule:** `std-ci-workflow` §5: عند تتبع `composer.lock` يجب استخدام `composer install` وألا يعاد توليد lockfile داخل CI؛ أما `composer update` فهو مسار المكتبات التي لا تتتبع lockfile.
 - **Repository evidence:** `composer.lock` متتبَّع. ويستخدم `.github/workflows/ci.yml:133` `composer update` في Quality، و`:190` في Latest Dependency Tests، و`:241` في Integration، و`:296` في Lowest Dependencies.
 - **سبب المخالفة:** workflow resolution mode لا يطابق حالة lockfile الفعلية؛ jobs قد تعيد حل الاعتمادات بدل اختبار الحالة المثبتة.
-- **Required remediation boundary:** مواءمة سياسة lockfile وdependency-resolution jobs مع قرار F-001، مع الحفاظ على مصفوفة latest/lowest المقصودة فقط حيث يسمح بها الـ Standard.
+- **Required remediation boundary:** مواءمة سياسة lockfile وdependency-resolution jobs مع F-001، مع الحفاظ على مصفوفة latest/lowest المقصودة فقط حيث يسمح بها الـ Standard.
 
 ### F-004 — Change Detection لا يعتبر `composer.lock` مسارًا مؤثرًا
 
@@ -125,7 +125,7 @@
 - **Standard / rule:** `std-ci-workflow` §2.1 يطلب local parity لكل gate منطبق؛ و`std-library-presentation` §16 يطلب أن يوضح `CONTRIBUTING.md` أو ما يعادله متطلبات التحقق المحلي، الاختبارات، Integration، وPR expectations.
 - **Repository evidence:** `CONTRIBUTING.md:32-64` يوثق `composer install`, `composer validate`, `composer analyse` وPHPUnit، لكنه لا يوثق `composer audit`, platform verification, `git diff --check`, workflow lint، Consumer Harness، أو تحقق schema المطلوب. `TESTING_STRATEGY.md:3-10` يقول إن static analysis سيُضاف بعد تثبيت dependencies وCI، رغم أن PHPStan وCI موجودان فعليًا؛ كما لا يقدم مجموعة local gates النهائية.
 - **سبب المخالفة:** تعليمات المساهمين والاستراتيجية لا تعكس مجموعة التحقق الحالية التي يفرضها الـ resolved CI/testing standards، وفيها عبارة زمنية stale عن static analysis.
-- **Required remediation boundary:** توحيد أوامر وإرشادات التحقق المحلية في الوثائق فقط، بعد تثبيت قرارات WU-1 وWU-3؛ لا تغيير سلوك أدوات التحقق في هذا PR.
+- **Required remediation boundary:** توحيد أوامر وإرشادات التحقق المحلية في الوثائق فقط، بعد تثبيت مخرجات WU-1 وWU-3؛ لا تغيير سلوك أدوات التحقق في هذا PR.
 
 ### F-009 — Schema columns بلا meaningful SQL `COMMENT`
 
@@ -143,6 +143,14 @@
 - **سبب المخالفة:** readonly properties لا تحقق قاعدة الـ Standard التي تطلب readonly DTO class.
 - **Required remediation boundary:** تعديل declaration والاختبارات المتأثرة فقط ضمن Runtime/DTO Work Unit منفصل؛ لم يُعدّل الملف هنا.
 
+### F-011 — Publication/installation wording ينفي تسجيل Packagist الحالي
+
+- **Severity:** Medium
+- **Standard / rule:** `std-library-presentation` §5 و§12 يفرضان accuracy في presentation والـ README؛ و§14 يعرّف Published state على أنه package identity وexact version قابلان للحل والتثبيت خارجيًا، مع التأكيد أن التسجيل وحده لا ينشئ Stable أو RC publication.
+- **Repository evidence:** [PR #6](https://github.com/Maatify/php-event-logging/pull/6) يسجل أن Packagist registration اكتمل تحت الهوية `maatify/php-event-logging`. مع ذلك، `README.md:20` يقول إن الحزمة “not yet published on Packagist”، و`README.md:59` يقول إنها “not published on Packagist”، و`docs/integration/INSTALLATION.md:7` يكرر نفس النفي. كما تعكس `docs/audits/DOCUMENTATION_INVENTORY.md:7,72` وصفًا مبنيًا على أنها unpublished. أما `README.md:67` و`docs/integration/INSTALLATION.md:15` فيربطان consumer installation بوجود release معتمد؛ لا يُعد ذلك Finding مستقلاً ما دام المقصود عدم وجود Published exact Stable/RC version، لكنه يحتاج صياغة متسقة عند remediation. هذه العبارات لا تنفي عدم وجود Stable/RC؛ ذلك الجزء يظل منفصلًا ويجب الحفاظ عليه.
+- **سبب المخالفة:** wording الحالي يخلط بين Packagist registration وبين Published package/version state. ووفق §14 لا يجوز استبدال هذا النفي الخاطئ بادعاء Stable أو SemVer publication؛ الصياغة الصحيحة يجب أن تقول إن التسجيل موجود، مع بقاء حالة Stable/RC محكومة بدليل exact externally installable version.
+- **Required remediation boundary:** تحديث release/publication/installation wording والـ inventory notes فقط. لا يشمل ذلك إنشاء tag أو release أو تغيير Composer أو الادعاء بإصدار Stable.
+
 ## 5. مناطق متوافقة وفق الأدلة الحالية
 
 هذه ليست claims مبنية على غياب الأخطاء فقط؛ تم فحص الملفات والـ configurations ذات الصلة:
@@ -150,13 +158,13 @@
 - adoption manifest يثبت `Resolution Status: VALID`، والـ active Profiles والـ resolved Standards والـ upstream commit متسقة.
 - Composer identity، PSR-4 namespace، direct runtime dependencies، scripts الأساسية، و`type: library` موجودة ومتسقة مع standalone package composition، مع استثناءات F-001/F-002/F-003 الخاصة بالـ lock/PHP resolution.
 - `phpstan.neon` يضبط Level Max ويفحص `src` و`tests` دون baseline أو `ignoreErrors`، وPHPStan المحلي مرّ.
-- namespace root هو `Maatify\EventLogging\`، وأسماء interfaces/enums/exceptions تتبع suffix rules في الملفات المفحوصة. المخالفة الوحيدة المسجلة في DTO declarations هي F-010.
+- namespace root هو `Maatify\EventLogging\`، وأسماء interfaces/enums/exceptions تتبع suffix rules في الملفات المفحوصة. المخالفة المسجلة في DTO declarations محددة في F-010 فقط.
 - مسارات Admin Query تستخدم shared `Maatify\Persistence\Pdo\Pagination` وتستخدم selected columns صريحة؛ لم تُسجل مخالفة duplicated pagination engine.
 - مصادر الوقت تستخدم shared `ClockInterface`، ولم يظهر `date_default_timezone_set` في package source.
 - exception boundaries وfail-open/fail-closed semantics الحالية موثقة ومغطاة ضمن الاختبارات الحالية؛ لا يثبت هذا التدقيق أي runtime violation إضافية.
 - schema table prefixes، primary keys، indexes، table-level policy comments، وعدم وجود host foreign keys/JOINs تطابق القواعد المفحوصة؛ F-009 محدود إلى column comments.
 - CI يحوي action pinning، permissions read، MySQL 8.0 health check، timeouts، concurrency، `fail-fast: false`، explicit audit، workflow lint مع checksum، ومصفوفات PHP؛ findings CI أعلاه محددة فقط فيما ثبت نقصه.
-- README وSECURITY وCODE_OF_CONDUCT وCHANGELOG موجودة؛ حالة Development وغياب Stable/Packagist badges الحية قبل الإصدار موثقان بصورة متسقة، وREADME footer هو العنصر النهائي.
+- README وSECURITY وCODE_OF_CONDUCT وCHANGELOG موجودة؛ استمرار عدم وجود Stable/RC exact published version وغياب live Stable badges ما زالا متسقين، لكن نفي Packagist registration في README/installation wording مسجل في F-011. README footer هو العنصر النهائي.
 - Unit وRegression وIntegration suites معرفة في `phpunit.xml.dist`، وPHPUnit architecture الحالية تفصل suites؛ نتيجة Integration المحلية غير متاحة بسبب البيئة كما هو موضح في §7.
 
 ## 6. Not Applicable وUncertainty
@@ -170,7 +178,7 @@
 ### 6.2 Uncertainty requiring follow-up, not a confirmed violation
 
 - الاختبارات الحالية تشمل direct public repository/recorder behavior وreal-MySQL Integration suite، لكن لا يوجد Harness خارجي. غياب Harness مؤكد في F-006؛ أما الحكم التفصيلي على ما إذا كان كل workflow observable يحتاج طبقة E2E إضافية فوق Harness فيُحسم أثناء تصميم F-006، ولا يُسجل Finding مستقلًا الآن.
-- تغيير PHP baseline قد يؤثر في مستخدمين فعليين قبل Stable release. الحالة المعيارية الحالية تدعم `>=8.4` لهذه الهوية غير المنشورة، لكن آلية rollout/announcement تحتاج Owner Decision مستقلًا كما في §8.
+- لا توجد حالة عدم يقين تمنع تصنيف F-002: وفق §14 لا يكفي Packagist registration أو `dev-main` لإثبات Published exact version، ولا يوجد local contract أعلى يحمي `^8.2` لهذه الهوية. تفاصيل rollout/announcement اختيار تنفيذي لاحق.
 
 ## 7. Verification evidence
 
@@ -199,12 +207,13 @@ PR #6 was observed as open and Draft with base `main@04c6cf0de050300122c11095934
 
 ## 8. Owner Decisions المطلوبة
 
-هذه قرارات مستقلة عن Confirmed Findings ولا تغيّر عددها:
+**لا توجد Owner Decisions مطلوبة لتصنيف أو بدء Remediation لهذه Findings.** لم يثبت التدقيق تعارضًا بين Standard إلزامي وبين contract محلي أعلى سلطة أو legacy compatibility محمية:
 
-1. **PHP compatibility rollout:** اعتماد رفع contract الحالي لهذه الهوية إلى `>=8.4`، وتحديد صيغة تحديث README/Package Reference/installation guidance وCI matrix. إن رأى Owner ضرورة إبقاء دعم `8.2` قبل Stable، فيلزم قرار موثق واستراتيجية compatibility صريحة، لا إبقاء الحالة غير محسومة.
-2. **Lockfile policy:** تأكيد مسار reusable-library بلا committed lockfile، ثم تحديد ترتيب تعديل Composer وCI والوثائق في Work Unit واحد.
-3. **Schema metadata rollout:** تحديد ما إذا كانت column comments ستُضاف مباشرة إلى schema package-owned أو عبر migration/rebuild procedure، مع تحديد gate الذي يثبت عدم تغيير persistence behavior.
-4. **Consumer Harness release boundary:** اعتماد external Composer root وواقعية workflow ومرات التشغيل المطلوبة، وتحديد ما إذا كان Harness سيستخدم source repository مؤقتًا قبل أول Stable publication أو مسارًا منشورًا لاحقًا.
+1. `std-composer-package` §25 يستخدم `MUST NOT` للمكتبات القابلة لإعادة الاستخدام؛ وجود `CONTRIBUTING.md:5` المتسق مع القاعدة ليس تعارضًا.
+2. `std-package-building` §1 و`std-composer-package` §15.1 يفرضان `>=8.4` هنا؛ لا ينطبق استثناء published package لأن الهوية الحالية لا تملك Published exact version وفق `std-library-presentation` §14، والإصدار التاريخي ذو الهوية المختلفة لا يحميها.
+3. `std-testing` §3.4 و`std-ci-workflow` §2.2/§16 يفرضان Consumer Verification Harness وحدود تشغيله؛ اختيار layout أو source-resolution method داخل تلك الحدود implementation choice، لا Owner Decision.
+4. `std-package-building` §6 يفرض column comments عند انطباق persistence rules؛ اختيار DDL/migration mechanics implementation choice، لا Owner Decision.
+5. `std-library-presentation` §5/§12/§14 يفرض تصحيح publication/install wording؛ التسجيل على Packagist لا يخلق استثناءً ولا يحتاج قرارًا لتصحيح النص.
 
 ## 9. Proposed Remediation Work Units
 
@@ -213,10 +222,10 @@ PR #6 was observed as open and Draft with base `main@04c6cf0de050300122c11095934
 ### WU-1 — Composer/PHP contract and lock-aware CI policy
 
 - **Closes:** F-001, F-002, F-003, F-004.
-- **Scope:** حسم lockfile policy وPHP baseline، ثم مواءمة Composer metadata والوثائق ذات الصلة وchange detection وdependency resolution.
+- **Scope:** تطبيق lockfile policy وPHP baseline الإلزاميين، ثم مواءمة Composer metadata والوثائق ذات الصلة وchange detection وdependency resolution.
 - **Expected areas:** `composer.json`, `composer.lock`, `.gitignore`, `.github/workflows/ci.yml`, `README.md`, `EVENT_LOGGING_PACKAGE_REFERENCE.md`, `docs/integration/INSTALLATION.md`, `CONTRIBUTING.md`.
-- **Dependencies:** Owner Decisions 1 و2 أولًا؛ لا يعتمد على WU-2، لكن WU-3 يحتاج resolution policy مستقرة.
-- **Type:** Composer + CI + Docs، مع أثر compatibility يحتاج Owner approval.
+- **Dependencies:** لا توجد Owner Decision dependency؛ يُنفذ بعد تثبيت ترتيب remediation، ويجب أن يسبق WU-3 لأن Harness وCI يحتاجان resolution policy مستقرة.
+- **Type:** Composer + CI + Docs.
 - **Required gate:** `composer validate --strict`, dependency resolution وفق السياسة المعتمدة، `composer check-platform-reqs`, `composer audit --no-interaction --abandoned=fail`، مصفوفة PHP المعتمدة، ثم workflow lint.
 
 ### WU-2 — Package DTO and schema metadata conformance
@@ -224,7 +233,7 @@ PR #6 was observed as open and Draft with base `main@04c6cf0de050300122c11095934
 - **Closes:** F-009, F-010.
 - **Scope:** جعل DTO declaration مطابقة للـ readonly rule وإضافة/تثبيت column metadata المطلوبة دون تغيير SQL behavior أو public business contract.
 - **Expected areas:** `src/DeliveryOperations/DTO/DeliveryOperationsAdminQueryRequestDTO.php`، وملفات schema تحت `src/*/Database/`، مع الاختبارات أو schema verification الضرورية.
-- **Dependencies:** مستقل تنفيذيًا عن WU-1، لكن أي تغيير schema يحتاج Owner Decision 3.
+- **Dependencies:** مستقل تنفيذيًا عن WU-1؛ أي تغيير schema يجب أن يلتزم مباشرة بقاعدة F-009 وبـ schema verification gate.
 - **Type:** Code + Schema + Tests عند الضرورة.
 - **Required gate:** PHPStan Level Max، Unit/Regression، schema verification، strict real-MySQL Integration، و`git diff --check`.
 
@@ -233,16 +242,16 @@ PR #6 was observed as open and Draft with base `main@04c6cf0de050300122c11095934
 - **Closes:** F-005, F-006, F-007.
 - **Scope:** إنشاء external Consumer Verification Harness قابل لإعادة الإنتاج، ثم تشغيله في CI وربطه بالـ aggregate gate، وإضافة whitespace/patch-hygiene gate.
 - **Expected areas:** Consumer Composer root/fixtures/scripts، `.github/workflows/ci.yml`، وأي توثيق تشغيل لازم للـ Harness.
-- **Dependencies:** يعتمد على WU-1؛ ويفضل تنفيذه بعد استقرار WU-2 حتى يتحقق من package state النهائية.
+- **Dependencies:** يعتمد على WU-1 وWU-2 حتى يتحقق من package state النهائية، ثم يسبق WU-4.
 - **Type:** Tests + CI + Docs خليط ضروري.
 - **Required gate:** تشغيل Harness بتثبيت نظيف مرتين متتاليتين، استخدام production autoload/public API، real persistence boundary عند انطباقه، workflow lint، aggregate gate fail-closed، و`git diff --check`.
 
 ### WU-4 — Local verification documentation parity
 
-- **Closes:** F-008.
-- **Scope:** تحديث تعليمات المساهمين واستراتيجية الاختبار لتطابق الأوامر والـ gates النهائية، مع فصل unavailable MySQL بوضوح وعدم وصفه PASS.
-- **Expected areas:** `CONTRIBUTING.md`, `TESTING_STRATEGY.md`، وربما `docs/integration/INSTALLATION.md` إذا تأثرت أوامر package setup بقرارات WU-1.
-- **Dependencies:** بعد WU-1 وWU-3، حتى توثق الوثائق المسارات النهائية لا مسارات انتقالية.
+- **Closes:** F-008, F-011.
+- **Scope:** تحديث تعليمات المساهمين واستراتيجية الاختبار لتطابق الأوامر والـ gates النهائية، وتصحيح publication/installation wording ليعكس Packagist registration دون ادعاء Stable/RC، مع فصل unavailable MySQL بوضوح وعدم وصفه PASS.
+- **Expected areas:** `CONTRIBUTING.md`, `TESTING_STRATEGY.md`, `README.md`, `docs/integration/INSTALLATION.md`, `docs/audits/DOCUMENTATION_INVENTORY.md`، وربما `EVENT_LOGGING_PACKAGE_REFERENCE.md` إذا احتاجت صياغة الحالة الحالية مواءمة.
+- **Dependencies:** بعد WU-1 وWU-3، حتى توثق الوثائق المسارات النهائية لا مسارات انتقالية؛ لا توجد Owner Decision dependency.
 - **Type:** Docs فقط.
 - **Required gate:** مراجعة links والأوامر مقابل workflow الفعلي، ثم `composer validate --strict`, PHPStan، جميع suites المتاحة، Harness، workflow lint، و`git diff --check`.
 
