@@ -577,4 +577,4 @@ These non-goals preserve independent failure semantics, retention policies, sche
 - [Admin read usage](docs/integration/ADMIN_READ_USAGE.md) — admin read usage.
 - [Admin query API roadmap](docs/roadmap/ADMIN_QUERY_API_ROADMAP.md) — admin query roadmap.
 - [Admin query API architecture](docs/architecture/ADMIN_QUERY_API_ARCHITECTURE.md) — admin query architecture.
-- [Package building standard](docs/standards/PACKAGE_BUILDING_STANDARD.md) — generic package-reference standard using `{PACKAGE_NAME}_PACKAGE_REFERENCE.md`.
+- [Package building standard](docs/php-engineering-standards/standards/packages/PACKAGE_BUILDING_STANDARD.md) — generic package-reference standard using `{PACKAGE_NAME}_PACKAGE_REFERENCE.md`.
