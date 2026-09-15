@@ -25,42 +25,75 @@ When navigating the project, you will encounter the following directories:
 * `examples/` — Contains illustrative, standalone example scripts.
 * `schema/` — Contains the SQL schema files required for the package to function.
 
-## Running Tests
+## Local Verification Before a Pull Request
 
-Before submitting a Pull Request, please ensure all tests and static analysis checks pass.
+The complete local verification path is documented in
+[`TESTING_STRATEGY.md`](TESTING_STRATEGY.md). The repository does not track a
+`composer.lock`, so resolve dependencies with the same command used by CI:
 
-1. Install dependencies:
-   ```bash
-   composer install
-   ```
+```bash
+composer validate --strict
+composer update --no-interaction --prefer-dist --no-progress
+composer check-platform-reqs
+find src tests examples -type f -name '*.php' -print0 | xargs -0 -r -n 1 php -l
+composer analyse
+composer audit --no-interaction --abandoned=fail
+composer test:unit
+composer test:regression
+vendor/bin/phpunit tests/Regression/SchemaMetadataTest.php
+```
 
-2. Validate composer configuration:
-   ```bash
-   composer validate --strict
-   ```
+The schema verification is part of the Regression suite and checks the six
+domain SQL files through `tests/Regression/SchemaMetadataTest.php`.
 
-3. Run static analysis:
-   ```bash
-   composer analyse
-   ```
+The real-MySQL Integration gate requires a valid MySQL 8.0 service and all
+three variables below:
 
-4. Run tests:
-   You can run all tests, or specific suites:
-   ```bash
-   composer test:unit
-   composer test:regression
-   composer test:integration
-   composer test
-   ```
+```bash
+EVENT_LOGGING_TEST_MYSQL_DSN="mysql:host=127.0.0.1;port=3306;dbname=event_logging_test;charset=utf8mb4" \
+EVENT_LOGGING_TEST_MYSQL_USER="event_logging" \
+EVENT_LOGGING_TEST_MYSQL_PASSWORD="event_logging" \
+composer test:integration
+```
 
-   **Note on Integration Tests**:
-   Integration tests require a real MySQL database. `EVENT_LOGGING_TEST_MYSQL_DSN` must be set; otherwise the real-MySQL Integration gate is unavailable: shared integration fixtures may be skipped, while strict repository integration tests fail fast with a configuration error. This must not be reported as a passing Integration result. For example, to match the GitHub Actions environment, you might use:
-   ```bash
-   EVENT_LOGGING_TEST_MYSQL_DSN="mysql:host=127.0.0.1;port=3306;dbname=event_logging_test"
-   EVENT_LOGGING_TEST_MYSQL_USER="root"
-   EVENT_LOGGING_TEST_MYSQL_PASSWORD="root"
-   ```
-   Contributors should export or provide these environment variables in their local execution environment.
+If the MySQL configuration is missing, Integration is `UNAVAILABLE`, not
+`PASS`. Shared fixtures may skip and strict repository tests may fail fast
+with a configuration error; neither result is a passing Integration result.
+
+Run the external-consumer gate with its separate Harness variables:
+
+```bash
+EVENT_LOGGING_HARNESS_MYSQL_DSN="mysql:host=127.0.0.1;port=3306;dbname=event_logging_test;charset=utf8mb4" \
+EVENT_LOGGING_HARNESS_MYSQL_USER="event_logging" \
+EVENT_LOGGING_HARNESS_MYSQL_PASSWORD="event_logging" \
+bash tests/ConsumerVerificationHarness/run.sh
+```
+
+The Harness must complete two clean consumer runs. Missing Harness setup must
+fail closed and must not be silently skipped.
+
+Before opening the PR, also run the repository and workflow checks:
+
+```bash
+actionlint .github/workflows/ci.yml
+git diff --check <base-sha> <head-sha>
+```
+
+The lowest-dependency CI path additionally uses:
+
+```bash
+composer update --prefer-lowest --prefer-stable --no-interaction --prefer-dist --no-progress
+composer check-platform-reqs
+composer analyse -- --memory-limit=512M
+composer test
+```
+
+PHPStan and CI are current gates, not planned future additions. See the
+testing strategy for the mapping between these local commands and the CI jobs.
+
+## Package Distribution Status
+
+`maatify/php-event-logging` is registered on [Packagist](https://packagist.org/packages/maatify/php-event-logging), but no Stable or RC release, or other published exact SemVer version, is claimed under this package identity. Stable consumer installation remains tied to a future Owner-approved release.
 
 ## Architectural Rules
 
