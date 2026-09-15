@@ -23,7 +23,7 @@ When navigating the project, you will encounter the following directories:
 * `tests/` — Contains Unit, Integration, and Regression tests.
 * `docs/` — Contains detailed architectural and integration documentation.
 * `examples/` — Contains illustrative, standalone example scripts.
-* `schema/` — Contains the SQL schema files required for the package to function.
+* `schema/` — Contains the package-level schema index. The actual SQL schema files are domain-local under `src/*/Database/`.
 
 ## Local Verification Before a Pull Request
 
