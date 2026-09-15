@@ -83,6 +83,12 @@ try {
     }
 
     $result = $results[0];
+    $actualMetadata = $result->metadata;
+    if (is_array($actualMetadata)) {
+        ksort($actualMetadata);
+    }
+    $expectedMetadata = ['consumer' => 'verification-harness', 'run' => $run];
+    ksort($expectedMetadata);
     $actual = [
         'channel' => $result->channel,
         'operationType' => $result->operationType,
@@ -91,7 +97,7 @@ try {
         'targetType' => $result->targetType,
         'requestId' => $result->requestId,
         'provider' => $result->provider,
-        'metadata' => $result->metadata,
+        'metadata' => $actualMetadata,
     ];
     $expected = [
         'channel' => DeliveryChannelEnum::EMAIL->value,
@@ -101,7 +107,7 @@ try {
         'targetType' => 'consumer',
         'requestId' => $requestId,
         'provider' => 'consumer-harness',
-        'metadata' => ['consumer' => 'verification-harness', 'run' => $run],
+        'metadata' => $expectedMetadata,
     ];
     if ($actual !== $expected) {
         throw new RuntimeException(sprintf(
