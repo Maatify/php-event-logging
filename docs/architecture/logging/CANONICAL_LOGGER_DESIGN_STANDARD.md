@@ -103,8 +103,9 @@ The Policy MUST:
 * preserve that domain's documented fallback, normalization, and validation semantics
 * leave timestamp, event-id, and complete context assembly to the Recorder where the current
   domain contract assigns those responsibilities
-* not be treated as proof that the canonical safety requirements are enforced universally; those
-  requirements and the open Runtime gap are recorded in Section 6.4
+* not be treated as proof that the canonical safety requirements are enforced universally; the
+  current Runtime safety enforcement status is recorded in Section 6.4, including that the
+  previously recorded WU-2 safety blocker is closed by WU-3
 
 The Policy MUST NOT:
 
@@ -394,8 +395,8 @@ A logging domain implementation is compliant ONLY if:
 * Infrastructure throws honest exceptions
 * Recorder is the only swallow boundary (if any)
 * Context normalization is complete and UTC-based
-* Data safety rules remain canonical requirements; current enforcement status is tracked in
-  Section 6.4 as an open RC blocker
+* Data-safety requirements remain binding; current Runtime enforcement status is recorded in
+  Section 6.4, and the previously recorded WU-2 safety blocker is closed by WU-3
 * Storage targets are correct and exclusive
 
 ---
