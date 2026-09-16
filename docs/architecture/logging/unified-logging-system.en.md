@@ -141,7 +141,9 @@ For the following domains:
 **Recorder Contract (Hard Rule):**
 - `Recorder::record()` MUST be fail-open and MUST NOT throw under any condition.
 - Therefore, the Recorder MUST catch `Throwable` at the top-level boundary of `record()`.
-- After catching `Throwable`, the Recorder MUST swallow (never rethrow) and MUST surface the failure via a safe operational channel (PSR-3 and/or a last-resort primitive channel).
+- After catching `Throwable`, the Recorder MUST swallow (never rethrow). If an optional PSR-3
+  logger was supplied, it MAY receive a sanitized operational diagnostic; the current Runtime
+  has no mandatory primitive last-resort channel.
 
 **Infrastructure Contract (Hard Rule):**
 - Storage drivers / repositories MUST remain honest: they MUST NOT swallow.
@@ -149,7 +151,8 @@ For the following domains:
 
 **Recursion Guard (Hard Rule):**
 - Failure reporting MUST NOT call any logging recorder/writer again.
-- The last-resort channel MUST be primitive (e.g., `error_log`, syslog, stderr) and MUST NOT depend on DTOs/UUID/JSON encoding.
+- Failure reporting MUST NOT call another logging recorder/writer or claim an unimplemented
+  primitive fallback channel.
 
 ### Authoritative Audit (Fail-Closed)
 
@@ -215,16 +218,11 @@ URLs:
 
 ---
 
-## 10. actor_type Allowed Values
+## 10. actor_type Normalization and Validation
 
-* SYSTEM
-* ADMIN
-* USER
-* SERVICE
-* API_CLIENT
-* ANONYMOUS
-
-Validated at application layer.
+`actor_type` normalization and validation are governed by each domain's current policy and
+contract. This document does not impose one closed global set of values; each domain follows its
+own current contract and documents its domain-specific behavior.
 
 ---
 

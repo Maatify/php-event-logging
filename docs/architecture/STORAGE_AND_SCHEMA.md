@@ -48,6 +48,11 @@ The Admin Query path does not replace or alter the primitive path. Both paths re
 domain-specific canonical tables listed above, and neither path creates a generic reader or
 cross-domain query layer.
 
+For `AuthoritativeAudit`, both primitive and Admin Query reads target only
+`maa_event_logging_authoritative_audit_log`. They never read
+`maa_event_logging_authoritative_audit_outbox`; the outbox is the authoritative write-side source
+of truth and the materialized log is the read model.
+
 **Forbidden Operations:**
 - HTTP controllers, permissions, UI-grid presentation, or dashboard implementation in the package
 - Generic search or cross-domain queries

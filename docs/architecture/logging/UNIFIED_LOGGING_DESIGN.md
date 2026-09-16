@@ -209,18 +209,23 @@ Logging must not fail silently in infrastructure unless explicitly permitted by 
 - For all **Non-Authoritative** domains, `Recorder::record()` MUST be **fail-open** and MUST NOT throw under any condition.
 - Therefore, the Recorder MUST catch **`Throwable` at the top-level boundary** of `record()`.
 - Infrastructure MUST remain honest (never swallow) and MUST throw **domain-specific storage exceptions**.
-- The Recorder MUST swallow after catching `Throwable` (record() MUST NOT throw), and MUST surface the failure via PSR-3 (and/or safe last-resort channel) without recursion.
+- The Recorder MUST swallow after catching `Throwable` (record() MUST NOT throw). If an optional
+  PSR-3 logger was supplied, it MAY receive a sanitized diagnostic; no mandatory primitive
+  last-resort channel is part of the current Runtime.
 
 **Recursion Guard (Hard Rule):**
 - Failure reporting MUST NOT call any logging domain recorder/writer again.
-- The last-resort channel MUST be primitive (e.g., `error_log`, syslog, stderr) and MUST NOT depend on DTOs/UUID/JSON encoding.
+- Failure reporting MUST NOT call another logging recorder/writer or claim an unimplemented
+  primitive fallback channel.
 
 * **Non-authoritative recorders MAY treat storage failures as best-effort** if and only if:
   * the swallow is explicit and documented as “best-effort logging”
   * the infrastructure driver itself remains honest (does not swallow)
-  * the failure is surfaced operationally (PSR-3 warning) and SHOULD be captured via Diagnostics Telemetry **without creating recursive failures** (sanitized)
+  * an optional supplied PSR-3 logger MAY receive a sanitized operational diagnostic, without
+    creating recursive failures
 
-**Important:** If Diagnostics Telemetry write fails too, it MUST NOT cascade into further writes; PSR-3 is the last-resort operational visibility channel.
+**Important:** Failure reporting must not cascade into further logging writes. There is no required
+primitive fallback channel when an optional PSR-3 logger was not supplied.
 
 ### 6.3 Forbidden Swallowing
 
@@ -447,20 +452,11 @@ deferred portions below preserve the requirements for separately approved future
 * storing full stack traces as metadata payloads
 * storing multi-megabyte debug dumps
 
-### 14.2 actor_type Allowed Values (Hard)
+### 14.2 actor_type Normalization and Validation
 
-To prevent taxonomy drift, `actor_type` MUST be validated against canonical values.
-
-Allowed values:
-
-* `SYSTEM`
-* `ADMIN`
-* `USER`
-* `SERVICE`
-* `API_CLIENT`
-* `ANONYMOUS`
-
-Any new value requires an explicit documented architectural decision.
+`actor_type` normalization and validation are governed by each domain's current policy and
+contract. This unified design does not impose one closed global set of values; each domain follows
+its own current contract and documents any domain-specific behavior.
 
 ### 14.3 Audit Trail referrer_path / URL Safety (Hard)
 

@@ -12,7 +12,9 @@ The unified logging system enforces exactly six distinct logging domains. No add
 ### 1. AuthoritativeAudit
 - **Intent:** Governance, security posture, compliance, and strict state transitions.
 - **Failure Mode:** **Fail-closed**. Storage failures must propagate as exceptions (e.g., `SystemMaatifyException`).
-- **Data Lifecycle:** Immutable. Logged data represents the undeniable source of truth.
+- **Data Lifecycle:** Immutable. `maa_event_logging_authoritative_audit_outbox` is the
+  authoritative source of truth. `maa_event_logging_authoritative_audit_log` is only the
+  materialized read model and must not be treated as the authoritative write-side record.
 
 ### 2. AuditTrail
 - **Intent:** Reads, views, exports, navigation, and data exposure tracking.

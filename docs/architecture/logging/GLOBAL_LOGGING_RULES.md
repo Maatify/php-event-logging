@@ -297,18 +297,11 @@ are not invented (for example, AuthoritativeAudit has no `request_id` column):
 * `user_agent`
 * `occurred_at` (**UTC only**)
 
-### 11.2 actor_type Allowed Values
+### 11.2 actor_type Normalization and Validation
 
-`actor_type` MUST be one of:
-
-* SYSTEM
-* ADMIN
-* USER
-* SERVICE
-* API_CLIENT
-* ANONYMOUS
-
-Any other value is invalid.
+`actor_type` normalization and validation are governed by each domain's current policy and
+contract. These global rules do not impose one closed set of values or a uniform rejection rule;
+each domain follows its own current contract.
 
 ---
 

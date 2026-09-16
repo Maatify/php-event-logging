@@ -30,7 +30,9 @@ A logging module exists to **capture and persist** a specific category of events
 
 ## 2. Canonical Module Boundary
 
-The module is a strict **Black Box**.
+The module is a strict **Black Box**. The single canonical root Package Reference is
+`EVENT_LOGGING_PACKAGE_REFERENCE.md`, and the current package namespace is
+`Maatify\EventLogging\<Domain>`.
 
 ### Inside the Module (The Library)
 - **Recorder:** The entry point for writing.
@@ -44,7 +46,7 @@ The module is a strict **Black Box**.
   and query exception boundaries.
 
 ### Outside the Module (The Host Application)
-- **Configuration:** Injecting dependencies (PDO, Logger, Clock).
+- **Configuration:** Injecting dependencies (PDO, Clock, and an optional PSR-3 logger).
 - **UI & Presentation:** Any dashboards or admin panels.
 - **HTTP/API:** Routes, controllers, middleware, and permissions.
 - **Reporting:** Dashboard summaries, aggregates, and cross-domain analytics.
@@ -66,16 +68,18 @@ ModuleName/
 ├── Contract/          # Interfaces (Writer, Reader, Policy)
 ├── DTO/               # Immutable Data Transfer Objects
 ├── Database/          # Canonical SQL Schema
-├── Enum/              # Allowed values (Severity, ActorType)
+├── Enum/              # Domain enum types (Severity, ActorType where applicable)
 ├── Exception/         # Domain-specific Exceptions
 ├── Infrastructure/    # Storage Drivers (MySQL, etc.)
 ├── Recorder/          # The Public Entry Point & Logic
 │   ├── {Name}Recorder.php
 │   └── {Name}DefaultPolicy.php
 ├── README.md          # Usage Documentation
-├── {PACKAGE_NAME}_PACKAGE_REFERENCE.md # Canonical Package Reference
 └── TESTING_STRATEGY.md # Testing Rules
 ```
+
+The root Package Reference is not duplicated inside each domain module. The package uses the
+current namespace `Maatify\EventLogging\<Domain>` for its domain-owned contracts and types.
 
 ### Rationale
 - **Recorder/**: Isolates the "Application-Facing" logic (validation, safety) from the "Storage-Facing" logic.
@@ -92,11 +96,15 @@ The **Recorder** is the heart of the module. It is the **only** permitted entry 
 1.  **Accept Primitive/Enum Inputs:** Do not force the caller to build DTOs.
 2.  **Validate & Normalize:** Delegate to the **Policy**.
 3.  **Construct DTOs:** Convert valid inputs into immutable DTOs.
-4.  **Persist:** Pass DTOs to the **Logger Interface**.
-5.  **Guarantee Safety:** Catch and suppress **ALL** storage exceptions.
+4.  **Persist:** Pass the applicable domain write contract to storage.
+5.  **Guarantee Safety:** Catch and suppress **ALL** storage exceptions for non-authoritative
+    recorders; `AuthoritativeAudit` is the explicit fail-closed exception.
 
 ### Fail-Open Guarantee
-The `record()` method MUST return `void` and MUST NOT throw exceptions to the caller. Failures are swallowed (logged to a fallback logger) to protect the host application.
+For non-authoritative domains, `record()` MUST return `void` and MUST NOT throw exceptions to the
+caller. Failures are swallowed at the recorder boundary. If an optional PSR-3 logger was supplied,
+it MAY receive a sanitized diagnostic; the current Runtime does not require a primitive last-resort
+channel. `AuthoritativeAudit` remains fail-closed and propagates failures.
 
 ### Validation vs Sanitization
 - **Validation:** Reject impossible states (e.g., "Event Key is null").
@@ -120,9 +128,9 @@ class ModuleRecorder {
         try {
             // 1. Policy Normalization
             // 2. DTO Construction
-            // 3. Logger->write(DTO)
+            // 3. Applicable domain write contract->write(DTO)
         } catch (\Throwable $e) {
-            // 4. Suppress (Fail-Open) & Fallback Log
+            // 4. Suppress for non-authoritative domains; optionally report via supplied PSR-3 logger
             // MUST NOT rethrow
         }
     }
@@ -166,17 +174,21 @@ DTOs are the currency of the module.
 - **Structured Data:** MUST use DTOs.
 - **Unstructured Data:** `metadata` arrays are allowed but MUST be validated by the Policy (size limits, depth).
 
-### Cursor DTO
-A specialized `CursorDTO` (containing `occurredAt` and `lastId`) is REQUIRED for the Read-Side to ensure stateless pagination.
+### Cursor Representation
+Cursor representation follows each domain's current primitive read contract. Some domains carry
+cursor fields in their `QueryDTO`; `BehaviorTrace` and `DiagnosticsTelemetry` retain their legacy
+`CursorDTO` read paths. This blueprint does not impose a standalone `CursorDTO` on every domain.
 
 ---
 
 ## 7. Read-Side Blueprint (CORE)
 
-The module MUST provide a **Primitive Reader** for archiving and system access.
+The module MUST provide a **Primitive Reader** for system access and any separately approved
+archiving work.
 
 ### Primitive Reader Characteristics
-- **Cursor-Based:** Pagination via `(occurred_at, id)`.
+- **Cursor-Based:** Pagination follows the domain's current primitive cursor contract; it may use
+  cursor fields in a `QueryDTO` or a domain-specific legacy `CursorDTO`.
 - **Sequential:** Ordered by time descending.
 - **Stateless:** No "Page 5" logic; only "After Cursor X".
 
@@ -221,23 +233,29 @@ scope governed by `docs/architecture/DEFERRED_SCOPE.md`.
 ## 9. Failure Semantics (MANDATORY)
 
 ### The Golden Rule
-**Logging must never break the application.**
+**Non-authoritative logging must never break the application.** `AuthoritativeAudit` is the
+explicit fail-closed exception and propagates integrity failures.
 
 ### Rules
-- **Recorder:** MUST catch `Throwable`.
+- **Non-authoritative Recorder:** MUST catch `Throwable` and swallow it at the recorder boundary.
+- **AuthoritativeAudit Recorder:** MUST preserve its fail-closed boundary and propagate integrity
+  failures.
 - **Infrastructure:** MAY throw `StorageException` (honest failure).
-- **Policy:** MUST NOT throw (return safe defaults).
+- **Policy:** follows the domain's current policy contract; this blueprint does not impose one
+  universal exception rule.
 - **Reader:** MAY throw (reads are not critical to user flow).
 
 ### Handling Failures
-- **Swallow:** Connection timeouts, SQL errors, Serialization errors.
-- **Log:** Send exception details to a fallback PSR Logger.
+- **Non-authoritative recorders:** Swallow connection timeouts, SQL errors, and serialization
+  errors after catching them at the recorder boundary.
+- **AuthoritativeAudit:** Does not swallow outbox or storage failures.
+- **Report (optional):** If a PSR-3 logger was supplied, it MAY receive sanitized exception details.
+  No mandatory primitive fallback channel exists in the current Runtime.
 
 ### Recursion Guard (Hard Rule)
 
 - Failure handling MUST NOT trigger any logging Recorder or Writer again.
-- The fallback channel MUST be primitive (depends only on explicit Composer/runtime dependencies)
-  (e.g., `error_log`, syslog, stderr).
+- Failure reporting MUST NOT claim or require an unimplemented primitive fallback channel.
 - Recursive logging attempts are forbidden.
 
 ---
@@ -267,12 +285,14 @@ Use this checklist to certify a module as "Blueprint Compliant".
 
 - [ ] **Directory Structure**: strict separation of `Recorder`, `DTO`, `Contract`.
 - [ ] **Dependency Safety**: No dependence on framework helpers (`request()`, `auth()`).
-- [ ] **DTO Strictness**: All inputs/outputs are DTOs.
+- [ ] **DTO Boundaries**: Writer, storage, and query contracts use DTOs where their current
+   domain contract requires them; documented recorder convenience methods remain allowed.
 - [ ] **Failure Boundary**: Non-authoritative Recorders catch all exceptions; AuthoritativeAudit
    preserves fail-closed behavior.
 - [ ] **Policy Isolated**: Validation logic is in a separate class.
 - [ ] **Primitive Reader**: A cursor-based reader is present.
-- [ ] **Documentation**: `{PACKAGE_NAME}_PACKAGE_REFERENCE.md` exists as the canonical Package Reference.
+- [ ] **Documentation**: `EVENT_LOGGING_PACKAGE_REFERENCE.md` is the single canonical root Package
+   Reference.
 
 ---
 
@@ -284,7 +304,8 @@ Use this checklist to certify a module as "Blueprint Compliant".
 
 ### ❌ Magic Arrays
 **Anti-Pattern:** Passing associative arrays (`['user_id' => 1]`) deep into the system.
-**Fix:** Convert to DTOs immediately at the Recorder boundary.
+**Fix:** Convert to the applicable domain contract (often a DTO) at the recorder boundary; retain
+documented recorder convenience methods where they are part of the current public surface.
 
 ### ❌ UI Coupling
 **Anti-Pattern:** Adding UI routes, permissions, or dashboard behavior to a module.
@@ -293,7 +314,8 @@ Host on top of the current Admin Query contracts; keep the primitive reader sepa
 
 ### ❌ Hardcoded Dependencies
 **Anti-Pattern:** `new MySQLRepository()`.
-**Fix:** Inject `LoggerInterface`.
+**Fix:** Depend on the domain contract or another approved explicit dependency. A PSR-3 logger is
+only an optional diagnostic dependency when supplied; it is not the domain write contract.
 
 ### ❌ Throwing on Write
 **Anti-Pattern:** Allowing non-authoritative logging DB errors to bubble up to the Controller.
@@ -307,8 +329,7 @@ Any logging module MUST be treated as a standalone library from day one.
 
 Rules:
 - Modules MUST NOT live under the App\ namespace.
-- Each module MUST define its own top-level vendor namespace
-  (e.g. Maatify\DiagnosticsTelemetry).
+- Domain types MUST use the package namespace `Maatify\EventLogging\<Domain>`.
 - Composer PSR-4 autoloading MUST reflect this isolation.
 - The host application MUST act only as a consumer.
 

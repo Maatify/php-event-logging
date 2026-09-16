@@ -345,18 +345,11 @@ Absence of a domain log is a design error, not a PSR-3 use case.
 
 ---
 
-## 7) actor_type Allowed Values
+## 7) actor_type Normalization and Validation
 
-`actor_type` MUST be validated at the application layer and restricted to:
-
-* SYSTEM
-* ADMIN
-* USER
-* SERVICE
-* API_CLIENT
-* ANONYMOUS
-
-Any value outside this set is invalid.
+`actor_type` normalization and validation are governed by each domain's current policy and
+contract. This overview does not impose one closed global set of values or a uniform rejection
+rule; each domain follows its own current contract.
 
 ---
 

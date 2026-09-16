@@ -13,6 +13,9 @@
 > If a conflict exists, the repository authority order applies; the root Package Reference
 > governs current public Runtime behavior.
 
+The single canonical root Package Reference is `EVENT_LOGGING_PACKAGE_REFERENCE.md`. Current
+domain types use the package namespace `Maatify\EventLogging\<Domain>`.
+
 ---
 
 ## 0) Purpose
@@ -95,16 +98,15 @@ Allowed patterns:
 * `DomainLoggerInterface`
 * `DomainWriterInterface`
 
-Method signatures MUST:
-
-* accept a **single DTO**
-* return `void`
-* throw domain-specific exceptions
+Writer and storage contracts MUST use their applicable domain DTO boundary and return/throw
+according to that domain's current contract. Query contracts likewise use their current request,
+cursor, page, and result types. Public recorder convenience methods may retain documented
+primitive/enum inputs and construct the applicable DTO or command internally.
 
 Examples (conceptual, not code):
 
-* `record(DomainRecordDTO $dto): void`
 * `write(DomainWriteDTO $dto): void`
+* `find(DomainQueryDTO $query): array`
 
 ❌ Raw arrays are FORBIDDEN.
 
@@ -112,7 +114,9 @@ Examples (conceptual, not code):
 
 ### 2.3 DTO Layer (Strict Discipline)
 
-All logging APIs MUST accept DTOs.
+DTO discipline applies to writer, storage, and query contracts where the current domain contract
+defines a DTO boundary. It does not prohibit documented public recorder convenience methods with
+primitive or enum inputs.
 
 #### Naming Rules
 
@@ -181,9 +185,9 @@ Swallowing is allowed ONLY when:
 * the domain is defined as best-effort
 * business flow must not be broken
 
-If swallowed:
-
-* failure SHOULD be surfaced via **Diagnostics Telemetry** (sanitized)
+If a non-authoritative failure is swallowed, an optional PSR-3 logger MAY receive a sanitized
+diagnostic when one was supplied. The current Runtime does not require a primitive last-resort
+channel or a recursive Diagnostics Telemetry write.
 
 Swallowing MUST be explicit and local.
 Generic try/catch at higher layers (services/controllers) is FORBIDDEN.
@@ -222,18 +226,11 @@ contract, it is normalized as follows; a domain must not invent fields absent fr
 * `user_agent`
 * `occurred_at` (UTC)
 
-### actor_type Allowed Values
+### actor_type Normalization and Validation
 
-The Recorder MUST validate `actor_type` against:
-
-* SYSTEM
-* ADMIN
-* USER
-* SERVICE
-* API_CLIENT
-* ANONYMOUS
-
-Any other value is invalid.
+`actor_type` normalization and validation are governed by each domain's current policy and
+contract. This standard does not impose one closed global set of values; each domain must follow
+the values and behavior defined by its own current contract.
 
 ---
 
@@ -327,7 +324,8 @@ Custom arrows, implicit semantics, or informal notation are INVALID.
 A logging domain implementation is compliant ONLY if:
 
 * Domain is explicit and isolated
-* Public API accepts DTOs only
+* Applicable writer, storage, and query boundaries use their current DTO contracts; documented
+  recorder convenience methods remain supported
 * Infrastructure throws honest exceptions
 * Recorder is the only swallow boundary (if any)
 * Context normalization is complete and UTC-based
