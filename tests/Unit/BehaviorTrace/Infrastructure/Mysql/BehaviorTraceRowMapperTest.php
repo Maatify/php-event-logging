@@ -65,6 +65,21 @@ final class BehaviorTraceRowMapperTest extends TestCase
         $this->assertSame('1970-01-01 00:00:00.000000', $dto->context->occurredAt->format('Y-m-d H:i:s.u'));
     }
 
+    public function testPreservesNumericAndListMetadataShape(): void
+    {
+        $dto = (new BehaviorTraceRowMapper(new BehaviorTraceDefaultPolicy()))->map([
+            'metadata' => '{"items":[{"password":"stored","visible":"value"},"second"],"values":[1,2,3]}',
+        ]);
+
+        $this->assertSame([
+            'items' => [
+                ['password' => 'stored', 'visible' => 'value'],
+                'second',
+            ],
+            'values' => [1, 2, 3],
+        ], $dto->metadata);
+    }
+
     public function testCustomPolicyIsUsedAndPolicyExceptionsBubbleRaw(): void
     {
         $policy = new class implements BehaviorTracePolicyInterface {

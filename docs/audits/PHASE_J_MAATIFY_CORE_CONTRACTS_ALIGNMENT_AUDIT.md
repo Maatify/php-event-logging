@@ -29,7 +29,7 @@ These are primarily storage-related errors wrapping PDO exceptions. While `Maati
 
 **Pre-implementation State**:
 - Interface: `Maatify\EventLogging\Common\ClockInterface` (`now(): DateTimeImmutable`)
-- Implementation: `Maatify\EventLogging\Common\SystemClock`
+- Implementation: the then-existing EventLogging-local `SystemClock` implementation
 - Used extensively in:
   - All Domains Recorders (`BehaviorTraceRecorder`, `AuditTrailRecorder`, etc.)
   - `EventLoggingProviderFactory` and Domain Factories (`BehaviorTraceFactory`, etc.)

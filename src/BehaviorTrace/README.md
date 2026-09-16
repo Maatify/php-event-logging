@@ -40,6 +40,7 @@ Call BehaviorTraceRecorder::record(action, actorType, entityType, ...)
 BehaviorTraceRecorder
   - Enforces DB Constraints (UTF-8 safe truncation)
   - Normalizes Actor Type (via Policy)
+  - Sanitizes nested sensitive metadata before size/encoding handling
   - Validates Metadata Size (64KB via Policy)
   - Generates Event ID (UUID)
   - Constructs Context and Event DTOs
@@ -78,11 +79,11 @@ This file should be used to initialize the database table.
 use Maatify\EventLogging\BehaviorTrace\Recorder\BehaviorTraceRecorder;
 use Maatify\EventLogging\BehaviorTrace\Enum\BehaviorTraceActorTypeEnum;
 use Maatify\EventLogging\BehaviorTrace\Infrastructure\Mysql\BehaviorTraceWriterMysqlRepository;
-use Maatify\EventLogging\Common\SystemClock;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 // Dependencies (usually injected)
 $writer = new BehaviorTraceWriterMysqlRepository($pdo);
-$clock = new SystemClock();
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 $recorder = new BehaviorTraceRecorder($writer, $clock, $psrLogger);
 
 // Record Event

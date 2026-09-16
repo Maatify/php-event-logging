@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require __DIR__ . '/vendor/autoload.php';
 
-use Maatify\EventLogging\Common\SystemClock;
 use Maatify\EventLogging\DeliveryOperations\Command\RecordDeliveryOperationCommand;
 use Maatify\EventLogging\DeliveryOperations\DTO\DeliveryOperationsQueryDTO;
 use Maatify\EventLogging\DeliveryOperations\DTO\DeliveryOperationsViewDTO;
@@ -13,6 +12,7 @@ use Maatify\EventLogging\DeliveryOperations\Enum\DeliveryOperationTypeEnum;
 use Maatify\EventLogging\DeliveryOperations\Enum\DeliveryStatusEnum;
 use Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsQueryMysqlRepository;
 use Maatify\EventLogging\Factory\DeliveryOperationsFactory;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 function requiredEnvironment(string $name): string
 {
@@ -57,7 +57,7 @@ try {
     $pdo->exec($schema);
 
     $requestId = 'consumer-harness-' . $run . '-' . bin2hex(random_bytes(8));
-    $recorder = DeliveryOperationsFactory::create($pdo, new SystemClock());
+    $recorder = DeliveryOperationsFactory::create($pdo, new SystemClock(new DateTimeZone('UTC')));
     $recorder->recordCommand(new RecordDeliveryOperationCommand(
         channel: DeliveryChannelEnum::EMAIL,
         operationType: DeliveryOperationTypeEnum::NOTIFICATION,

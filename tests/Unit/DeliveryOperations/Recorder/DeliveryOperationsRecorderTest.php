@@ -91,6 +91,34 @@ final class DeliveryOperationsRecorderTest extends TestCase
         $this->assertEmpty($spyLogger->logs);
     }
 
+    public function testSanitizesMetadataBeforeWriterBoundary(): void
+    {
+        $clock = new FixedClock();
+        $writer = $this->createMock(DeliveryOperationsLoggerInterface::class);
+        $metadata = [
+            'visible' => 'value',
+            'provider' => ['secret_key' => 'secret123', 'retry' => 1],
+        ];
+
+        $writer->expects($this->once())
+            ->method('log')
+            ->with($this->callback(function (DeliveryOperationRecordDTO $dto): bool {
+                return $dto->metadata === [
+                    'visible' => 'value',
+                    'provider' => ['secret_key' => '[redacted]', 'retry' => 1],
+                ];
+            }));
+
+        (new DeliveryOperationsRecorder($writer, $clock))->record(
+            channel: DeliveryChannelEnum::EMAIL,
+            operationType: DeliveryOperationTypeEnum::NOTIFICATION,
+            status: DeliveryStatusEnum::SENT,
+            metadata: $metadata
+        );
+
+        $this->assertSame('secret123', $metadata['provider']['secret_key']);
+    }
+
     public function testFailOpenOnStorageFailure(): void
     {
         $clock = new FixedClock();

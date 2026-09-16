@@ -41,6 +41,7 @@ DiagnosticsTelemetryRecorder
   - Normalizes Duration (>= 0)
   - Normalizes Actor Type (via Policy)
   - Normalizes Severity (via Policy)
+  - Sanitizes nested sensitive metadata before size/encoding handling
   - Validates Metadata Size (64KB via Policy)
   - Generates Event ID (UUID)
   - Constructs Context and Event DTOs
@@ -81,10 +82,11 @@ This file should be used to initialize the database table.
 use Maatify\EventLogging\DiagnosticsTelemetry\Recorder\DiagnosticsTelemetryRecorder;
 use Maatify\EventLogging\DiagnosticsTelemetry\Enum\DiagnosticsTelemetrySeverityEnum;
 use Maatify\EventLogging\DiagnosticsTelemetry\Enum\DiagnosticsTelemetryActorTypeEnum;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 // Dependencies (usually injected)
 $writer = new DiagnosticsTelemetryLoggerMysqlRepository($pdo);
-$clock = new SystemClock();
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 $recorder = new DiagnosticsTelemetryRecorder($writer, $clock, $psrLogger);
 
 // Record Event (Pass scalars or Enums)
