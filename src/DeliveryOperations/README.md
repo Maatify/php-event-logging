@@ -9,13 +9,14 @@ This module provides a framework-agnostic, host-independent logging mechanism fo
 
 **Key Characteristics:**
 - **Best-Effort:** Logging failures are swallowed (fail-open) to prevent disrupting the core operation.
-- **Fail-Open:** If the database write fails, the error is logged to a fallback logger but not thrown.
+- **Fail-Open:** Recording-flow failures are swallowed at the Recorder boundary. An optional
+  fallback logger may receive a diagnostic, but its absence is valid.
 
 ## Architecture
 
 The module follows the Canonical Logger Design Standard:
 
-1.  **Recorder** (`DeliveryOperationsRecorder`): The policy layer. It accepts operation data, validates it, enforces DB constraints, creates DTOs, and handles storage failures.
+1.  **Recorder** (`DeliveryOperationsRecorder`): The recording, coordinating, and reliability boundary. It coordinates command handling, bounded field normalization, Policy calls, DTO creation, writer invocation, and fail-open behavior.
 2.  **Contract** (`DeliveryOperationsLoggerInterface`): The interface for the storage driver.
 3.  **DTOs**: Strict Data Transfer Objects for Write.
 4.  **Infrastructure** (`DeliveryOperationsLoggerMysqlRepository`): The MySQL implementation of the writer using PDO.
@@ -39,8 +40,9 @@ Call DeliveryOperationsRecorder::record(...)
   |
   v
 DeliveryOperationsRecorder
-  - Enforces DB Constraints
-  - Normalizes Enums (Channel, Status, Type)
+  - Applies bounded field normalization
+  - Delegates actor normalization and metadata-size validation to Policy
+  - Normalizes operation enums (Channel, Status, Type)
   - Sanitizes nested sensitive metadata before size/encoding handling
   - Validates Metadata Size
   - Constructs DTO
@@ -73,7 +75,7 @@ use Maatify\EventLogging\DeliveryOperations\Enum\DeliveryOperationTypeEnum;
 use Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsLoggerMysqlRepository;
 use Maatify\SharedCommon\Infrastructure\SystemClock;
 
-// Dependencies
+// Dependencies (usually injected; $pdo and $psrLogger are host-provided, and the logger is optional)
 $writer = new DeliveryOperationsLoggerMysqlRepository($pdo);
 $clock = new SystemClock(new \DateTimeZone('UTC'));
 $recorder = new DeliveryOperationsRecorder($writer, $clock, $psrLogger);
@@ -96,8 +98,11 @@ $recorder->record(
 ### Constraints & Guards
 
 - **Timezone**: Dates are strictly enforced as UTC.
-- **Fail-Open**: Exceptions during logging are SWALLOWED (after fallback logging).
-- **Metadata**: MUST be an array or null. Maximum size is 64KB (JSON encoded).
+- **Fail-Open**: Recording-flow exceptions are swallowed at the Recorder boundary. An optional
+  PSR-3 fallback logger may receive a diagnostic; omitting it is valid.
+- **Metadata**: MUST be an array or null. The Recorder structurally sanitizes nested sensitive
+  associative keys before size/encoding handling and the writer boundary; maximum size is 64KB
+  (JSON encoded). Arbitrary free-text secret detection is not provided.
 - **String Constraints**: Strings are truncated to safe limits.
 
 ### Admin Query

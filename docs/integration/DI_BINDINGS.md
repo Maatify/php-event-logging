@@ -19,7 +19,7 @@ If you choose to use `EventLoggingBindings::definitions()`, your host container 
 
 ### Important Note on Fallback Logging
 The optional PSR-3 `LoggerInterface` is **only** used for fail-open domains (e.g., `BehaviorTrace`, `SecuritySignals`).
-The `AuthoritativeAudit` domain explicitly rejects the fallback logger to maintain its strict **fail-closed** guarantee. Storage failures during authoritative auditing will surface as system exceptions rather than silently degrading.
+The `AuthoritativeAudit` domain explicitly rejects the fallback logger to maintain its strict **fail-closed** guarantee. Recording failures during authoritative auditing will surface as exceptions rather than silently degrading.
 
 ## Usage Example
 

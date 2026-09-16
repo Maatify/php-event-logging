@@ -8,15 +8,15 @@
 This module provides a framework-agnostic, host-independent logging mechanism for **Authoritative Audit** events. It represents compliance-grade, governance-critical changes (e.g., Privileged account creation, Role assignment, System ownership changes).
 
 **Key Characteristics:**
-- **Fail-Closed:** If writing to the outbox fails, the operation MUST fail.
+- **Fail-Closed:** If any recording-boundary operation fails, the operation MUST fail.
 - **Transactional:** Writes must occur within the business transaction.
-- **Outbox Pattern:** The `maa_event_logging_authoritative_audit_outbox` is the source of truth.
+- **Outbox Pattern:** The `maa_event_logging_authoritative_audit_outbox` is the write-side source of truth.
 
 ## Architecture
 
 The module follows the Canonical Logger Design Standard:
 
-1.  **Recorder** (`AuthoritativeAuditRecorder`): The policy layer. It accepts audit data, validates it (no secrets), enforces DB constraints, creates DTOs, and ensures fail-closed behavior.
+1.  **Recorder** (`AuthoritativeAuditRecorder`): The recording, coordinating, and reliability boundary. It coordinates command handling, delegates domain normalization and payload validation to Policy, creates DTOs, invokes the writer, and ensures fail-closed behavior.
 2.  **Contract** (`AuthoritativeAuditOutboxWriterInterface`): The interface for the storage driver (outbox writer).
 3.  **DTOs**: Strict Data Transfer Objects for Outbox Write.
 4.  **Infrastructure** (`AuthoritativeAuditOutboxWriterMysqlRepository`): The MySQL implementation of the writer using PDO.
@@ -40,6 +40,7 @@ Use `AuthoritativeAuditAdminQueryInterface` (implemented by `AuthoritativeAuditA
 ```php
 use Maatify\EventLogging\AuthoritativeAudit\DTO\AuthoritativeAuditAdminQueryRequestDTO;
 use Maatify\EventLogging\AuthoritativeAudit\DTO\AuthoritativeAuditAdminPageResultDTO;
+use Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditAdminQueryMysqlRepository;
 
 $request = new AuthoritativeAuditAdminQueryRequestDTO(
     actorType: 'admin',
@@ -47,6 +48,9 @@ $request = new AuthoritativeAuditAdminQueryRequestDTO(
     page: 1,
     perPage: 50
 );
+
+// $pdo is a host-provided PDO instance connected to the materialized audit-log schema.
+$adminQueryRepository = new AuthoritativeAuditAdminQueryMysqlRepository($pdo);
 
 /** @var AuthoritativeAuditAdminPageResultDTO $result */
 $result = $adminQueryRepository->paginate($request);
@@ -80,9 +84,8 @@ Call AuthoritativeAuditRecorder::record(...)
   |
   v
 AuthoritativeAuditRecorder
-  - Validates Payload (No Secrets)
-  - Enforces DB Constraints
-  - Normalizes Actor Type
+  - Delegates payload validation and actor normalization to Policy
+  - Truncates bounded string fields
   - Constructs DTO
   |
   v
@@ -114,7 +117,7 @@ use Maatify\EventLogging\AuthoritativeAudit\Enum\AuthoritativeAuditRiskLevelEnum
 use Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditOutboxWriterMysqlRepository;
 use Maatify\SharedCommon\Infrastructure\SystemClock;
 
-// Dependencies
+// Dependencies (the PDO connection is host-provided)
 $writer = new AuthoritativeAuditOutboxWriterMysqlRepository($pdo);
 $clock = new SystemClock(new \DateTimeZone('UTC'));
 $recorder = new AuthoritativeAuditRecorder($writer, $clock);

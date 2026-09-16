@@ -1,6 +1,6 @@
 # Examples Coverage Plan
 
-This document outlines the planned examples to be created for the `maatify/php-event-logging` package.
+This document maps the current examples included with the `maatify/php-event-logging` package.
 
 All examples MUST follow these rules:
 - Be plain PHP only.
@@ -54,8 +54,8 @@ examples/
 ### `02-manual-wiring.php`
 - **Purpose:** Demonstrate how to wire a single domain (e.g., BehaviorTrace) manually without the factory.
 - **Dependencies:** `00-bootstrap.php`
-- **Demonstrates:** Instantiating the Repository, Policy, and Recorder directly.
-- **Must Not Demonstrate:** Incorrect wiring (e.g., skipping policy).
+- **Demonstrates:** Instantiating the Repository and Recorder directly, with an optional custom Policy (`null` uses the domain default).
+- **Must Not Demonstrate:** Bypassing the Recorder or injecting an incompatible Policy.
 - **Safety Notes:** N/A
 - **Type:** Runnable.
 
@@ -80,7 +80,7 @@ examples/
 - **Dependencies:** `00-bootstrap.php`, Provider or Manual Wiring.
 - **Demonstrates:** Recording anomaly signals (e.g., failed logins).
 - **Must Not Demonstrate:** Storing passwords or raw tokens.
-- **Safety Notes:** Explicitly shows sanitization of sensitive data.
+- **Safety Notes:** The Recorder applies structural metadata sanitization; arbitrary free-text secret detection is not provided, so raw secrets must not be supplied.
 - **Type:** Illustrative/Runnable.
 
 ### `06-behavior-trace-record.php`
@@ -108,26 +108,26 @@ examples/
 - **Type:** Illustrative/Runnable.
 
 ### `09-admin-read-audit-trail.php`
-- **Purpose:** Show how to query the audit trail for admin UI.
+- **Purpose:** Show how to query the audit trail for an admin UI with the separate Admin Query offset-pagination API.
 - **Dependencies:** `00-bootstrap.php`, Provider or Manual Wiring.
-- **Demonstrates:** Using `AuditTrailQueryInterface` with filters (e.g., `actor_id`).
+- **Demonstrates:** Using `AuditTrailAdminQueryMysqlRepository`, `AuditTrailAdminQueryRequestDTO`, and `paginate()` with page and per-page values, then reading `items` and pagination metadata.
 - **Must Not Demonstrate:** Creating a generic admin UI controller.
 - **Safety Notes:** N/A
 - **Type:** Illustrative/Runnable.
 
 ### `10-admin-read-authoritative-audit.php`
-- **Purpose:** Show how to query authoritative audit logs.
+- **Purpose:** Show how to query authoritative audit logs for an admin UI with the separate Admin Query offset-pagination API.
 - **Dependencies:** `00-bootstrap.php`, Provider or Manual Wiring.
-- **Demonstrates:** Using `AuthoritativeAuditQueryInterface` (notably missing `requestId` filter by design).
+- **Demonstrates:** Using `AuthoritativeAuditAdminQueryMysqlRepository`, `AuthoritativeAuditAdminQueryRequestDTO`, and `paginate()` with the actual filters; `requestId` is not added because it is not stored in this domain.
+- **Safety Notes:** Reads target the materialized log table and never the authoritative outbox.
 - **Must Not Demonstrate:** Generic querying.
-- **Safety Notes:** N/A
 - **Type:** Illustrative/Runnable.
 
 ### `11-cursor-pagination.php`
-- **Purpose:** Demonstrate cursor-based pagination for querying logs.
+- **Purpose:** Demonstrate the protected primitive cursor-based compatibility API for querying logs.
 - **Dependencies:** `00-bootstrap.php`, Provider or Manual Wiring.
 - **Demonstrates:** Using `cursorOccurredAt`, `cursorId`, and `limit` correctly to fetch the next page.
-- **Must Not Demonstrate:** Offset pagination.
+- **Must Not Demonstrate:** Admin Query or offset pagination.
 - **Safety Notes:** N/A
 - **Type:** Illustrative/Runnable.
 
@@ -142,7 +142,7 @@ examples/
 ### `13-psr-fallback-logger.php`
 - **Purpose:** Demonstrate fail-open behavior with a PSR-3 fallback logger.
 - **Dependencies:** `00-bootstrap.php`, Provider or Manual Wiring.
-- **Demonstrates:** A failing PDO connection falling back to the injected PSR-3 logger for non-authoritative domains.
+- **Demonstrates:** A failing writer path being swallowed at the non-authoritative Recorder boundary and reported to the injected optional PSR-3 logger.
 - **Must Not Demonstrate:** Fallback logging for AuthoritativeAudit.
 - **Safety Notes:** N/A
 - **Type:** Illustrative/Runnable.

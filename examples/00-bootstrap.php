@@ -35,7 +35,7 @@ function example_requires_pdo(?PDO $pdo): void
 }
 
 // 2. Setup the clock
-$clock = new SystemClock(new DateTimeZone('UTC'));
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 
 // 3. Setup a fallback logger (optional for fail-open domains)
 $logger = new class extends AbstractLogger {

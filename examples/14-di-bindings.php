@@ -80,7 +80,7 @@ $hostDependencies = [
 
     // Clock implementation for deterministic timestamps
     ClockInterface::class => function () {
-        return new SystemClock(new DateTimeZone('UTC'));
+        return new SystemClock(new \DateTimeZone('UTC'));
     },
 
     // Optional PSR-3 Logger for fail-open domains
