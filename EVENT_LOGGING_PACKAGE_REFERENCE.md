@@ -2,7 +2,7 @@
 
 `maatify/php-event-logging` is the canonical successor framework-agnostic Composer package for Maatify event logging. This document is the single root package-reference source of truth for the package contract, public runtime API, infrastructure adapters, schema ownership, and package-specific standards decisions.
 
-The legacy `maatify/event-logging` `v1.0.0` release remains historical evidence from before this successor package identity was adopted. `maatify/php-event-logging` is registered on [Packagist](https://packagist.org/packages/maatify/php-event-logging), but registration alone is not a published exact SemVer version. This repository does not claim a Stable or RC release under the successor identity; stable consumer installation remains tied to a future Owner-approved exact SemVer release.
+The package is currently in **Development / Pre-Stable**. The legacy `maatify/event-logging` `v1.0.0` release remains historical evidence from before this successor package identity was adopted. `maatify/php-event-logging` is registered on [Packagist](https://packagist.org/packages/maatify/php-event-logging), but registration alone is not a published exact SemVer version. This repository does not claim a Stable or RC release under the successor identity; stable consumer installation remains tied to a future Owner-approved exact SemVer release.
 
 ## 1. Package identity and stable contract
 

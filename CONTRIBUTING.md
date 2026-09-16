@@ -93,7 +93,7 @@ testing strategy for the mapping between these local commands and the CI jobs.
 
 ## Package Distribution Status
 
-`maatify/php-event-logging` is registered on [Packagist](https://packagist.org/packages/maatify/php-event-logging), but no Stable or RC release, or other published exact SemVer version, is claimed under this package identity. Stable consumer installation remains tied to a future Owner-approved release.
+This package is in **Development / Pre-Stable**. `maatify/php-event-logging` is registered on [Packagist](https://packagist.org/packages/maatify/php-event-logging), but no Stable or RC release, or other published exact SemVer version, is claimed under this package identity. Stable consumer installation remains tied to a future Owner-approved release.
 
 ## Architectural Rules
 
