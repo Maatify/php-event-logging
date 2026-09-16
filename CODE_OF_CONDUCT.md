@@ -71,4 +71,4 @@ Community Impact Guidelines were inspired by [Mozilla's code of conduct enforcem
 
 ## Thank You
 
-Thank you to everyone who contributes to the Maatify Ecosystem. Your commitment to a respectful and inclusive environment ensures a healthy and collaborative open-source community.
+Thank you to everyone who contributes to the Maatify Ecosystem. Your commitment to a respectful and inclusive environment supports a healthy and collaborative Maatify community.
