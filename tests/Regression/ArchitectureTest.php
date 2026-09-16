@@ -242,7 +242,7 @@ class ArchitectureTest extends TestCase
 
         $this->assertEquals('maatify/php-event-logging', $composerData['name'] ?? null);
         $this->assertEquals('library', $composerData['type'] ?? null);
-        $this->assertEquals('MIT', $composerData['license'] ?? null);
+        $this->assertEquals('proprietary', $composerData['license'] ?? null);
 
         /** @var array<string, mixed> $autoload */
         $autoload = $composerData['autoload'] ?? [];

@@ -170,7 +170,7 @@ The `examples/` directory contains plain PHP illustrative skeletons covering int
 
 ## 🪪 License
 
-This package is licensed under the MIT License.
+This software is proprietary to Maatify.
 See the [LICENSE](LICENSE) file for details.
 
 ---

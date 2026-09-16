@@ -15,9 +15,10 @@ The `1.0.0` entry below is a historical record of the legacy `maatify/event-logg
 - Added optional pure-PHP DI binding helper for host applications that want convenience container wiring without a mandatory DI dependency.
 
 ### Changed
+- Moved `maatify/php-event-logging` to Proprietary licensing for the pre-stable successor package line (the historical `maatify/event-logging v1.0.0` record remains historical and is not rewritten).
 - Raised the minimum supported PHP contract from `^8.2` to `^8.4` and aligned the Composer platform baseline and CI matrix.
-- Extracted policy-aware row hydration into shared internal mappers while preserving primitive `find()` and `read()` behavior across domains.
-- Corrected primitive `find()` cursor placeholders for native PDO prepared statements without changing cursor semantics across domains.
+- Extracted domain-specific shared internal row hydration mappers, including policy-aware mapping where required, while preserving primitive `find()` and `read()` behavior.
+- Corrected primitive `find()` cursor placeholders for native PDO prepared statements without changing cursor semantics in affected domains.
 - Updated blueprints, package references, integration guides, and domain READMEs to reflect the current post-legacy-v1 Admin Query architecture.
 - Polished Composer metadata (`composer.json`) to accurately reflect package scope, requirements, and dependencies.
 - Replaced the local `SystemClock` implementation with a direct dependency on `maatify/shared-common` `ClockInterface`.
