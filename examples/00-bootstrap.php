@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Maatify\EventLogging\Common\SystemClock;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 use Psr\Log\AbstractLogger;
 
 /**
@@ -35,7 +35,7 @@ function example_requires_pdo(?PDO $pdo): void
 }
 
 // 2. Setup the clock
-$clock = new SystemClock();
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 
 // 3. Setup a fallback logger (optional for fail-open domains)
 $logger = new class extends AbstractLogger {

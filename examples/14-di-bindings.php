@@ -30,8 +30,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 use Maatify\EventLogging\AuthoritativeAudit\Recorder\AuthoritativeAuditRecorder;
 use Maatify\EventLogging\BehaviorTrace\Recorder\BehaviorTraceRecorder;
 use Maatify\EventLogging\Bootstrap\EventLoggingBindings;
-use Maatify\EventLogging\Common\SystemClock;
 use Maatify\SharedCommon\Contracts\ClockInterface;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -80,7 +80,7 @@ $hostDependencies = [
 
     // Clock implementation for deterministic timestamps
     ClockInterface::class => function () {
-        return new SystemClock();
+        return new SystemClock(new \DateTimeZone('UTC'));
     },
 
     // Optional PSR-3 Logger for fail-open domains

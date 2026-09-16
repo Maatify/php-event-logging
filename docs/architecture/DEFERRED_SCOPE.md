@@ -1,6 +1,6 @@
 # Deferred Scope & Future Considerations
 
-**Status:** CANONICAL
+**Status:** CANONICAL — authoritative source for unimplemented and deferred scope
 **Scope:** Documents capabilities, strategies, and implementation details that are deferred to future phases and are **not part of the inherited legacy `maatify/event-logging` `v1.0.0` runtime baseline**.
 
 ---
@@ -29,7 +29,21 @@ The Authoritative Audit domain utilizes a transactional outbox (`maa_event_loggi
 
 For the current baseline, the outbox acts as the authoritative source of truth, and moving data from the outbox to the `maa_event_logging_authoritative_audit_log` (schema/read model) is the responsibility of host-implemented consumer workers.
 
-## 3. Host Application Responsibilities vs. Package Scope
+## 3. Reporting and Dashboard Phase 5
+
+The current Runtime provides six domain-scoped Admin Query pagination APIs. It does not provide
+reporting, aggregates, dashboard summaries, or a cross-domain reporting layer.
+
+The following remain deferred and require a separate approved architecture and implementation:
+- Domain-scoped reporting contracts for each of the six domains.
+- Reporting summaries, trends, and aggregates.
+- Dashboard summary contracts.
+- Any cross-domain reporting query, unless separately authorized by an Owner decision.
+
+This section is the authoritative deferred-scope record for reporting and dashboard work. Its
+presence does not authorize implementation.
+
+## 4. Host Application Responsibilities vs. Package Scope
 
 The package is strictly an infrastructure library.
 
@@ -40,12 +54,13 @@ The following capabilities must be implemented by the host application and will 
 - Access control and permissions for viewing logs.
 - Host-specific search and reporting implementations (e.g., specific CSV exports or cross-table JOINs).
 
-**Future Package Scope (Deferred):**
-While the above are strictly forbidden, existing domain-scoped primitive read/query interfaces and the six domain-scoped Admin Query pagination APIs are part of the current Runtime and are **not** deferred. The primitive APIs remain governed by the `EVENT_LOGGING_PACKAGE_REFERENCE.md` and `PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md`; Admin Query contracts remain governed by the approved Admin Query architecture and roadmap.
-
-The deferred scope now applies to the remaining Phase 5 reporting and dashboard work, not to Admin Query pagination. See the [Admin Query API Roadmap](../roadmap/ADMIN_QUERY_API_ROADMAP.md) for the deferred:
-- Domain-scoped reporting and dashboard summary contracts.
-- Reporting summaries and aggregates.
+**Current, not deferred:**
+Existing domain-scoped primitive read/query interfaces and the six domain-scoped Admin Query
+pagination APIs are part of the current Runtime. The primitive APIs remain governed by the
+`EVENT_LOGGING_PACKAGE_REFERENCE.md` and `PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md`; Admin Query
+contracts remain governed by the approved Admin Query architecture and roadmap.
 
 *Note on Admin Query API Dependency:*
-The standardized pagination mechanics are used by the completed Admin Query implementations through `maatify/persistence v1.1.0`. Future Phase 5 reporting and dashboard work remains separately governed and requires explicit Owner approval; this document does not authorize that work or a Stable release.
+The standardized pagination mechanics are used by the completed Admin Query implementations
+through `maatify/persistence v1.1.0`. Future work listed here remains separately governed and
+requires explicit Owner approval; this document does not authorize that work or a Stable release.

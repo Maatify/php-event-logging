@@ -7,11 +7,10 @@ namespace Maatify\EventLogging\Tests\Unit\DiagnosticsTelemetry\DTO;
 use DateTimeImmutable;
 use Maatify\EventLogging\DiagnosticsTelemetry\DTO\DiagnosticsTelemetryAdminPageResultDTO;
 use Maatify\EventLogging\DiagnosticsTelemetry\DTO\DiagnosticsTelemetryEventDTO;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Maatify\EventLogging\DiagnosticsTelemetry\DTO\DiagnosticsTelemetryAdminPageResultDTO
- */
+#[CoversClass(DiagnosticsTelemetryAdminPageResultDTO::class)]
 final class DiagnosticsTelemetryAdminPageResultDTOTest extends TestCase
 {
     public function testItPreservesPropertiesAndSerializesCorrectly(): void

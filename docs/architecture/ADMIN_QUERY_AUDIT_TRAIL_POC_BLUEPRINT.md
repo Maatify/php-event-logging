@@ -1,9 +1,9 @@
 # Owner Approved / Runtime Implemented / Complete
 
 * Owner approval granted;
-* Runtime implementation is complete and present in the current Runtime ancestry; this blueprint records the approved contract and implementation evidence;
-* package-wide exception marker prerequisite completed by PR #97;
-* prerequisite merge commit: `09d66172850a96dec431d16123cbb2e8c86fb17a`;
+* Runtime implementation is complete and present in the current Runtime; this blueprint records
+  the approved contract and compatibility evidence;
+* package-wide exception marker is part of the current package exception contracts;
 * Composer dependency on `maatify/persistence ^1.1.0` was authorized for the implementation;
 * no schema change was authorized or introduced;
 * superseded post-legacy-v1 AuditTrail pagination wrapper deletion was completed with the implementation;
@@ -506,7 +506,11 @@ Construct-time validation is performed immediately. No validators delegated. Pag
 ## 8. Exception Boundary
 
 **Exception Recommendation:**
-Before AuditTrail Admin Query Runtime implementation, a separate Owner-approved package-wide compatibility PR introduced a unified package exception marker `Maatify\EventLogging\Exception\EventLoggingExceptionInterface` that extends `\Throwable`. All existing package-defined EventLogging exceptions implemented the marker directly or indirectly without changing their existing constructors, messages, error codes, or failure behavior. A partial AuditTrail-only marker strategy was prohibited.
+The current package-wide compatibility contract includes the unified package exception marker
+`Maatify\EventLogging\Exception\EventLoggingExceptionInterface`, which extends `\Throwable`.
+All package-defined EventLogging exceptions implement the marker directly or indirectly without
+changing their existing constructors, messages, error codes, or failure behavior. A partial
+AuditTrail-only marker strategy is prohibited.
 
 This prerequisite updated exactly the following existing package-defined exceptions to implement the marker **directly** (because no package-owned common exception base currently exists):
 * `src/AuditTrail/Exception/AuditTrailStorageException.php` (`AuditTrailStorageException`)
@@ -529,11 +533,8 @@ The test must prove for all six exceptions:
 * existing default error code remains `DATABASE_CONNECTION_FAILED`;
 * existing construction and previous-throwable behavior remain unchanged.
 
-Also add the root package-reference update required by the standard:
-`EVENT_LOGGING_PACKAGE_REFERENCE.md`
-as part of the separate prerequisite PR, not PR #96.
-
-The prerequisite decision was approved and completed by PR #97 before this Runtime implementation.
+The root `EVENT_LOGGING_PACKAGE_REFERENCE.md` records the current package exception and public
+Runtime contracts required by the standard.
 
 After the prerequisite was implemented, the Admin Query exception structure was:
 
@@ -677,26 +678,13 @@ Unexpected mapper `Throwable` propagates unchanged unless it is explicitly class
 | `tests/Integration/AuditTrail/AuditTrailAdminQueryMysqlRepositoryTest.php`| NEW | Real MySQL Integration Test | Additive |
 | `tests/Integration/AuditTrail/AuditTrailQueryMysqlRepositoryTest.php` | NEW | Ensure primitive unchanged via real DB test | Additive |
 
-## 11. Atomic Retirement Sequence
+## 11. Atomic Retirement Boundary
 
-The Runtime implementation followed this exact sequence:
-1. Complete Owner-approved package exception marker prerequisite PR.
-2. add `maatify/persistence ^1.1.0`;
-3. add domain Admin Query contracts;
-4. add filter and descriptor construction;
-5. extract shared row mapping;
-6. add Admin Query execution path;
-7. add result adaptation;
-8. add exception translation;
-9. add complete Unit tests;
-10. add complete Regression tests;
-11. add real MySQL Integration tests;
-12. prove primitive cursor compatibility;
-13. update construction/factories/bindings only where required;
-14. delete superseded AuditTrail pagination artifacts;
-15. delete their obsolete tests;
-16. update documentation;
-17. run full validation.
+The superseded AuditTrail pagination artifacts are not current API or protected compatibility
+contracts. Their retirement is valid only when the replacement Admin Query path and its complete
+Unit, Regression, and strict real-MySQL Integration coverage preserve the primitive contract.
+The package must retain the explicit domain contract, trusted SQL, count/data alignment, mapper,
+exception boundary, and host-integration limits documented in this blueprint.
 
 ## 12. Complete Test Matrix
 
@@ -816,7 +804,7 @@ The Runtime implementation followed this exact sequence:
 | Deterministic Sorting | `PACKAGE_BUILDING_STANDARD.md` | Restrict sort options | Caller selectable only `occurred_at` | Enforced by PDO Paginator config | No Conflict |
 | Tie-breaker | `PACKAGE_BUILDING_STANDARD.md` | Guarantee sorting order | Tie break using `id` | Enforced by internal `SortWhitelist` | No Conflict |
 | Mapper Extraction | `PACKAGE_BUILDING_STANDARD.md` | No duplicate logic | `AuditTrailRowMapper` shared by both repos | Row Mapper internal | No Conflict |
-| Exception Hierarchy | `PACKAGE_BUILDING_STANDARD.md` | Implement package marker | Global marker prerequisite completed by PR #97 | Merge commit `09d66172850a96dec431d16123cbb2e8c86fb17a` | No Conflict |
+| Exception Hierarchy | `PACKAGE_BUILDING_STANDARD.md` | Implement package marker | Current package marker and exception tests | Package exception contracts | No Conflict |
 | Dependency Direction | `PACKAGE_BUILDING_STANDARD.md` | Outward dependencies only | Relies exclusively on core maatify deps | Architecture rules | No Conflict |
 | Composer Impact | `COMPOSER_PACKAGE_STANDARD.md` | Validate dependencies | Adds `maatify/persistence` | Composer require update | No Conflict |
 | No `composer.lock` | `COMPOSER_PACKAGE_STANDARD.md` | Lock must not be tracked | Lock omitted | Not committed | No Conflict |
@@ -831,7 +819,9 @@ The Runtime implementation followed this exact sequence:
 | Old-Artifact Retirement | `ADMIN_QUERY_API_ROADMAP.md` | Obsolete POC Removal | Exact file list added | Covered in retirement | No Conflict |
 
 ### Standards Conflict Resolution
-The package-wide exception marker prerequisite was completed by PR #97 and merged at `09d66172850a96dec431d16123cbb2e8c86fb17a`. The AuditTrail Admin Query Runtime implements its package-owned validation and execution exceptions against that marker and preserves the existing `AuditTrailStorageException` boundary for PDO and pagination execution failures.
+The AuditTrail Admin Query Runtime implements its package-owned validation and execution
+exceptions against the package marker and preserves the existing `AuditTrailStorageException`
+boundary for PDO and pagination execution failures.
 
 The previously proposed unreachable repository-level invalid-configuration test was replaced by the approved direct-boundary testing strategy: canonical configuration construction is tested directly, `AuditTrailAdminQueryExecutionException::executionFailed()` is tested directly, and invalid `PdoPaginationQueryDescriptor` contracts are tested at the persistence descriptor boundary. No injectable paginator, config factory, subclass hook, reflection mutation, or test-only constructor was added.
 

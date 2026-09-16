@@ -9,9 +9,10 @@ use Maatify\EventLogging\AuditTrail\Infrastructure\Mysql\AuditTrailQueryMysqlRep
 use Maatify\EventLogging\AuditTrail\DTO\AuditTrailQueryDTO;
 
 /**
- * 11 - Cursor Pagination
+ * 11 - Protected Primitive Cursor Pagination
  *
- * Demonstrate cursor-based pagination for querying logs.
+ * Demonstrate the protected primitive cursor API for compatibility reads.
+ * Examples 09 and 10 use the separate Admin Query offset-pagination API.
  */
 
 // We assume $pdo is available from 00-bootstrap.php.

@@ -7,11 +7,10 @@ namespace Maatify\EventLogging\Tests\Unit\AuthoritativeAudit\DTO;
 use DateTimeImmutable;
 use Maatify\EventLogging\AuthoritativeAudit\DTO\AuthoritativeAuditAdminPageResultDTO;
 use Maatify\EventLogging\AuthoritativeAudit\DTO\AuthoritativeAuditViewDTO;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Maatify\EventLogging\AuthoritativeAudit\DTO\AuthoritativeAuditAdminPageResultDTO
- */
+#[CoversClass(AuthoritativeAuditAdminPageResultDTO::class)]
 final class AuthoritativeAuditAdminPageResultDTOTest extends TestCase
 {
     public function testItPreservesPropertiesAndSerializesCorrectly(): void

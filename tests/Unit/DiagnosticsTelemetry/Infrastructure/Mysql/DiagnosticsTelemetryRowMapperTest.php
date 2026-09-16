@@ -9,12 +9,12 @@ use Exception;
 use Maatify\EventLogging\DiagnosticsTelemetry\Contract\DiagnosticsTelemetryPolicyInterface;
 use Maatify\EventLogging\DiagnosticsTelemetry\Infrastructure\Mysql\DiagnosticsTelemetryRowMapper;
 use Maatify\EventLogging\DiagnosticsTelemetry\Recorder\DiagnosticsTelemetryDefaultPolicy;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
-/**
- * @covers \Maatify\EventLogging\DiagnosticsTelemetry\Infrastructure\Mysql\DiagnosticsTelemetryRowMapper
- */
+#[CoversClass(DiagnosticsTelemetryRowMapper::class)]
 final class DiagnosticsTelemetryRowMapperTest extends TestCase
 {
     private DiagnosticsTelemetryRowMapper $mapper;
@@ -157,9 +157,7 @@ final class DiagnosticsTelemetryRowMapperTest extends TestCase
         $this->assertSame('1970-01-01 00:00:00.000000', $dto->context->occurredAt->format('Y-m-d H:i:s.u'));
     }
 
-    /**
-     * @dataProvider invalidMetadataProvider
-     */
+    #[DataProvider('invalidMetadataProvider')]
     public function testItFallsBackToNullForInvalidMetadata(mixed $metadataInput): void
     {
         $row = ['metadata' => $metadataInput];

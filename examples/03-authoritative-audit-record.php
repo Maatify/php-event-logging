@@ -14,7 +14,7 @@ use Maatify\EventLogging\AuthoritativeAudit\Exception\AuthoritativeAuditStorageE
  *
  * Show how to record a fail-closed authoritative audit event.
  * Note that AuthoritativeAudit is fail-closed, meaning it does NOT use a fallback logger.
- * If the write fails, an exception will be thrown.
+ * If the recording boundary fails, an exception will be thrown.
  */
 
 // We assume $pdo and $clock are available from 00-bootstrap.php.

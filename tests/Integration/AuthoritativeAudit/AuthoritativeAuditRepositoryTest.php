@@ -12,13 +12,12 @@ use Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAu
 use Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditQueryMysqlRepository;
 use PDO;
 use PDOException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
-/**
- * @covers \Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditOutboxWriterMysqlRepository
- * @covers \Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditQueryMysqlRepository
- */
+#[CoversClass(AuthoritativeAuditOutboxWriterMysqlRepository::class)]
+#[CoversClass(AuthoritativeAuditQueryMysqlRepository::class)]
 final class AuthoritativeAuditRepositoryTest extends TestCase
 {
     private PDO $pdo;

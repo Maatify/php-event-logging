@@ -2,12 +2,10 @@
 
 > **Identity and release-state note:** References below to the legacy `v1.0.0` baseline, first release, or post-v1 work refer to the inherited compatibility/runtime baseline of `maatify/event-logging` `v1.0.0`. They do not claim a published Stable release for `maatify/php-event-logging`.
 
-## 1. Audit the Current Main State
+## 1. Current Contract and Evidence
 
-* **Exact audited main SHA:** `59ac1afee2313172d11de4f008169c5fd9c824a6`
 * **Exact maatify/persistence Composer constraint currently installed:** `^1.1.0`
 * **Current package exception marker state:** `Maatify\EventLogging\Exception\EventLoggingExceptionInterface` (extends `\Throwable`). `BehaviorTraceStorageException` extends `SystemMaatifyException`, implements the package marker, and retains `ErrorCodeEnum::DATABASE_CONNECTION_FAILED`.
-* **AuditTrail POC merge commit:** `59ac1afee2313172d11de4f008169c5fd9c824a6` (PR #98)
 * **Exact current BehaviorTrace Runtime and test inventory:**
   * `src/BehaviorTrace/Contract/BehaviorTraceQueryInterface.php` (contains `find` and `read` method signatures)
   * `src/BehaviorTrace/DTO/BehaviorTraceQueryDTO.php`
@@ -767,7 +765,9 @@ Always preserve `previous`.
 
 **Verdict:** Completed Behavior-Preserving Primitive Compatibility Correction
 
-At the pre-implementation baseline, `find()` used the `cursor_at` placeholder in two places within the `OR` clause. Native prepared statements in MySQL strictly require unique placeholders when reusing values, so the completed implementation uses separate placeholders such as `cursor_at_before` and `cursor_at_equal`.
+The primitive `find()` query uses separate placeholders such as `cursor_at_before` and
+`cursor_at_equal` in the `OR` clause. Native prepared statements in MySQL require unique
+placeholders when reusing values.
 
 *   **Current behavior:** The package does not configure prepare emulation.
 *   **Historical MySQL native-prepared-statement impact:** Reusing `cursor_at` caused PDO to throw an exception.
@@ -807,7 +807,7 @@ Document that `read()` already uses distinct placeholders and remains unchanged.
 * `src/BehaviorTrace/DTO/BehaviorTraceQueryPageDTO.php`
 * `src/BehaviorTrace/Service/BehaviorTracePaginatedQueryService.php`
 
-**Tests to create:**
+**Required test coverage:**
 * `tests/Unit/BehaviorTrace/DTO/BehaviorTraceAdminQueryRequestDTOTest.php`
 * `tests/Unit/BehaviorTrace/DTO/BehaviorTraceAdminPageResultDTOTest.php`
 * `tests/Unit/BehaviorTrace/Exception/BehaviorTraceAdminQueryInvalidArgumentExceptionTest.php`

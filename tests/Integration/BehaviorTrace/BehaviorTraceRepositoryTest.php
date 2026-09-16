@@ -13,11 +13,10 @@ use Maatify\EventLogging\BehaviorTrace\Enum\BehaviorTraceActorTypeInterface;
 use Maatify\EventLogging\BehaviorTrace\Infrastructure\Mysql\BehaviorTraceWriterMysqlRepository;
 use Maatify\EventLogging\BehaviorTrace\Infrastructure\Mysql\BehaviorTraceQueryMysqlRepository;
 use Maatify\EventLogging\Tests\Integration\Support\MysqlIntegrationTestCase;
+use PHPUnit\Framework\Attributes\CoversClass;
 
-/**
- * @covers \Maatify\EventLogging\BehaviorTrace\Infrastructure\Mysql\BehaviorTraceWriterMysqlRepository
- * @covers \Maatify\EventLogging\BehaviorTrace\Infrastructure\Mysql\BehaviorTraceQueryMysqlRepository
- */
+#[CoversClass(BehaviorTraceWriterMysqlRepository::class)]
+#[CoversClass(BehaviorTraceQueryMysqlRepository::class)]
 final class BehaviorTraceRepositoryTest extends MysqlIntegrationTestCase
 {
     private BehaviorTraceWriterMysqlRepository $writer;

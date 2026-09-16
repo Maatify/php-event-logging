@@ -35,4 +35,44 @@ class UrlSanitizerTest extends TestCase
         $this->assertStringContainsString('token=secret123', $sanitized);
         $this->assertStringContainsString('custom_secret=%5Bredacted%5D', $sanitized);
     }
+
+    public function testSanitizePathReturnsPathOnlyWithoutQueryOrFragment(): void
+    {
+        $sanitized = UrlSanitizer::sanitizePath(
+            'https://example.com/reset/token/abc123?next=/dashboard#fragment'
+        );
+
+        $this->assertSame('/reset/token/[redacted]', $sanitized);
+    }
+
+    public function testSanitizePathPreservesPathOnlyInputAndMasksSensitiveValue(): void
+    {
+        $this->assertSame(
+            '/account/password/[redacted]/profile',
+            UrlSanitizer::sanitizePath('/account/password/s3cret/profile')
+        );
+    }
+
+    public function testSanitizePathMasksSensitiveMarkersCaseInsensitively(): void
+    {
+        $sanitized = UrlSanitizer::sanitizePath('/download/SIGNATURE/abc/Secret/value');
+
+        $this->assertSame('/download/SIGNATURE/[redacted]/Secret/[redacted]', $sanitized);
+    }
+
+    public function testSanitizePathDoesNotCorruptNonSensitivePaths(): void
+    {
+        $this->assertSame('/public/keynote/abc123', UrlSanitizer::sanitizePath('/public/keynote/abc123'));
+    }
+
+    public function testSanitizePathFailsSafelyForMalformedInput(): void
+    {
+        $malformed = 'http://?password=leaked#fragment';
+        $sanitized = UrlSanitizer::sanitizePath($malformed);
+
+        $this->assertSame('[redacted]', $sanitized);
+        $this->assertStringNotContainsString('leaked', $sanitized);
+        $this->assertStringNotContainsString('?', $sanitized);
+        $this->assertStringNotContainsString('#', $sanitized);
+    }
 }

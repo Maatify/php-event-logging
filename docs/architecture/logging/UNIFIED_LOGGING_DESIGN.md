@@ -1,10 +1,12 @@
 # UNIFIED_LOGGING_DESIGN
 
 > **Project:** maatify/php-event-logging
-> **Status:** CANONICAL (Unified Design + Enforcement Rules)
+> **Status:** CANONICAL logging-domain design (subordinate to repository authority)
 > **Scope:** Defines the unified logging architecture, layering, authority boundaries, storage semantics, and forbidden patterns.
 > **Terminology Source of Truth:** `docs/architecture/logging/LOG_DOMAINS_OVERVIEW.md`
-> **Storage Guidance (Optional):** `docs/architecture/logging/LOG_STORAGE_AND_ARCHIVING.md` *(not required for baseline)*
+> **Storage Guidance:** `docs/architecture/logging/LOG_STORAGE_AND_ARCHIVING.md` defines the
+> deferred MySQL → MySQL Mode B archive contract; it does not add runtime backends.
+> **Runtime Contract:** `EVENT_LOGGING_PACKAGE_REFERENCE.md` remains canonical for public Runtime behavior.
 
 ---
 
@@ -15,7 +17,7 @@ This document defines a single unified approach to logging across the system tha
 * prevents domain mixing (conceptual confusion)
 * enforces consistent layering (HTTP → Domain policy → Storage)
 * provides honest failure semantics (no hidden failures except where explicitly permitted)
-* supports scalable retention (baseline first; archiving remains optional guidance)
+* preserves a MySQL-only baseline while keeping the approved archive contract deferred
 * enables future extraction of each logging domain as a standalone library from host applications
 
 ---
@@ -47,22 +49,34 @@ All logging domains follow the same conceptual pipeline:
 HTTP / UI / Controllers
 |
 v
-Domain Recorder (policy + context)
+Domain Recorder (public coordination boundary)
+|
+v
+Domain Policy (domain-specific normalization / validation)
 |
 v
 Domain Logger / Writer (storage adapter interface)
 |
 v
-Storage Driver (MySQL baseline; optional additional backends)
+Storage Driver (MySQL only)
 @@@
 
-### 2.1 What “Recorder” Means (Mandatory)
+`HTTP / UI / Controllers` are host-side callers shown at the integration boundary; they are not
+components shipped by this package.
 
-A Recorder is the **single** place where:
+### 2.1 Recorder and Policy Roles (Mandatory)
 
-* event policy is applied (what to log, when, what metadata is allowed)
-* request context is normalized (actor, correlation, requestId, routeName, ip, userAgent)
-* DTO construction is centralized
+A Recorder is the public recording and coordination boundary. It:
+
+* accepts the documented public recording inputs
+* delegates domain-specific normalization and validation to the independent domain Policy
+* builds the applicable command or write DTO
+* delegates persistence to the domain writer
+* coordinates the current domain's reliability boundary
+
+The domain Policy is a separate architectural role responsible for domain-specific normalization
+and validation under the current domain contract. It does not perform storage I/O or decide the
+Recorder's fail-open/fail-closed boundary.
 
 Recorders prevent:
 
@@ -89,15 +103,20 @@ Recorders prevent:
 
 **Recorders**
 
-* MUST be pure “policy + DTO construction” using safe context.
+* MUST coordinate public recording, applicable Policy delegation, command/write DTO construction,
+  and writer delegation.
 * MUST NOT contain SQL / direct storage logic.
-* MUST enforce data safety and metadata limits (see Section 9 and Section 14).
+* MUST delegate current domain policy for data safety and metadata handling (see Section 9 and
+  Section 14).
 
 **Infrastructure Drivers**
 
-* MUST be storage-specific only (MySQL, optional backends if enabled).
+* MUST be MySQL-specific in the current Runtime.
 * MUST NOT reinterpret policy or classify domains.
-* MUST throw domain-specific storage exceptions (never swallow).
+* MUST surface failures through the current domain exception boundary and never swallow:
+  * Storage/PDO failures use the applicable domain storage exception.
+  * Admin Query validation, configuration, and execution failures use the applicable domain query
+    exceptions.
 
 ### 3.2 Forbidden Shortcuts
 
@@ -138,44 +157,55 @@ These logs are operationally important, but not “compliance source of truth”
 
 ## 5) Storage Semantics (Canonical Baseline)
 
-### 5.1 Baseline Storage Targets (MySQL)
+### 5.1 Baseline Storage Topology (MySQL Only)
 
-The baseline schema defines one dedicated MySQL table per domain:
+Current persistence is domain-isolated within MySQL. A domain is not required to map to exactly
+one table; its topology may contain multiple domain-owned tables. The current canonical relations
+include:
 
 * Authoritative Audit:
 
-  * `authoritative_audit_outbox` *(authoritative source)*
-  * `authoritative_audit_log` *(materialized query table; written only by consumer)*
+  * `maa_event_logging_authoritative_audit_outbox` *(authoritative source)*
+  * `maa_event_logging_authoritative_audit_log` *(materialized query table; written only by consumer)*
 
 * Audit Trail:
 
-  * `audit_trail`
+  * `maa_event_logging_audit_trail`
 
 * Security Signals:
 
-  * `security_signals`
+  * `maa_event_logging_security_signals`
 
 * Operational Activity:
 
-  * `operational_activity`
+  * `maa_event_logging_behavior_trace`
 
 * Diagnostics Telemetry:
 
-  * `diagnostics_telemetry`
+  * `maa_event_logging_diagnostics_telemetry`
 
 * Delivery Operations:
 
-  * `delivery_operations`
+  * `maa_event_logging_delivery_operations`
 
-### 5.2 Optional Backends (Deferred / Not Required)
+### 5.2 Supported Backend Boundary
 
-Additional backends (e.g., Mongo cold store) are OPTIONAL and MUST NOT be assumed.
+The current Runtime persistence backend is MySQL only. MongoDB and all other non-MySQL backends
+are unsupported; no optional additional runtime backend contract exists. The only approved future
+archive contract is deferred MySQL → MySQL Mode B, governed by `DEFERRED_SCOPE.md` and
+`LOG_STORAGE_AND_ARCHIVING.md`.
 
-If enabled in the future, storage and retention behavior MUST be documented in:
+### 5.3 Current Read Paths
 
-* `docs/architecture/logging/LOG_STORAGE_AND_ARCHIVING.md`
+The current Runtime has two separate package-owned read paths:
 
-**Baseline rule:** the system MUST remain correct and complete with MySQL-only storage.
+* Protected primitive cursor-based reads for system consumers.
+* Domain-specific Admin Query offset/page reads for all six domains.
+
+Admin Query implementations own domain filters, trusted SQL, mapping, and query exception
+boundaries, while `maatify/persistence` owns generic pagination mechanics. Neither path provides
+a generic cross-domain reader, arbitrary SQL, controllers, permissions, UI, or reporting.
+Reporting and dashboard summaries remain future Phase 5 work under `DEFERRED_SCOPE.md`.
 
 ---
 
@@ -190,25 +220,35 @@ Logging must not fail silently in infrastructure unless explicitly permitted by 
 **Recorder Exception Boundary (Hard Rule):**
 - For all **Non-Authoritative** domains, `Recorder::record()` MUST be **fail-open** and MUST NOT throw under any condition.
 - Therefore, the Recorder MUST catch **`Throwable` at the top-level boundary** of `record()`.
-- Infrastructure MUST remain honest (never swallow) and MUST throw **domain-specific storage exceptions**.
-- The Recorder MUST swallow after catching `Throwable` (record() MUST NOT throw), and MUST surface the failure via PSR-3 (and/or safe last-resort channel) without recursion.
+- Infrastructure MUST remain honest (never swallow) and MUST surface failures through the current
+  domain exception boundary: Storage/PDO failures use the applicable domain storage exception;
+  Admin Query validation, configuration, and execution failures use the applicable domain query
+  exceptions.
+- The Recorder MUST swallow after catching `Throwable` (record() MUST NOT throw). If an optional
+  PSR-3 logger was supplied, it MAY receive a sanitized diagnostic; no mandatory primitive
+  last-resort channel is part of the current Runtime.
 
 **Recursion Guard (Hard Rule):**
 - Failure reporting MUST NOT call any logging domain recorder/writer again.
-- The last-resort channel MUST be primitive (e.g., `error_log`, syslog, stderr) and MUST NOT depend on DTOs/UUID/JSON encoding.
+- Failure reporting MUST NOT call another logging recorder/writer or claim an unimplemented
+  primitive fallback channel.
 
 * **Non-authoritative recorders MAY treat storage failures as best-effort** if and only if:
   * the swallow is explicit and documented as “best-effort logging”
   * the infrastructure driver itself remains honest (does not swallow)
-  * the failure is surfaced operationally (PSR-3 warning) and SHOULD be captured via Diagnostics Telemetry **without creating recursive failures** (sanitized)
+  * an optional supplied PSR-3 logger MAY receive a sanitized operational diagnostic, without
+    creating recursive failures
 
-**Important:** If Diagnostics Telemetry write fails too, it MUST NOT cascade into further writes; PSR-3 is the last-resort operational visibility channel.
+**Important:** Failure reporting must not cascade into further logging writes. There is no required
+primitive fallback channel when an optional PSR-3 logger was not supplied.
 
 ### 6.3 Forbidden Swallowing
 
 * Infrastructure drivers MUST NOT swallow exceptions silently.
 * “Try/catch empty” in storage drivers is forbidden.
-* Best-effort does not mean “silent”.
+* Best-effort means that a non-authoritative recorder swallows its failure; it does not require a
+  diagnostic channel. An optional supplied PSR-3 logger MAY receive a diagnostic, and no mandatory
+  reporting or fallback channel exists when no logger was supplied.
 * Swallowing is ONLY permitted at the **Recorder boundary** for **Non-Authoritative** domains (best-effort).
 * Any swallowing inside Infrastructure/Repository/DTO layers is forbidden.
 
@@ -350,7 +390,21 @@ Logging must NEVER store:
 * prefer allowlisted keys
 * avoid dumping raw payloads
 * keep JSON minimal and structured
-* enforce maximum size policy (Section 14.1)
+* apply the current domain policy for size and oversized-metadata handling (Section 14.1)
+
+### 9.3 Runtime Safety Remediation Status
+
+The WU-3 Runtime remediation closes the previously recorded Runtime gap at the package boundary:
+
+* `AuditTrailRecorder` uses `UrlSanitizer::sanitizePath()` for `referrerPath`, returning only a
+  path and masking sensitive marker/value segments with `[redacted]`.
+* `Common\UrlSanitizer::sanitize()` retains its existing public behavior; `sanitizePath()` is the
+  additive path-safe API.
+* The five non-authoritative Recorders apply `Common\MetadataSanitizer` before size/encoding
+  handling and before constructing or persisting their write DTOs.
+
+The boundary remains structural and does not perform arbitrary free-text redaction. The
+AuthoritativeAudit fail-closed contract remains unchanged.
 
 ---
 
@@ -372,7 +426,7 @@ Avoid free-text strings where structured enums/taxonomy exist.
 
 ASCII diagrams must follow:
 
-* `docs/architecture/logging/ASCII_FLOW_LEGENDS.md`
+* [`ASCII Flow Legends`](../../reference/logging/ASCII_FLOW_LEGENDS.md)
 
 No alternative symbols, no informal arrows, no custom markers.
 All flow diagrams must use the canonical legend.
@@ -397,29 +451,32 @@ This implies:
 A logging implementation is compliant only if:
 
 * It is classified into exactly one of the six domains.
-* It routes through a domain recorder (policy + context).
+* It routes through a domain recorder and the applicable domain Policy.
 * Infrastructure does not silently swallow exceptions.
 * Telemetry is not used for access tracking.
 * Operational Activity does not contain reads/views.
 * Audit Trail contains reads/views/exports/navigation.
 * Authoritative Audit uses outbox + consumer pipeline.
-* Optional storage backends (if enabled) are documented explicitly.
+* Current persistence remains MySQL only; non-MySQL runtime backends are unsupported.
 
 ---
 
-## 14) Canonical Operational Policies (Clarifications Added)
+## 14) Operational Policies and Deferred Boundaries
 
-This section upgrades previously “non-blocking review notes” into **canonical, enforceable documentation** to remove ambiguity and ensure this document is a true source of truth.
+This section records current safety rules and future operational constraints. The package's
+current Runtime does not implement outbox consumers, archivers, dashboards, or reporting; the
+deferred portions below preserve the requirements for separately approved future work.
 
-### 14.1 Metadata Size Policy (Hard)
+### 14.1 Metadata Handling (Domain Policy)
 
-* `metadata` MUST have an enforced maximum size at the application layer.
-* Canonical limit: **64 KB per event** (post-serialization).
-* Violations MUST result in:
+`metadata` size and handling follow each domain's current policy and Runtime contract. This
+unified design does not impose a global maximum or a global rejection rule.
 
-  * trimming to allowlisted safe keys, OR
-  * rejection for Authoritative Audit events (integrity), OR
-  * best-effort drop with PSR-3 warning for non-authoritative domains (policy decision)
+For fail-open domains, oversized metadata MAY be sanitized, dropped, or replaced and recording
+may continue according to that domain's contract. This document does not invent size or rejection
+behavior for an AuthoritativeAudit payload that the current Runtime does not define.
+
+The future archiver copies stored records and does not redefine recorder metadata policy.
 
 **Forbidden patterns:**
 
@@ -427,20 +484,11 @@ This section upgrades previously “non-blocking review notes” into **canonica
 * storing full stack traces as metadata payloads
 * storing multi-megabyte debug dumps
 
-### 14.2 actor_type Allowed Values (Hard)
+### 14.2 actor_type Normalization and Validation
 
-To prevent taxonomy drift, `actor_type` MUST be validated against canonical values.
-
-Allowed values:
-
-* `SYSTEM`
-* `ADMIN`
-* `USER`
-* `SERVICE`
-* `API_CLIENT`
-* `ANONYMOUS`
-
-Any new value requires an explicit documented architectural decision.
+`actor_type` normalization and validation are governed by each domain's current policy and
+contract. This unified design does not impose one closed global set of values; each domain follows
+its own current contract and documents any domain-specific behavior.
 
 ### 14.3 Audit Trail referrer_path / URL Safety (Hard)
 
@@ -454,7 +502,7 @@ For any stored path or referrer field:
 
   * Example: `/reset-password/{hashed}` rather than `/reset-password/abc123`
 
-### 14.4 Authoritative Outbox Processing Guarantees (Canonical)
+### 14.4 Authoritative Outbox Processing Guarantees (Deferred Consumer Contract)
 
 The outbox pipeline MUST be resilient to consumer failure.
 
@@ -474,10 +522,11 @@ Monitoring requirement:
 
 * Alert if outbox lag exceeds a policy threshold (example: > 5 minutes)
 
-### 14.5 Archiving Trigger Policy (If Optional Archiving Is Enabled)
+### 14.5 Archiving Trigger Policy (Deferred; MySQL → MySQL Mode B Only)
 
-Archiving is OPTIONAL and not required for baseline correctness.
-If enabled, an explicit trigger policy MUST be documented and implemented.
+Archiving is deferred and not required for baseline correctness. If the separately approved Mode B
+archiver is implemented, its trigger policy MUST be documented and implemented within the MySQL →
+MySQL boundary.
 
 Recommended canonical defaults (adjust per deployment):
 
@@ -487,7 +536,7 @@ Recommended canonical defaults (adjust per deployment):
 * Verification: ensure transfer success before delete (hard rule)
 * Rollback safety: if archive fails, hot data stays
 
-### 14.6 Delivery Operations Retry Policy (Canonical)
+### 14.6 Delivery Operations Retry Policy (Deferred Operational Contract)
 
 To avoid infinite loops, Delivery Operations MUST have a bounded retry policy.
 
@@ -508,7 +557,7 @@ This document does not mandate a specific throughput target, but it mandates des
 
   * partitioning (future ADR)
   * read replicas for reporting
-  * archiving automation (optional modes)
+  * deferred MySQL → MySQL Mode B archiving automation
 
 ### 14.8 GDPR / Retention / Right-to-Be-Forgotten (Policy Boundary)
 

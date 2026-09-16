@@ -7,7 +7,7 @@ The `maatify/php-event-logging` library provides optional, framework-agnostic fa
 To instantiate the provider or individual factories, the host application must construct and supply the following dependencies:
 
 1. **`PDO`**: A standard configured PDO instance connected to your database.
-2. **`ClockInterface`**: An instance implementing `Maatify\SharedCommon\Contracts\ClockInterface` (e.g., `Maatify\EventLogging\Common\SystemClock`).
+2. **`ClockInterface`**: An instance implementing `Maatify\SharedCommon\Contracts\ClockInterface` (e.g., `Maatify\SharedCommon\Infrastructure\SystemClock`).
 3. **`LoggerInterface` (Optional)**: A PSR-3 compatible logger to provide fail-open fallback behavior for specific domains.
 
 ## Creating the Default Provider
@@ -16,13 +16,13 @@ The simplest way to use the library is via the `EventLoggingProviderFactory`. It
 
 ```php
 use Maatify\EventLogging\Provider\EventLoggingProviderFactory;
-use Maatify\EventLogging\Common\SystemClock;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 // 1. Host provides a PDO instance
 $pdo = new \PDO('mysql:host=localhost;dbname=mydb', 'user', 'pass');
 
 // 2. Host provides a clock instance
-$clock = new SystemClock();
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 
 // 3. Host may provide a PSR-3 logger (e.g. Monolog) for fail-open domains
 $psrLogger = new \Monolog\Logger('event-logging-fallback');
@@ -60,7 +60,7 @@ $auditTrailRecorder = AuditTrailFactory::create($pdo, $clock, $psrLogger);
 
 ### Important: AuthoritativeAudit Fail-Closed Semantics
 
-The `AuthoritativeAudit` domain acts as the governance and security posture log. It uses **fail-closed** semantics, meaning if it fails to record an event to the database, it must throw an exception rather than silently succeeding or falling back to a file.
+The `AuthoritativeAudit` domain acts as the governance and security posture log. It uses **fail-closed** semantics, meaning a failure anywhere in its recording boundary must throw an exception rather than silently succeeding or falling back to a file.
 
 As such, the factory for `AuthoritativeAudit` **does not receive the optional PSR-3 fallback logger**.
 

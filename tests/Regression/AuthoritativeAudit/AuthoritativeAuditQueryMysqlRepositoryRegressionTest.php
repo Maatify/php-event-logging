@@ -18,11 +18,10 @@ use Maatify\EventLogging\Tests\Support\ThrowingPdo;
 use Maatify\EventLogging\Tests\Support\ThrowingStatementPdo;
 use PDO;
 use PDOException;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditQueryMysqlRepository
- */
+#[CoversClass(AuthoritativeAuditQueryMysqlRepository::class)]
 final class AuthoritativeAuditQueryMysqlRepositoryRegressionTest extends TestCase
 {
     public function testProtectedPublicPrimitiveSurface(): void

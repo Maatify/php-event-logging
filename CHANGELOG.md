@@ -10,65 +10,23 @@ The `1.0.0` entry below is a historical record of the legacy `maatify/event-logg
 ## [Unreleased]
 
 ### Added
-- Added the separate DeliveryOperations Admin Query public API with package-owned request/result DTOs and MySQL repository.
-- Added Unit, Regression, and strict real-MySQL Integration coverage for DeliveryOperations Admin Query API.
-- Added the separate DiagnosticsTelemetry Admin Query public API with package-owned request/result DTOs and MySQL repository.
-- Added Unit, Regression, and strict real-MySQL Integration coverage for DiagnosticsTelemetry Admin Query pagination and primitive find()/read() compatibility.
-- Added the separate AuthoritativeAudit Admin Query public API with package-owned request/result DTOs and MySQL repository.
-- Added Unit, Regression, and strict real-MySQL Integration coverage for AuthoritativeAudit Admin Query pagination and primitive cursor compatibility.
-- Added the separate AuditTrail Admin Query public API with package-owned request/result DTOs and MySQL repository.
-- Added the separate BehaviorTrace Admin Query public API with package-owned request/result DTOs and MySQL repository.
-- Added the separate SecuritySignals Admin Query public API with package-owned request/result DTOs and MySQL repository.
+- Added Admin Query public API with package-owned request/result DTOs and MySQL repository for all six domains (DeliveryOperations, DiagnosticsTelemetry, AuthoritativeAudit, AuditTrail, BehaviorTrace, SecuritySignals).
 - Added `maatify/persistence` for deterministic offset pagination mechanics.
-- Added Unit, Regression, and MySQL Integration coverage for AuditTrail Admin Query pagination.
-- Added Unit, Regression, and MySQL Integration coverage for BehaviorTrace Admin Query pagination and primitive cursor compatibility.
-- Added Unit, Regression, and strict MySQL Integration coverage for SecuritySignals Admin Query pagination and primitive cursor compatibility.
-
-### Changed
-- Extracted DiagnosticsTelemetry policy-aware row hydration into a shared internal mapper while preserving primitive find() and legacy read() behavior.
-- Corrected DiagnosticsTelemetry primitive find() cursor placeholders for native PDO prepared statements without changing cursor semantics.
-- Updated DiagnosticsTelemetry Admin Query blueprint, roadmap, package reference, domain README, integration guide, and documentation inventory to implementation status.
-- Corrected AuthoritativeAudit primitive `find()` cursor placeholders for native PDO prepared statements without changing legacy `maatify/event-logging` `v1.0.0` semantics.
-- Updated internal mapper, descriptor, repository, and documentation states for AuthoritativeAudit Admin Query.
-- Extracted AuditTrail row hydration into a shared internal mapper while preserving primitive query behavior.
-- Extracted BehaviorTrace policy-aware row hydration into a shared internal mapper while preserving primitive query behavior.
-- Extracted SecuritySignals row hydration into a policy-free shared internal mapper while preserving primitive query behavior.
-- Corrected BehaviorTrace primitive `find()` cursor placeholders for native PDO prepared statements without changing cursor semantics.
-- Corrected SecuritySignals primitive `find()` cursor placeholders for native PDO prepared statements without changing cursor semantics.
-- Updated AuditTrail Admin Query blueprint, roadmap, package reference, and integration documentation to implementation status.
-- Updated BehaviorTrace Admin Query blueprint, package reference, module README, and integration documentation to implementation status.
-- Updated SecuritySignals Admin Query blueprint, roadmap, package reference, module README, and integration documentation to implementation status after completing the follow-up verification contract.
-
-### Removed
-- Removed the exactly seven superseded AuthoritativeAudit post-legacy-v1 pagination wrapper artifacts.
-- Removed superseded AuditTrail post-legacy-v1 pagination wrapper artifacts that were not protected contracts of the legacy `maatify/event-logging` `v1.0.0` compatibility baseline.
-- Removed superseded BehaviorTrace post-legacy-v1 pagination wrapper artifacts that were not protected contracts of the legacy `maatify/event-logging` `v1.0.0` compatibility baseline.
-- Removed superseded SecuritySignals post-legacy-v1 pagination wrapper artifacts that were not protected contracts of the legacy `maatify/event-logging` `v1.0.0` compatibility baseline.
-
-### Documentation
-- Drafted AuditTrail Admin Query POC blueprint (`ADMIN_QUERY_AUDIT_TRAIL_POC_BLUEPRINT.md`) defining the proposed replacement architecture. No Runtime, Composer, schema, or test behavior changed.
-
-### Added
 - Added optional pure-PHP DI binding helper for host applications that want convenience container wiring without a mandatory DI dependency.
 
 ### Changed
+- Moved `maatify/php-event-logging` to Proprietary licensing for the pre-stable successor package line (the historical `maatify/event-logging v1.0.0` record remains historical and is not rewritten).
+- Raised the minimum supported PHP contract from `^8.2` to `^8.4` and aligned the Composer platform baseline and CI matrix.
+- Extracted domain-specific shared internal row hydration mappers, including policy-aware mapping where required, while preserving primitive `find()` and `read()` behavior.
+- Corrected primitive `find()` cursor placeholders for native PDO prepared statements without changing cursor semantics in affected domains.
+- Updated blueprints, package references, integration guides, and domain READMEs to reflect the current post-legacy-v1 Admin Query architecture.
 - Polished Composer metadata (`composer.json`) to accurately reflect package scope, requirements, and dependencies.
+- Replaced the local `SystemClock` implementation with a direct dependency on `maatify/shared-common` `ClockInterface`.
+- Enforced path-safe referrer sanitization in the AuditTrail domain.
+- Enforced structural metadata sanitization before persistence in the five non-authoritative domains.
 
-### Documentation
-- Removed superseded Admin Query cursor-wrapper audit documents.
-- Removed partial domain `PUBLIC_API.md` files.
-- Aligned current Runtime, primitive-read, integration, and roadmap documentation with the approved post-legacy-v1 architecture inherited from the legacy `maatify/event-logging` `v1.0.0` compatibility baseline.
-- Confirmed that this documentation cleanup introduces no Runtime, Composer, schema, or test behavior change.
-
-- Completed Phase 1 Admin Query Runtime and persistence compatibility inventory (strictly documentation and audit).
-- Unified future Admin Query API architecture (`ADMIN_QUERY_API_ARCHITECTURE.md`) and roadmap.
-- Documented explicit separation between current primitive read APIs and the target Admin pagination.
-- Recorded future dependency on `maatify/persistence` for standardized pagination mechanics while explicitly deferring implementation until owner approval.
-- Added `DI_BINDINGS.md` integration guide and `14-di-bindings.php` example to document optional DI container wiring.
-- Clarified that framework-agnostic core wiring can be manual or use optional convenience DI bindings.
-- Applied professional release-grade polish to `README.md`.
-- Completed final documentation audit and instituted documentation quality gate.
-- Standardized package structure and wording across examples, schema index, module references, and integration guides for release readiness.
+### Removed
+- Removed superseded pagination wrapper artifacts that were not protected contracts of the legacy `maatify/event-logging` `v1.0.0` compatibility baseline.
 
 ### Security
 - Added `SECURITY.md` for explicit security policies and vulnerability reporting guidelines.

@@ -5,9 +5,7 @@
 ![Maatify.dev](https://www.maatify.dev/assets/img/img/maatify_logo_white.svg)
 
 [![PHPStan](https://img.shields.io/badge/PHPStan-Level%20Max-4E8CAE)](https://github.com/Maatify/php-event-logging)
-
 [![Maatify Ecosystem](https://img.shields.io/badge/Maatify-Ecosystem-blueviolet)](https://github.com/Maatify)
-
 [![Changelog](https://img.shields.io/badge/Changelog-View-blue.svg)](CHANGELOG.md)
 [![Package Reference](https://img.shields.io/badge/Reference-Read-blue.svg)](EVENT_LOGGING_PACKAGE_REFERENCE.md)
 [![Security Policy](https://img.shields.io/badge/Security-Policy-blue.svg)](SECURITY.md)
@@ -17,7 +15,7 @@
 
 Repository: [Maatify/php-event-logging](https://github.com/Maatify/php-event-logging)
 
-**Publication status:** Development. `maatify/php-event-logging` is not yet published on Packagist and has no Stable release under this identity.
+**Publication status:** Development / Pre-Stable. `maatify/php-event-logging` is registered on [Packagist](https://packagist.org/packages/maatify/php-event-logging). Packagist registration is not a published exact SemVer version; no Stable or RC release is claimed under this identity.
 
 This package provides strict domain isolation, MySQL persistence, and fail-open/fail-closed semantics without mandatory framework bindings. It intentionally relies on explicit Composer and runtime dependencies to operate autonomously from host applications and frameworks.
 
@@ -33,7 +31,7 @@ This package provides strict domain isolation, MySQL persistence, and fail-open/
 * **AuthoritativeAudit Semantics**: Fail-closed governance logging.
 * **Fail-Open Boundaries**: Non-authoritative domains can accept a PSR-3 fallback logger.
 * **Optional Framework-Agnostic Provider and Bindings**: Built-in optional factories and pure-PHP DI binding helpers for wiring dependencies.
-* **Primitive Cursor-Based Read APIs**: Dedicated, stable read/query capabilities.
+* **Admin Query APIs & Primitive Cursor APIs**: Dedicated Admin Query and primitive cursor-based read capabilities.
 * **No Mandatory Framework Bindings**: Optional bindings are pure PHP convenience helpers and do not add framework runtime dependencies.
 * **No Generic Logging API**: Excludes shared generic loggers, generic log tables, or unified repositories.
 
@@ -41,7 +39,7 @@ This package provides strict domain isolation, MySQL persistence, and fail-open/
 
 ## 📋 Requirements
 
-* PHP `^8.2`
+* PHP `^8.4`
 * `ext-json`
 * `ext-pdo`
 
@@ -56,7 +54,7 @@ This package provides strict domain isolation, MySQL persistence, and fail-open/
 
 ## 📦 Installation
 
-This repository is currently under Development and is not published on Packagist. To work on the package from its source repository:
+This repository is currently under Development / Pre-Stable. The package identity is registered on Packagist, but no Stable or RC release, or other published exact SemVer version, is claimed under this identity. To work on the package from its source repository:
 
 ```bash
 git clone https://github.com/Maatify/php-event-logging.git
@@ -64,7 +62,7 @@ cd php-event-logging
 composer install
 ```
 
-Consumer installation through `composer require maatify/php-event-logging` is not available until an Owner-approved release is published.
+Stable consumer installation through `composer require maatify/php-event-logging` remains tied to a future Owner-approved exact SemVer release. Packagist registration alone does not establish that release state.
 
 ---
 
@@ -76,10 +74,10 @@ Host applications provide their own dependencies (PDO, Clock, PSR-3 Logger) to i
 
 ```php
 use Maatify\EventLogging\Provider\EventLoggingProviderFactory;
-use Maatify\EventLogging\Common\SystemClock;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 $pdo = new \PDO('mysql:host=localhost;dbname=mydb', 'user', 'pass');
-$clock = new SystemClock();
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 $psrLogger = new \Monolog\Logger('event-logging-fallback'); // Optional for fail-open domains
 
 // Create the provider service map
@@ -159,27 +157,11 @@ The `examples/` directory contains plain PHP illustrative skeletons covering int
 * [Schema Layout](schema/README.md)
 * [Testing Strategy](TESTING_STRATEGY.md)
 
-### Architecture
-* [Unified Logging Architecture](docs/architecture/LOGGING_ARCHITECTURE.md)
-* [Logging Domain Rules](docs/architecture/LOGGING_DOMAIN_RULES.md)
-* [CI Workflow Standard](docs/standards/CI_WORKFLOW_STANDARD.md)
-* [Storage & Schema Guarantees](docs/architecture/STORAGE_AND_SCHEMA.md)
-* [Deferred Scope & Future Considerations](docs/architecture/DEFERRED_SCOPE.md)
-* [Authoritative Audit Pipeline](docs/architecture/AUTHORITATIVE_AUDIT_PIPELINE.md)
-* [Admin Query API Roadmap](docs/roadmap/ADMIN_QUERY_API_ROADMAP.md)
-
-### Integration Guides
-* [Installation Guide](docs/integration/INSTALLATION.md)
-* [Factory Usage](docs/integration/FACTORY_USAGE.md)
-* [Manual Wiring](docs/integration/MANUAL_WIRING.md)
-* [DI Bindings](docs/integration/DI_BINDINGS.md)
-* [Admin Read Usage](docs/integration/ADMIN_READ_USAGE.md)
-
 ---
 
 ## ✅ Quality Status
 
-* PHP 8.2+
+* PHP `^8.4`
 * PHPStan Level Max
 * PHPUnit testing available
 * GitHub Actions CI validated
@@ -188,7 +170,7 @@ The `examples/` directory contains plain PHP illustrative skeletons covering int
 
 ## 🪪 License
 
-This package is licensed under the MIT License.
+This software is proprietary to Maatify.
 See the [LICENSE](LICENSE) file for details.
 
 ---

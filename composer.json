@@ -17,7 +17,7 @@
   ],
   "homepage": "https://github.com/Maatify/php-event-logging",
   "type": "library",
-  "license": "MIT",
+  "license": "proprietary",
   "authors": [
     {
       "name": "Maatify",
@@ -45,7 +45,7 @@
     "maatify/exceptions": "^1.1",
     "maatify/persistence": "^1.1.0",
     "maatify/shared-common": "^1.0",
-    "php": "^8.2",
+    "php": "^8.4",
     "psr/log": "^3.0",
     "ramsey/uuid": "^4.9"
   },
@@ -66,7 +66,7 @@
   "config": {
     "optimize-autoloader": true,
     "platform": {
-      "php": "8.2.0"
+      "php": "8.4.0"
     },
     "sort-packages": true
   },

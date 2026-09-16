@@ -7,7 +7,6 @@ namespace Maatify\EventLogging\Tests\Regression\DeliveryOperations\Infrastructur
 use DateTimeImmutable;
 use DateTimeZone;
 use Exception;
-use Maatify\EventLogging\Common\SystemClock;
 use Maatify\EventLogging\DeliveryOperations\Command\RecordDeliveryOperationCommand;
 use Maatify\EventLogging\DeliveryOperations\Contract\DeliveryOperationsAdminQueryInterface;
 use Maatify\EventLogging\DeliveryOperations\Contract\DeliveryOperationsLoggerInterface;
@@ -23,6 +22,7 @@ use Maatify\EventLogging\DeliveryOperations\Enum\DeliveryChannelEnum;
 use Maatify\EventLogging\DeliveryOperations\Enum\DeliveryOperationTypeEnum;
 use Maatify\EventLogging\DeliveryOperations\Enum\DeliveryStatusEnum;
 use Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsAdminQueryMysqlRepository;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 use Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsLoggerMysqlRepository;
 use Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsQueryMysqlRepository;
 use Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsRowMapper;
@@ -537,7 +537,7 @@ final class DeliveryOperationsAdminQueryRegressionGateTest extends TestCase
     public function testRecorderSuccessCallsWriterWithDto(): void
     {
         $writer = $this->createMock(DeliveryOperationsLoggerInterface::class);
-        $clock = new SystemClock();
+        $clock = new SystemClock(new DateTimeZone('UTC'));
         $policy = new DeliveryOperationsDefaultPolicy();
         $recorder = new DeliveryOperationsRecorder($writer, $clock, null, $policy);
 
@@ -574,7 +574,7 @@ final class DeliveryOperationsAdminQueryRegressionGateTest extends TestCase
         $writer = $this->createMock(DeliveryOperationsLoggerInterface::class);
         $writer->method('log')->willThrowException(new PDOException('storage failure'));
 
-        $clock = new SystemClock();
+        $clock = new SystemClock(new DateTimeZone('UTC'));
         $policy = new DeliveryOperationsDefaultPolicy();
         $recorder = new DeliveryOperationsRecorder($writer, $clock, null, $policy);
 
@@ -609,7 +609,7 @@ final class DeliveryOperationsAdminQueryRegressionGateTest extends TestCase
                 })
             );
 
-        $clock = new SystemClock();
+        $clock = new SystemClock(new DateTimeZone('UTC'));
         $policy = new DeliveryOperationsDefaultPolicy();
         $recorder = new DeliveryOperationsRecorder($writer, $clock, $fallbackLogger, $policy);
 
@@ -632,7 +632,7 @@ final class DeliveryOperationsAdminQueryRegressionGateTest extends TestCase
         $fallbackLogger = $this->createMock(LoggerInterface::class);
         $fallbackLogger->method('error')->willThrowException(new \RuntimeException('logger also broken'));
 
-        $clock = new SystemClock();
+        $clock = new SystemClock(new DateTimeZone('UTC'));
         $policy = new DeliveryOperationsDefaultPolicy();
         $recorder = new DeliveryOperationsRecorder($writer, $clock, $fallbackLogger, $policy);
 
@@ -676,7 +676,7 @@ final class DeliveryOperationsAdminQueryRegressionGateTest extends TestCase
         $this->assertInstanceOf(DeliveryOperationsFactory::class, $factory);
 
         $pdo = $this->createMock(PDO::class);
-        $clock = new SystemClock();
+        $clock = new SystemClock(new DateTimeZone('UTC'));
 
         $recorder = DeliveryOperationsFactory::create($pdo, $clock);
         $this->assertInstanceOf(DeliveryOperationsRecorder::class, $recorder);
@@ -685,7 +685,7 @@ final class DeliveryOperationsAdminQueryRegressionGateTest extends TestCase
     public function testProviderReturnsRecorderInstance(): void
     {
         $pdo = $this->createMock(PDO::class);
-        $clock = new SystemClock();
+        $clock = new SystemClock(new DateTimeZone('UTC'));
         $provider = EventLoggingProviderFactory::createDefault($pdo, $clock);
 
         $this->assertInstanceOf(EventLoggingProvider::class, $provider);
@@ -706,7 +706,7 @@ final class DeliveryOperationsAdminQueryRegressionGateTest extends TestCase
         $this->assertInstanceOf(\Closure::class, $queryFactory);
 
         $pdo = $this->createMock(PDO::class);
-        $clock = new SystemClock();
+        $clock = new SystemClock(new DateTimeZone('UTC'));
 
         $provider = EventLoggingProviderFactory::createDefault($pdo, $clock);
 

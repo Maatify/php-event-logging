@@ -5,29 +5,45 @@ declare(strict_types=1);
 require_once __DIR__ . '/00-bootstrap.php';
 example_requires_pdo($pdo);
 
-use Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditQueryMysqlRepository;
-use Maatify\EventLogging\AuthoritativeAudit\DTO\AuthoritativeAuditQueryDTO;
+use Maatify\EventLogging\AuthoritativeAudit\DTO\AuthoritativeAuditAdminQueryRequestDTO;
+use Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditAdminQueryMysqlRepository;
 
 /**
- * 10 - Admin Read Authoritative Audit
+ * 10 - AuthoritativeAudit Admin Query
  *
- * Show how to query authoritative audit logs.
+ * Show the package-owned Admin Query offset-pagination API for authoritative audit logs.
+ * Reads come from the materialized log; this example never reads the outbox.
+ * This is intentionally distinct from the protected primitive cursor API in example 11.
  */
 
 // We assume $pdo is available from 00-bootstrap.php.
 // @var \PDO $pdo
 
-$repository = new AuthoritativeAuditQueryMysqlRepository($pdo);
-$queryDTO = new AuthoritativeAuditQueryDTO(
+$repository = new AuthoritativeAuditAdminQueryMysqlRepository($pdo);
+$request = new AuthoritativeAuditAdminQueryRequestDTO(
     actorType: 'admin',
-    actorId: 1
+    actorId: 1,
+    action: 'role.assign',
+    page: 1,
+    perPage: 20,
+    sortBy: 'occurred_at',
+    sortDirection: 'DESC'
 );
 
 echo "Attempting to query authoritative audit...\n";
 try {
-    $results = $repository->find($queryDTO);
-    echo "Found " . count($results) . " results.\n";
-    foreach ($results as $result) {
+    $page = $repository->paginate($request);
+    echo sprintf(
+        "Found %d page items (page %d/%d, per-page %d; %d filtered of %d total; next page: %s).\n",
+        count($page->items),
+        $page->page,
+        $page->totalPages,
+        $page->perPage,
+        $page->filtered,
+        $page->total,
+        $page->hasNext ? 'yes' : 'no'
+    );
+    foreach ($page->items as $result) {
         echo "- Action: " . $result->action . " at " . $result->occurredAt->format(\DateTimeInterface::ATOM) . "\n";
     }
 } catch (\Throwable $e) {

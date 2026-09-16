@@ -10,6 +10,7 @@ use Maatify\EventLogging\BehaviorTrace\Contract\BehaviorTraceWriterInterface;
 use Maatify\EventLogging\BehaviorTrace\DTO\BehaviorTraceContextDTO;
 use Maatify\EventLogging\BehaviorTrace\DTO\BehaviorTraceEventDTO;
 use Maatify\EventLogging\BehaviorTrace\Enum\BehaviorTraceActorTypeInterface;
+use Maatify\EventLogging\Common\MetadataSanitizer;
 use Maatify\SharedCommon\Contracts\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -77,7 +78,9 @@ class BehaviorTraceRecorder
                 $ipAddress = $this->truncate($command->ipAddress, 45);
                 $userAgent = $this->truncate($command->userAgent, 512);
                 $normalizedActorType = $this->policy->normalizeActorType($command->actorType);
-                $metadata = $command->metadata;
+                $metadata = $command->metadata === null
+                    ? null
+                    : MetadataSanitizer::sanitize($command->metadata);
 
                 if ($metadata !== null) {
                     try {

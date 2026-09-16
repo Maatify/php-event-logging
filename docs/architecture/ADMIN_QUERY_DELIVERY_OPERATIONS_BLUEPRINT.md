@@ -5,9 +5,7 @@
 ## Approval Record
 
 - Owner approval completed on July 24, 2026.
-- The approved blueprint was merged through PR #124.
-- Merge commit: `f5ff025c9a539162c7e8dd42c0d7b43044894a6f`.
-- The Admin Query Runtime was implemented and merged in historical commit `e8c74f894baeef397fdbde0fbfe912b65bcfa2c7`.
+- The Admin Query Runtime is implemented and complete.
 - The implementation is strictly bound to the contracts documented in this blueprint, including covering all persisted fields with package-owned, safe filter contracts.
 - No authorization to modify the protected primitive Runtime inherited from legacy `maatify/event-logging` `v1.0.0`.
 - No schema, Composer, CI, host, reporting, dashboard, tag, or release work was introduced by the Runtime implementation or is authorized by this blueprint.
@@ -661,14 +659,12 @@ Exact fallback behavior preserving primitive query:
 - `tests/Regression/DeliveryOperations/Infrastructure/Mysql/DeliveryOperationsQueryMysqlRepositoryRegressionTest.php`
 - `tests/Integration/DeliveryOperations/DeliveryOperationsAdminQueryMysqlRepositoryTest.php`
 
-### 6.3 Completed Runtime Implementation Sequence
-The merged Runtime followed this sequence:
-1. public contracts, DTO validation/serialization, and exceptions;
-2. policy-free mapper and descriptor builder;
-3. Admin MySQL repository and Unit exception/execution gates;
-4. **Regression/protected-contract gate:** explicitly cover primitive query constructor/signature/filters/cursor/order/limit/hydration/exceptions, writer/recorder/policy/factory/provider/bindings, schema, and fail-open behavior;
-5. **Strict Integration gate:** explicitly cover every equality/range/null/text/metadata filter independently and in combinations, exact microseconds, total/filtered/data alignment, pagination/clamping/overflow/tie-breaks, native prepared statements, transaction preservation. Unindexed-filter scan implications are tested, not skipped.
-6. final package/integration/domain documentation (e.g., `README.md`, `ADMIN_READ_USAGE.md`).
+### 6.3 Current Contract Verification Boundary
+The current Runtime is complete only with the documented public contracts, DTO validation and
+serialization, policy-free mapping, descriptor and exception boundaries, protected primitive
+query behavior, the Regression/protected-contract gate, and strict native-MySQL Integration
+coverage. Every accepted persisted-field filter and its unindexed scan implication remains part
+of this contract.
 
 ### 6.4 Strict Integration Requirements
 - Missing/empty `EVENT_LOGGING_TEST_MYSQL_DSN` -> throws `RuntimeException`. No `markTestSkipped()`.

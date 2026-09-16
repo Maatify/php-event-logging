@@ -11,7 +11,7 @@ This module provides a framework-agnostic, host-independent logging mechanism fo
 
 The module follows the Canonical Logger Design Standard:
 
-1.  **Recorder** (`BehaviorTraceRecorder`): The policy layer. It accepts activity data, validates it, enforces DB constraints (UTF-8 safe truncation), creates DTOs, and handles storage failures (fail-open).
+1.  **Recorder** (`BehaviorTraceRecorder`): The recording, coordinating, and reliability boundary. It coordinates command handling, bounded field normalization, Policy calls, DTO creation, writer invocation, and fail-open behavior.
 2.  **Contract** (`BehaviorTraceWriterInterface`): The interface for the storage driver.
 3.  **DTOs**: Strict Data Transfer Objects for Context, Events, and Cursors.
 4.  **Infrastructure** (`BehaviorTraceWriterMysqlRepository`): The MySQL implementation of the writer using PDO.
@@ -38,9 +38,9 @@ Call BehaviorTraceRecorder::record(action, actorType, entityType, ...)
   |
   v
 BehaviorTraceRecorder
-  - Enforces DB Constraints (UTF-8 safe truncation)
-  - Normalizes Actor Type (via Policy)
-  - Validates Metadata Size (64KB via Policy)
+  - Applies bounded field normalization (UTF-8 safe truncation)
+  - Delegates actor normalization and metadata-size validation to Policy
+  - Sanitizes nested sensitive metadata before size/encoding handling
   - Generates Event ID (UUID)
   - Constructs Context and Event DTOs
   |
@@ -68,7 +68,7 @@ The module is designed to be isolated.
 
 The module requires the `maa_event_logging_behavior_trace` table. A canonical schema definition is provided within the module:
 
-`src/BehaviorTrace/Database/schema.behavior_trace.sql`
+`src/BehaviorTrace/Database/schema.maa_event_logging_behavior_trace.sql`
 
 This file should be used to initialize the database table.
 
@@ -78,11 +78,11 @@ This file should be used to initialize the database table.
 use Maatify\EventLogging\BehaviorTrace\Recorder\BehaviorTraceRecorder;
 use Maatify\EventLogging\BehaviorTrace\Enum\BehaviorTraceActorTypeEnum;
 use Maatify\EventLogging\BehaviorTrace\Infrastructure\Mysql\BehaviorTraceWriterMysqlRepository;
-use Maatify\EventLogging\Common\SystemClock;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 
-// Dependencies (usually injected)
+// Dependencies (usually injected; $pdo and $psrLogger are host-provided, and the logger is optional)
 $writer = new BehaviorTraceWriterMysqlRepository($pdo);
-$clock = new SystemClock();
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 $recorder = new BehaviorTraceRecorder($writer, $clock, $psrLogger);
 
 // Record Event
@@ -103,9 +103,11 @@ $recorder->record(
 
 ### Failure Semantics (Best Effort)
 
-The `BehaviorTraceRecorder` is designed to be **fail-open**.
-- If the database write fails, the storage exception is **caught and swallowed** by the Recorder.
-- The failure is logged to the fallback `Psr\Log\LoggerInterface` (if provided).
+The `BehaviorTraceRecorder` is designed to be **fail-open at the Recorder boundary**.
+- Recording-flow failures are caught and swallowed by the Recorder, including failures during
+  command handling, Policy normalization/validation, DTO construction, and writer execution.
+- A diagnostic may be sent to the optional fallback `Psr\Log\LoggerInterface`; omitting that
+  logger is valid.
 - This ensures that a logging failure does not crash the main application request.
 
 ### Archiving Readiness
@@ -122,6 +124,7 @@ BehaviorTrace exposes a separate Admin Query API for host-owned administrative s
 use Maatify\EventLogging\BehaviorTrace\DTO\BehaviorTraceAdminQueryRequestDTO;
 use Maatify\EventLogging\BehaviorTrace\Infrastructure\Mysql\BehaviorTraceAdminQueryMysqlRepository;
 
+// $pdo is a host-provided PDO instance.
 $query = new BehaviorTraceAdminQueryMysqlRepository($pdo);
 
 $page = $query->paginate(new BehaviorTraceAdminQueryRequestDTO(
@@ -144,7 +147,8 @@ The primitive `find()` and `read()` methods remain protected compatibility contr
 ### Extensibility
 
 - **ActorType**: Implement `BehaviorTraceActorTypeInterface`.
-- **Policy**: Implement `BehaviorTracePolicyInterface` and inject it into the Recorder/Repository to change normalization/validation logic.
+- **Policy**: Implement `BehaviorTracePolicyInterface` and inject it into the Recorder to change
+  the domain-specific normalization/validation logic.
 
 > **Reader Scope Clarification**
 >
@@ -156,6 +160,9 @@ The primitive `find()` and `read()` methods remain protected compatibility contr
 
 - **Timezone**: Dates are strictly enforced as UTC.
 - **String Constraints**: The Recorder automatically truncates strings to fit database columns (e.g., `action` to 128, `user_agent` to 512).
-- **Metadata**: MUST be an array or null. Maximum size is 64KB (JSON encoded).
-- **Secrets**: Metadata MUST NOT contain secrets (passwords, tokens, OTPs).
+- **Metadata**: MUST be an array or null. The Recorder structurally sanitizes nested sensitive
+  associative keys before size/encoding handling and the writer boundary; maximum size is 64KB
+  (JSON encoded).
+- **Secrets**: Arbitrary free-text secret detection is not provided. Callers MUST NOT place raw
+  passwords, tokens, or OTPs in metadata.
 - **Actor Type**: Default policy enforces uppercase, max length 32, and sanitizes characters.

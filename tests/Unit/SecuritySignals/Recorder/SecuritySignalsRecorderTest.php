@@ -75,6 +75,35 @@ final class SecuritySignalsRecorderTest extends TestCase
         $this->assertEmpty($spyLogger->logs);
     }
 
+    public function testSanitizesMetadataBeforeWriterBoundary(): void
+    {
+        $clock = new FixedClock();
+        $logger = $this->createMock(SecuritySignalsLoggerInterface::class);
+        $metadata = [
+            'visible' => 'value',
+            'context' => ['api_token' => 'secret123', 'attempt' => 2],
+        ];
+
+        $logger->expects($this->once())
+            ->method('write')
+            ->with($this->callback(function (SecuritySignalRecordDTO $dto): bool {
+                return $dto->metadata === [
+                    'visible' => 'value',
+                    'context' => ['api_token' => '[redacted]', 'attempt' => 2],
+                ];
+            }));
+
+        (new SecuritySignalsRecorder($logger, $clock))->record(
+            signalType: 'login_failed',
+            severity: SecuritySignalSeverityEnum::WARNING,
+            actorType: SecuritySignalActorTypeEnum::USER,
+            actorId: 42,
+            metadata: $metadata
+        );
+
+        $this->assertSame('secret123', $metadata['context']['api_token']);
+    }
+
     public function testFailOpenOnStorageFailure(): void
     {
         $clock = new FixedClock();

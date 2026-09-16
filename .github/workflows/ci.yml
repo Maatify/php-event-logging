@@ -65,6 +65,7 @@ jobs:
                   or under_with_suffix(path, "tests", ".sql")
                   or under_with_suffix(path, "examples", ".php")
                   or under_with_suffix(path, "schema", ".sql")
+                  or path.startswith("tests/ConsumerVerificationHarness/")
                   or path in {"composer.json", "phpstan.neon", "phpunit.xml.dist"}
                   or under_with_suffix(path, ".github/workflows", ".yml")
               )
@@ -107,8 +108,61 @@ jobs:
           mapfile -d '' workflow_files < <(find .github/workflows -type f \( -name '*.yml' -o -name '*.yaml' \) -print0 | sort -z)
           ./actionlint "${workflow_files[@]}"
 
+  whitespace:
+    name: Whitespace Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        # actions/checkout v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Check tracked diff whitespace
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            base_sha="${{ github.event.pull_request.base.sha }}"
+            head_sha="${{ github.event.pull_request.head.sha }}"
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            base_sha="${{ github.event.before }}"
+            head_sha="${{ github.sha }}"
+            if [[ "$base_sha" == "0000000000000000000000000000000000000000" ]]; then
+              base_sha="$(git rev-list --max-parents=0 "$head_sha")"
+            fi
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            head_sha="${{ github.sha }}"
+            open_prs="$(gh pr list \
+              --repo "$GITHUB_REPOSITORY" \
+              --state open \
+              --head "$GITHUB_REF_NAME" \
+              --limit 100 \
+              --json number,baseRefOid,headRefOid)"
+            matching_prs="$(jq --arg expected_head_sha "$head_sha" '[.[] | select(.headRefOid == $expected_head_sha)]' <<< "$open_prs")"
+            matching_pr_count="$(jq 'length' <<< "$matching_prs")"
+            if [[ "$matching_pr_count" != "1" ]]; then
+              echo "Expected exactly one open PR for ${GITHUB_REPOSITORY}:${GITHUB_REF_NAME} at ${head_sha}, found ${matching_pr_count}." >&2
+              exit 1
+            fi
+            base_sha="$(jq -r '.[0].baseRefOid' <<< "$matching_prs")"
+            if [[ -z "$base_sha" || "$base_sha" == "null" ]]; then
+              echo "The matching PR did not provide a base SHA." >&2
+              exit 1
+            fi
+          else
+            echo "Unsupported event for whitespace comparison: ${{ github.event_name }}" >&2
+            exit 1
+          fi
+
+          git diff --check "$base_sha" "$head_sha"
+
   quality:
-    name: Quality (PHP 8.2)
+    name: Quality (PHP 8.4)
     runs-on: ubuntu-latest
     needs: changes
     if: needs.changes.outputs.heavy == 'true'
@@ -122,7 +176,7 @@ jobs:
         # shivammathur/setup-php 2.35.5
         uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f
         with:
-          php-version: '8.2'
+          php-version: '8.4'
           coverage: none
 
       - name: Validate dependencies
@@ -170,7 +224,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.2', '8.3', '8.4', '8.5']
+        php: ['8.4', '8.5']
     steps:
       - name: Checkout repository
         # actions/checkout v4.2.2
@@ -201,7 +255,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['8.2', '8.5']
+        php: ['8.4', '8.5']
     services:
       mysql:
         image: mysql:8.0
@@ -245,14 +299,54 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if [[ "${{ matrix.php }}" == "8.2" ]]; then
-            composer test
-          else
-            composer test:integration
-          fi
+          composer test:integration
+
+  consumer-verification-harness:
+    name: Consumer Verification Harness (PHP 8.4)
+    runs-on: ubuntu-latest
+    needs: changes
+    if: needs.changes.outputs.heavy == 'true'
+    timeout-minutes: 30
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: event_logging_test
+          MYSQL_USER: event_logging
+          MYSQL_PASSWORD: event_logging
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      EVENT_LOGGING_HARNESS_MYSQL_DSN: mysql:host=127.0.0.1;port=3306;dbname=event_logging_test;charset=utf8mb4
+      EVENT_LOGGING_HARNESS_MYSQL_USER: event_logging
+      EVENT_LOGGING_HARNESS_MYSQL_PASSWORD: event_logging
+    steps:
+      - name: Checkout repository
+        # actions/checkout v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Setup PHP
+        # shivammathur/setup-php 2.35.5
+        uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f
+        with:
+          php-version: '8.4'
+          coverage: none
+          extensions: pdo_mysql
+
+      - name: Run two clean consumer verification runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tests/ConsumerVerificationHarness/run.sh
 
   lowest-dependencies:
-    name: Lowest Dependencies (PHP 8.2)
+    name: Lowest Dependencies (PHP 8.4)
     runs-on: ubuntu-latest
     needs: changes
     if: needs.changes.outputs.heavy == 'true'
@@ -285,7 +379,7 @@ jobs:
         # shivammathur/setup-php 2.35.5
         uses: shivammathur/setup-php@bf6b4fbd49ca58e4608c9c89fba0b8d90bd2a39f
         with:
-          php-version: '8.2'
+          php-version: '8.4'
           coverage: none
           extensions: pdo_mysql
 
@@ -295,7 +389,7 @@ jobs:
           set -euo pipefail
           composer update --prefer-lowest --prefer-stable --no-interaction --prefer-dist --no-progress
           composer check-platform-reqs
-          composer analyse
+          composer analyse -- --memory-limit=512M
           composer test
 
   gate:
@@ -304,9 +398,11 @@ jobs:
     needs:
       - changes
       - workflow-lint
+      - whitespace
       - quality
       - latest-dependency-tests
       - integration-tests
+      - consumer-verification-harness
       - lowest-dependencies
     if: always()
     timeout-minutes: 5
@@ -326,11 +422,11 @@ jobs:
           heavy = needs["changes"].get("outputs", {}).get("heavy") == "true"
           failures = []
 
-          for job in ("changes", "workflow-lint"):
+          for job in ("changes", "workflow-lint", "whitespace"):
               if needs[job]["result"] != "success":
                   failures.append(f"{job} result was {needs[job]['result']}, expected success")
 
-          heavy_jobs = ("quality", "latest-dependency-tests", "integration-tests", "lowest-dependencies")
+          heavy_jobs = ("quality", "latest-dependency-tests", "integration-tests", "consumer-verification-harness", "lowest-dependencies")
           for job in heavy_jobs:
               result = needs[job]["result"]
               expected = "success" if heavy else "skipped"

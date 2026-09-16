@@ -4,7 +4,7 @@
 
 ## Composer Requirements
 
-This repository is currently under Development and is not published on Packagist. To work on the package from its source repository:
+This repository is currently in **Development / Pre-Stable**. `maatify/php-event-logging` is registered on [Packagist](https://packagist.org/packages/maatify/php-event-logging), but no Stable or RC release, or other published exact SemVer version, is claimed under this identity. To work on the package from its source repository:
 
 ```bash
 git clone https://github.com/Maatify/php-event-logging.git
@@ -12,11 +12,11 @@ cd php-event-logging
 composer install
 ```
 
-Consumer installation through `composer require maatify/php-event-logging` is not available until an Owner-approved release is published.
+Stable consumer installation through `composer require maatify/php-event-logging` remains tied to a future Owner-approved exact SemVer release. Packagist registration alone does not establish that release state.
 
 ### System Requirements
 
-- **PHP:** `^8.2`
+- **PHP:** `^8.4`
 - **Extensions required:**
   - `ext-json` (For safe metadata and payload decoding)
   - `ext-pdo` (For database integration)

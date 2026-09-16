@@ -8,11 +8,11 @@ use Maatify\EventLogging\AuthoritativeAudit\Exception\AuthoritativeAuditAdminQue
 use Maatify\EventLogging\Exception\EventLoggingExceptionInterface;
 use Maatify\Exceptions\Enum\ErrorCodeEnum;
 use Maatify\Exceptions\Exception\Validation\InvalidArgumentMaatifyException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * @covers \Maatify\EventLogging\AuthoritativeAudit\Exception\AuthoritativeAuditAdminQueryInvalidArgumentException
- */
+#[CoversClass(AuthoritativeAuditAdminQueryInvalidArgumentException::class)]
 final class AuthoritativeAuditAdminQueryInvalidArgumentExceptionTest extends TestCase
 {
     public function testItExtendsCorrectClassesAndInterfaces(): void
@@ -23,9 +23,7 @@ final class AuthoritativeAuditAdminQueryInvalidArgumentExceptionTest extends Tes
         $this->assertInstanceOf(EventLoggingExceptionInterface::class, $exception);
     }
 
-    /**
-     * @dataProvider fieldProvider
-     */
+    #[DataProvider('fieldProvider')]
     public function testInvalidIdMessage(string $field): void
     {
         $exception = AuthoritativeAuditAdminQueryInvalidArgumentException::invalidId($field);
@@ -34,9 +32,7 @@ final class AuthoritativeAuditAdminQueryInvalidArgumentExceptionTest extends Tes
         $this->assertSame(ErrorCodeEnum::INVALID_ARGUMENT, $exception->getErrorCode());
     }
 
-    /**
-     * @dataProvider fieldProvider
-     */
+    #[DataProvider('fieldProvider')]
     public function testInvalidLengthMessage(string $field): void
     {
         $exception = AuthoritativeAuditAdminQueryInvalidArgumentException::invalidLength($field);
@@ -45,9 +41,7 @@ final class AuthoritativeAuditAdminQueryInvalidArgumentExceptionTest extends Tes
         $this->assertSame(ErrorCodeEnum::INVALID_ARGUMENT, $exception->getErrorCode());
     }
 
-    /**
-     * @dataProvider fieldProvider
-     */
+    #[DataProvider('fieldProvider')]
     public function testInvalidEncodingMessage(string $field): void
     {
         $exception = AuthoritativeAuditAdminQueryInvalidArgumentException::invalidEncoding($field);

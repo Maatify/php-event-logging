@@ -7,9 +7,10 @@ namespace Maatify\EventLogging\Common;
 final class MetadataSanitizer
 {
     /**
-     * @param array<string, mixed> $metadata
+     * @template TKey of array-key
+     * @param array<TKey, mixed> $metadata
      * @param list<string> $sensitiveKeys
-     * @return array<string, mixed>
+     * @return array<TKey, mixed>
      */
     public static function sanitize(array $metadata, array $sensitiveKeys = ['password', 'token', 'secret', 'key', 'authorization', 'cookie']): array
     {
@@ -22,7 +23,6 @@ final class MetadataSanitizer
             }
 
             if (is_array($value)) {
-                /** @var array<string, mixed> $value */
                 $metadata[$key] = self::sanitize($value, $sensitiveKeys);
             }
         }
