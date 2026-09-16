@@ -1,13 +1,17 @@
 # LOG_DOMAINS_OVERVIEW
 
 > **Project:** maatify/php-event-logging
-> **Status:** CANONICAL (Binding — Subordinate to unified-logging-system.* as Source of Truth)
+> **Status:** CANONICAL (Binding logging-domain semantics; subordinate to repository authority)
 > **Scope:** Defines the **six** logging domains, their intent, boundaries, and classification rules.
-> **Authority Rule:** This document MUST fully align with:
+> **Authority Rule:** This document MUST align with:
 >
+> * `AGENTS.md`
+> * `EVENT_LOGGING_PACKAGE_REFERENCE.md`
 > * `unified-logging-system.ar.md`
 > * `unified-logging-system.en.md`
-    >   If a conflict exists, the **Unified Logging System documents win**.
+>
+> If a conflict exists, the repository authority order applies; the root Package Reference
+> governs the current public Runtime contract.
 
 ---
 
@@ -65,7 +69,7 @@ The logging system recognizes **exactly six** domains. No additions are allowed.
 **Key properties:**
 
 * Must be written through an **authoritative pipeline** (e.g., outbox → materialized log).
-* **Source of truth:** `authoritative_audit_outbox` (transactional).
+* **Source of truth:** `maa_event_logging_authoritative_audit_outbox` (transactional).
 * Log tables are materialized views only.
 * Must be minimal, structured, and safe (no secrets).
 * Must be **fail-closed**: the governed change MUST NOT commit without a successful outbox write.

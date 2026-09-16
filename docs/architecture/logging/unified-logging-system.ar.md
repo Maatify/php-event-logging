@@ -1,9 +1,10 @@
 # 📘 النسخة العربية
 
-## **Unified Logging System — الوثيقة المعمارية النهائية (Source of Truth)**
+## **Unified Logging System — الوثيقة المعمارية المعيارية للدومينات**
 
 **الحالة:** Canonical / Approved
-**الغرض:** المرجع الوحيد المُلزم للتصميم والتنفيذ والمراجعة
+**الغرض:** المرجع المُلزم لدلالات الدومينات وقواعد السلامة، مع خضوعه لترتيب السلطة في المستودع؛
+أما سلوك Runtime العام الحالي فيحكمه `EVENT_LOGGING_PACKAGE_REFERENCE.md`.
 
 ---
 
@@ -61,8 +62,8 @@
     * security posture
     * الصلاحيات
     * السياسات الحاكمة
-* **مصدر الحقيقة:** `authoritative_audit_outbox` (Transactional)
-* `authoritative_audit_log` = materialized view فقط
+* **مصدر الحقيقة:** `maa_event_logging_authoritative_audit_outbox` (Transactional)
+* `maa_event_logging_authoritative_audit_log` = نموذج قراءة materialized فقط
 
 ❌ ممنوع:
 
@@ -129,6 +130,8 @@ HTTP/UI
      → MySQL Storage
 ```
 
+يمثل `HTTP/UI` جهة الاستدعاء في التطبيق المضيف عند حدود التكامل، ولا توفره هذه الحزمة.
+
 ### توزيع المسؤوليات (ملزم)
 
 * **Recorder**
@@ -146,6 +149,11 @@ HTTP/UI
 
 * Controllers أو Services تكتب Logs مباشرة
 * بناء DTO يدوي خارج Recorder
+
+يوفر Runtime الحالي أيضًا عقود Admin Query مستقلة ومملوكة للحزمة للدومينات الستة. وهي تدعم
+القراءة المتخصصة لكل دومين باستخدام pagination من نوع offset/page، ولا تضيف Controllers أو واجهة
+مستخدم أو صلاحيات أو تقارير أو طبقة استعلام عامة عابرة للدومينات. وتبقى القراءة البدائية القائمة
+على cursor مسارًا منفصلًا ومحميًا.
 
 ---
 
@@ -186,6 +194,8 @@ HTTP/UI
 
 ## 6. الحقول المشتركة (Normalized Context)
 
+يتبع كل دومين عقد التخزين الحالي الخاص به. وعند وجود الحقل في العقد، يشمل السياق الموحّد:
+
 * event_id (UUID)
 * actor_type
 * actor_id
@@ -195,6 +205,9 @@ HTTP/UI
 * ip_address
 * user_agent
 * occurred_at DATETIME(6)
+
+لا يجوز اختراع حقول غير موجودة في مخطط الدومين؛ فعلى سبيل المثال لا يحتوي AuthoritativeAudit
+على حقل `request_id`.
 
 ### سياسة الوقت
 
@@ -289,7 +302,7 @@ HTTP/UI
 
 ---
 
-## 12. الأرشفة (Mode B — اختياري)
+## 12. الأرشفة (Mode B — مؤجلة واختيارية)
 
 * MySQL → MySQL
 * جداول `*_archive`
@@ -297,13 +310,19 @@ HTTP/UI
 * بدون Foreign Keys
 * ملف SQL منفصل
 
+هذه قيود مستقبلية فقط. لا ينفذ Runtime الحالي للحزمة الأرشفة أو عمال الاحتفاظ أو القراءة من
+الجداول الساخنة والمؤرشفة؛ راجع `DEFERRED_SCOPE.md`.
+
 ### قاعدة صارمة
 
 > لا حذف من hot table إلا بعد نجاح النقل للأرشيف.
 
 ---
 
-## 13. سياسات تشغيل افتراضية (Operational Policies)
+## 13. سياسات تشغيل مؤجلة (Operational Policies)
+
+القواعد التالية قيود تشغيلية مستقبلية للمستهلكين أو الأرشفة أو عمال التسليم عند اعتمادها بشكل
+منفصل. لا ينفذها Runtime الحالي للحزمة، ويحدد `DEFERRED_SCOPE.md` حدودها الحالية.
 
 ### 13.1 Outbox Processing
 
@@ -346,7 +365,8 @@ HTTP/UI
 
 ## 15. حالة الوثيقة
 
-✅ **Approved — Source of Truth**
-أي تغيير مستقبلي = Architectural Change ويتطلب Review جديدة.
+✅ **دلالات الدومينات معتمدة**
+أي تغيير مستقبلي يُعد تغييرًا معماريًا ويتطلب مراجعة رسمية، مع الحفاظ على التوافق مع مرجع الحزمة
+الجذري وترتيب السلطة في المستودع.
 
 ---

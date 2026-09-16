@@ -1,10 +1,11 @@
 # UNIFIED_LOGGING_DESIGN
 
 > **Project:** maatify/php-event-logging
-> **Status:** CANONICAL (Unified Design + Enforcement Rules)
+> **Status:** CANONICAL logging-domain design (subordinate to repository authority)
 > **Scope:** Defines the unified logging architecture, layering, authority boundaries, storage semantics, and forbidden patterns.
 > **Terminology Source of Truth:** `docs/architecture/logging/LOG_DOMAINS_OVERVIEW.md`
 > **Storage Guidance (Optional):** `docs/architecture/logging/LOG_STORAGE_AND_ARCHIVING.md` *(not required for baseline)*
+> **Runtime Contract:** `EVENT_LOGGING_PACKAGE_REFERENCE.md` remains canonical for public Runtime behavior.
 
 ---
 
@@ -55,6 +56,9 @@ Domain Logger / Writer (storage adapter interface)
 v
 Storage Driver (MySQL baseline; optional additional backends)
 @@@
+
+`HTTP / UI / Controllers` are host-side callers shown at the integration boundary; they are not
+components shipped by this package.
 
 ### 2.1 What “Recorder” Means (Mandatory)
 
@@ -144,38 +148,52 @@ The baseline schema defines one dedicated MySQL table per domain:
 
 * Authoritative Audit:
 
-  * `authoritative_audit_outbox` *(authoritative source)*
-  * `authoritative_audit_log` *(materialized query table; written only by consumer)*
+  * `maa_event_logging_authoritative_audit_outbox` *(authoritative source)*
+  * `maa_event_logging_authoritative_audit_log` *(materialized query table; written only by consumer)*
 
 * Audit Trail:
 
-  * `audit_trail`
+  * `maa_event_logging_audit_trail`
 
 * Security Signals:
 
-  * `security_signals`
+  * `maa_event_logging_security_signals`
 
 * Operational Activity:
 
-  * `operational_activity`
+  * `maa_event_logging_behavior_trace`
 
 * Diagnostics Telemetry:
 
-  * `diagnostics_telemetry`
+  * `maa_event_logging_diagnostics_telemetry`
 
 * Delivery Operations:
 
-  * `delivery_operations`
+  * `maa_event_logging_delivery_operations`
 
 ### 5.2 Optional Backends (Deferred / Not Required)
 
-Additional backends (e.g., Mongo cold store) are OPTIONAL and MUST NOT be assumed.
+Additional backends are not part of the current Runtime. MongoDB archiving is explicitly
+unsupported; the deferred archive boundary is documented in `DEFERRED_SCOPE.md` and
+`LOG_STORAGE_AND_ARCHIVING.md`.
 
 If enabled in the future, storage and retention behavior MUST be documented in:
 
 * `docs/architecture/logging/LOG_STORAGE_AND_ARCHIVING.md`
 
 **Baseline rule:** the system MUST remain correct and complete with MySQL-only storage.
+
+### 5.3 Current Read Paths
+
+The current Runtime has two separate package-owned read paths:
+
+* Protected primitive cursor-based reads for system consumers.
+* Domain-specific Admin Query offset/page reads for all six domains.
+
+Admin Query implementations own domain filters, trusted SQL, mapping, and query exception
+boundaries, while `maatify/persistence` owns generic pagination mechanics. Neither path provides
+a generic cross-domain reader, arbitrary SQL, controllers, permissions, UI, or reporting.
+Reporting and dashboard summaries remain future Phase 5 work under `DEFERRED_SCOPE.md`.
 
 ---
 
@@ -407,9 +425,11 @@ A logging implementation is compliant only if:
 
 ---
 
-## 14) Canonical Operational Policies (Clarifications Added)
+## 14) Operational Policies and Deferred Boundaries
 
-This section upgrades previously “non-blocking review notes” into **canonical, enforceable documentation** to remove ambiguity and ensure this document is a true source of truth.
+This section records current safety rules and future operational constraints. The package's
+current Runtime does not implement outbox consumers, archivers, dashboards, or reporting; the
+deferred portions below preserve the requirements for separately approved future work.
 
 ### 14.1 Metadata Size Policy (Hard)
 
@@ -454,7 +474,7 @@ For any stored path or referrer field:
 
   * Example: `/reset-password/{hashed}` rather than `/reset-password/abc123`
 
-### 14.4 Authoritative Outbox Processing Guarantees (Canonical)
+### 14.4 Authoritative Outbox Processing Guarantees (Deferred Consumer Contract)
 
 The outbox pipeline MUST be resilient to consumer failure.
 
@@ -474,7 +494,7 @@ Monitoring requirement:
 
 * Alert if outbox lag exceeds a policy threshold (example: > 5 minutes)
 
-### 14.5 Archiving Trigger Policy (If Optional Archiving Is Enabled)
+### 14.5 Archiving Trigger Policy (Deferred; If Optional Archiving Is Enabled)
 
 Archiving is OPTIONAL and not required for baseline correctness.
 If enabled, an explicit trigger policy MUST be documented and implemented.
@@ -487,7 +507,7 @@ Recommended canonical defaults (adjust per deployment):
 * Verification: ensure transfer success before delete (hard rule)
 * Rollback safety: if archive fails, hot data stays
 
-### 14.6 Delivery Operations Retry Policy (Canonical)
+### 14.6 Delivery Operations Retry Policy (Deferred Operational Contract)
 
 To avoid infinite loops, Delivery Operations MUST have a bounded retry policy.
 

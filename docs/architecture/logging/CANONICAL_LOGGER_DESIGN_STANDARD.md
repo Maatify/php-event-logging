@@ -1,15 +1,17 @@
 # CANONICAL_LOGGER_DESIGN_STANDARD
 
 > **Project:** maatify/php-event-logging
-> **Status:** CANONICAL (Binding — Subordinate to unified-logging-system.*)
+> **Status:** CANONICAL (Binding logging standard — subordinate to repository authority)
 > **Scope:** Defines the **mandatory design standard** for building any logging domain as a framework-agnostic standalone, extractable library (uses explicit Composer/runtime dependencies).
 > **Terminology Source of Truth:** `docs/architecture/logging/LOG_DOMAINS_OVERVIEW.md`
 > **ASCII Language Source of Truth:** `docs/architecture/logging/ASCII_FLOW_LEGENDS.md`
-> **Architecture Source of Truth:**
+> **Logging Semantics References:**
 >
 > * `unified-logging-system.ar.md`
 > * `unified-logging-system.en.md`
-    >   If a conflict exists, the Unified Logging System documents win.
+>
+> If a conflict exists, the repository authority order applies; the root Package Reference
+> governs current public Runtime behavior.
 
 ---
 
@@ -207,7 +209,9 @@ Integrity failures MUST block the governed change.
 
 ## 4) Canonical Context Model (All Domains)
 
-Every domain event MUST support these normalized fields:
+Every domain event MUST follow its current domain contract. Where a field is present in that
+contract, it is normalized as follows; a domain must not invent fields absent from its schema
+(for example, AuthoritativeAudit does not store `request_id`):
 
 * `actor_type` (validated, enum-like)
 * `actor_id`
@@ -244,12 +248,12 @@ Storage targets MUST align with:
 
 Examples:
 
-* Audit Trail → `audit_trail` (+ `_archive` if enabled)
-* Security Signals → `security_signals` (+ `_archive`)
-* Operational Activity → `operational_activity` (+ `_archive`)
-* Diagnostics Telemetry → `diagnostics_telemetry` (+ `_archive`)
-* Delivery Operations → `delivery_operations` (+ `_archive`)
-* Authoritative Audit → `authoritative_audit_outbox` + `authoritative_audit_log`
+* Audit Trail → `maa_event_logging_audit_trail` (+ `_archive` if enabled)
+* Security Signals → `maa_event_logging_security_signals` (+ `_archive`)
+* Operational Activity → `maa_event_logging_behavior_trace` (+ `_archive`)
+* Diagnostics Telemetry → `maa_event_logging_diagnostics_telemetry` (+ `_archive`)
+* Delivery Operations → `maa_event_logging_delivery_operations` (+ `_archive`)
+* Authoritative Audit → `maa_event_logging_authoritative_audit_outbox` + `maa_event_logging_authoritative_audit_log`
 
 Cross-domain writes are FORBIDDEN.
 

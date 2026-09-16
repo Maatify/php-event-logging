@@ -1,9 +1,10 @@
 # 📘 English Version
 
-## **Unified Logging System — Canonical Architecture Document (Source of Truth)**
+## **Unified Logging System — Canonical Logging-Domain Architecture**
 
 **Status:** Approved / Canonical
-**Purpose:** Single authoritative reference for design, implementation, and review
+**Purpose:** Authoritative reference for logging-domain semantics and safety rules; subordinate to
+the repository authority order and the root Package Reference for current public Runtime behavior.
 
 ---
 
@@ -54,8 +55,8 @@ No additional domains are allowed.
 ### 4.1 Authoritative Audit
 
 * Governance-grade, fail-closed
-* **Source of truth:** `authoritative_audit_outbox` (transactional)
-* Log tables are materialized views only
+* **Source of truth:** `maa_event_logging_authoritative_audit_outbox` (transactional)
+* `maa_event_logging_authoritative_audit_log` is a materialized read model only
 
 ---
 
@@ -103,6 +104,8 @@ HTTP/UI
      → MySQL
 ```
 
+`HTTP/UI` is a host-side caller at the integration boundary; it is not shipped by this package.
+
 ### Responsibilities
 
 * **Recorder**
@@ -116,6 +119,11 @@ HTTP/UI
     * No policy or DTO construction
 
 Controllers/Services must not log directly.
+
+The current Runtime also exposes separate package-owned Admin Query contracts for all six
+domains. They provide domain-specific offset/page reads and do not add controllers, UI,
+permissions, reporting, or a generic cross-domain query layer. Primitive cursor reads remain a
+separate protected path.
 
 ---
 
@@ -152,6 +160,8 @@ For the following domains:
 
 ## 6. Normalized Context
 
+Each domain follows its current storage contract. Where present, normalized context includes:
+
 * event_id (UUID)
 * actor_type / actor_id
 * correlation_id
@@ -160,6 +170,9 @@ For the following domains:
 * ip_address
 * user_agent
 * occurred_at (DATETIME(6), **UTC only**)
+
+Fields are not invented for domains whose schema does not store them; for example,
+AuthoritativeAudit has no `request_id` field.
 
 ---
 
@@ -227,7 +240,7 @@ Validated at application layer.
 
 ---
 
-## 12. Archiving (Mode B — Optional)
+## 12. Archiving (Mode B — Deferred and Optional)
 
 * MySQL → MySQL
 * `*_archive` tables
@@ -235,9 +248,16 @@ Validated at application layer.
 * Separate SQL file
 * Move-then-delete only
 
+These are future constraints only. The current package Runtime does not implement archiving,
+retention workers, or hot/archive reads; see `DEFERRED_SCOPE.md`.
+
 ---
 
-## 13. Operational Policies (Defaults)
+## 13. Operational Policies (Deferred Defaults)
+
+The following are future operational constraints for separately enabled consumers, archivers, or
+delivery workers. They are not implemented by the current package Runtime; the current deferred
+boundary is `DEFERRED_SCOPE.md`.
 
 ### Outbox Processing
 
@@ -272,7 +292,8 @@ Validated at application layer.
 
 ## 15. Document Status
 
-✅ **Approved — Source of Truth**
-Any future change requires a formal architectural review.
+✅ **Approved logging-domain semantics**
+Any future change requires a formal architectural review and must remain aligned with the root
+Package Reference and repository authority order.
 
 ---

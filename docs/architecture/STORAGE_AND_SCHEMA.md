@@ -33,14 +33,23 @@ The package enforces a strict naming convention for all tables. The prefix `maa_
 
 ## 4. Query Semantics
 
-The repositories in this package provide only **primitive, domain-specific read/query APIs**.
-These are intended strictly for:
-- Archiving
-- Sequential processing (e.g., outbox consumers)
-- Simple exports
+The package exposes two separate, domain-specific read paths:
+
+1. **Primitive read/query path** — the protected cursor-based contracts inherited from
+   `maatify/event-logging` `v1.0.0`. These are suitable for sequential reads, export jobs,
+   migration work, and other system-level consumers.
+2. **Admin Query path** — the current package-owned offset/page contracts implemented for
+   `AuthoritativeAudit`, `AuditTrail`, `BehaviorTrace`, `SecuritySignals`,
+   `DiagnosticsTelemetry`, and `DeliveryOperations`. Each domain owns its accepted filters,
+   trusted SQL, row mapping, exception boundary, and count/data semantic alignment. Generic
+   pagination mechanics are delegated to `maatify/persistence v1.1.0`.
+
+The Admin Query path does not replace or alter the primitive path. Both paths read the
+domain-specific canonical tables listed above, and neither path creates a generic reader or
+cross-domain query layer.
 
 **Forbidden Operations:**
-- Advanced UI-grid querying
-- Multi-table joins
-- Aggregations and analytics
-- Generic search across domains
+- HTTP controllers, permissions, UI-grid presentation, or dashboard implementation in the package
+- Generic search or cross-domain queries
+- Arbitrary SQL or caller-selected column names
+- Aggregations and reporting/dashboard contracts; those remain deferred Phase 5 work

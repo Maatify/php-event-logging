@@ -1,14 +1,16 @@
 # LOG_STORAGE_AND_ARCHIVING
 
 > **Project:** maatify/php-event-logging
-> **Status:** CANONICAL (Binding — Subordinate to unified-logging-system.*)
+> **Status:** CANONICAL (Binding storage guidance — subordinate to repository authority)
 > **Scope:** Defines **baseline storage** and **optional archiving** rules for the Unified Logging System.
 > **Terminology Source of Truth:** `docs/architecture/logging/LOG_DOMAINS_OVERVIEW.md`
-> **Architecture Source of Truth:**
+> **Logging Semantics References:**
 >
 > * `unified-logging-system.ar.md`
 > * `unified-logging-system.en.md`
-    >   If a conflict exists, the Unified Logging System documents win.
+>
+> If a conflict exists, the repository authority order applies; deferred archive behavior is
+> governed by `../DEFERRED_SCOPE.md`.
 
 ---
 
@@ -38,13 +40,13 @@ Each logging domain maps to a dedicated MySQL table.
 
 | Domain                    | MySQL Table                  | Notes                                               |
 |---------------------------|------------------------------|-----------------------------------------------------|
-| **Authoritative Audit**   | `authoritative_audit_outbox` | **Authoritative truth**, transactional, fail-closed |
-|                           | `authoritative_audit_log`    | Materialized query table only                       |
-| **Audit Trail**           | `audit_trail`                | Reads, views, exports, navigation                   |
-| **Security Signals**      | `security_signals`           | Auth / policy anomalies                             |
-| **Operational Activity**  | `operational_activity`       | Mutations only                                      |
-| **Diagnostics Telemetry** | `diagnostics_telemetry`      | Technical observability                             |
-| **Delivery Operations**   | `delivery_operations`        | Jobs, queues, notifications                         |
+| **Authoritative Audit**   | `maa_event_logging_authoritative_audit_outbox` | **Authoritative truth**, transactional, fail-closed |
+|                           | `maa_event_logging_authoritative_audit_log`    | Materialized query table only                       |
+| **Audit Trail**           | `maa_event_logging_audit_trail`               | Reads, views, exports, navigation                   |
+| **Security Signals**      | `maa_event_logging_security_signals`          | Auth / policy anomalies                             |
+| **Operational Activity**  | `maa_event_logging_behavior_trace`            | Mutations only                                      |
+| **Diagnostics Telemetry** | `maa_event_logging_diagnostics_telemetry`     | Technical observability                             |
+| **Delivery Operations**   | `maa_event_logging_delivery_operations`       | Jobs, queues, notifications                         |
 
 **Hard rule:**
 Tables are **semantically isolated**. Cross-domain writes are forbidden.
@@ -82,6 +84,10 @@ This document defines the ONLY supported and approved archiving model.
 > **Status:** OPTIONAL / DEFERRED  
 > This is the **only supported archiving model**.
 
+This document preserves the future archiving contract and safety constraints. It does not claim
+that archive tables, retention workers, checkpoints, or hot/archive reads are implemented in the
+current package Runtime. See `../DEFERRED_SCOPE.md` for the active deferred-scope boundary.
+
 ### 3.1 Why Mode B
 
 * No dependency on MongoDB or external storage
@@ -97,12 +103,12 @@ This document defines the ONLY supported and approved archiving model.
 
 For each hot table, a mirrored archive table MAY exist:
 
-* `audit_trail_archive`
-* `security_signals_archive`
-* `operational_activity_archive`
-* `diagnostics_telemetry_archive`
-* `delivery_operations_archive`
-* *(Optional)* `authoritative_audit_log_archive`
+* `maa_event_logging_audit_trail_archive`
+* `maa_event_logging_security_signals_archive`
+* `maa_event_logging_behavior_trace_archive`
+* `maa_event_logging_diagnostics_telemetry_archive`
+* `maa_event_logging_delivery_operations_archive`
+* *(Optional)* `maa_event_logging_authoritative_audit_log_archive`
 
 **Rules:**
 
@@ -112,7 +118,8 @@ For each hot table, a mirrored archive table MAY exist:
 * NO behavioral logic
 
 > **Important:**
-> Even if archived, **Authoritative Audit truth remains** `authoritative_audit_outbox`.
+> Even if archived, **Authoritative Audit truth remains**
+> `maa_event_logging_authoritative_audit_outbox`.
 
 ---
 
@@ -139,7 +146,7 @@ Eligibility:
 
 ### 5.2 Required Checkpointing
 
-Hard rule:
+Hard rule for a future archiver:
 Checkpoint updates MUST be atomic with archive operations
 to guarantee idempotency and crash safety.
 
@@ -177,7 +184,7 @@ Deletion is **FORBIDDEN** unless archive insert succeeded.
 
 ## 6) Read Strategy (Hot + Archive)
 
-If Mode B is enabled:
+If Mode B is enabled in a separately approved future implementation:
 
 * Recent range → query hot table only
 * Older range → query archive table only
@@ -192,8 +199,8 @@ If Mode B is enabled:
 
 Even if archive tables exist:
 
-* **Authoritative truth** = `authoritative_audit_outbox`
-* `authoritative_audit_log` and `_archive` tables are **materialized views only**
+* **Authoritative truth** = `maa_event_logging_authoritative_audit_outbox`
+* `maa_event_logging_authoritative_audit_log` and archive tables are **materialized views only**
 * Loss of archive data MUST NOT affect governance correctness
 
 ---

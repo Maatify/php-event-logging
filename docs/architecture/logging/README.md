@@ -9,10 +9,11 @@ This index defines **what is binding**, **what is supporting**, and
 
 ---
 
-## 🔴 Source of Truth (Authoritative & Binding)
+## 🔴 Logging Semantics (Authoritative & Binding)
 
-These documents are the **single source of truth** for the logging system.
-In case of any conflict, **they always win**.
+These documents are the authoritative source for logging-domain semantics and safety rules.
+They remain subordinate to `AGENTS.md` and the root `EVENT_LOGGING_PACKAGE_REFERENCE.md` for
+repository governance and the current public Runtime contract.
 
 - 📘 **Unified Logging System — Arabic (Canonical)**
     - [`unified-logging-system.ar.md`](./unified-logging-system.ar.md)
@@ -32,8 +33,8 @@ These documents define:
 ## 🟠 Canonical Supporting Specifications (Binding, Subordinate)
 
 These documents **must comply** with the Unified Logging System.
-They provide detailed rules and implementation guidance but
-**must not redefine semantics**.
+They provide detailed rules and implementation guidance but **must not redefine semantics or the
+current public Runtime contract**.
 
 - **Unified Logging Design**
     - [`UNIFIED_LOGGING_DESIGN.md`](./UNIFIED_LOGGING_DESIGN.md)
@@ -50,7 +51,8 @@ They provide detailed rules and implementation guidance but
 - **Log Storage and Archiving**
     - [`LOG_STORAGE_AND_ARCHIVING.md`](./LOG_STORAGE_AND_ARCHIVING.md)
 
-If any inconsistency exists, the **Source of Truth documents override them**.
+If any inconsistency exists, apply the repository authority order: Owner decisions, the root
+Package Reference, current Runtime evidence, and then these subordinate logging specifications.
 
 ---
 
@@ -78,8 +80,8 @@ that all logging modules MUST follow:
 
 - **LOGGING_MODULE_BLUEPRINT.md**
   - Defines the universal, library-grade standard for building logging modules.
-  - Covers recorder ownership, policy isolation, DTO contracts, fail-open semantics,
-    primitive readers, and UI separation rules.
+  - Covers recorder ownership, policy isolation, DTO contracts, failure semantics, primitive
+    readers, current domain-specific Admin Query APIs, and UI separation rules.
   - This blueprint is mandatory for all new logging modules.
 
 ### Reference Implementation
@@ -117,4 +119,4 @@ No silent or ad-hoc changes are allowed.
 
 - **Architecture:** Approved
 - **Reviews:** Completed (4 independent reviews)
-- **Stability:** Canonical / Source of Truth
+- **Stability:** Approved logging architecture; subordinate to repository authority

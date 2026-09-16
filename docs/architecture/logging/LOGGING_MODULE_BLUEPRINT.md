@@ -1,6 +1,6 @@
 # LOGGING MODULE BLUEPRINT
 
-**Status:** Canonical / Authoritative
+**Status:** Canonical blueprint / subordinate to repository authority
 **Scope:** Universal Logging Standard
 **Audience:** Architects & Library Developers
 
@@ -14,7 +14,9 @@ Every logging module MUST define a strict, single-purpose scope. It is a **Libra
 A logging module exists to **capture and persist** a specific category of events. It MUST NOT cross into business logic, authorization, or user management.
 
 ### Mandatory Rules
-- **MUST** be "Fail-Open" (never block the application).
+- Non-authoritative modules **MUST** be "Fail-Open" (never block the application). The
+  `AuthoritativeAudit` module is the explicit fail-closed exception and must preserve its
+  transactional outbox guarantee.
 - **MUST** be "Side-Effect Free" (persistence only).
 - **MUST** be "Framework Agnostic" (no reliance on HTTP stacks or DI containers).
 - **MUST NOT** contain business rules (e.g., "If user is admin, do X").
@@ -36,14 +38,20 @@ The module is a strict **Black Box**.
 - **DTOs:** The strict data structure contracts.
 - **Contracts:** The interfaces for storage.
 - **Infrastructure:** The default storage drivers (e.g., MySQL).
+- **Admin Query contracts:** Domain-specific offset/page request and result contracts for the
+  six current Admin Query APIs.
+- **Admin Query implementation:** Domain-owned filter construction, trusted SQL, row mapping,
+  and query exception boundaries.
 
 ### Outside the Module (The Host Application)
 - **Configuration:** Injecting dependencies (PDO, Logger, Clock).
 - **UI & Presentation:** Any dashboards or admin panels.
-- **Complex Querying:** Filtering, searching, and analytics.
+- **HTTP/API:** Routes, controllers, middleware, and permissions.
+- **Reporting:** Dashboard summaries, aggregates, and cross-domain analytics.
 
 ### Forbidden Access Patterns
-- **Direct Repository Access:** Consumers MUST NOT instantiate Infrastructure classes directly.
+- **Contract Bypass:** Consumers MUST use the domain contracts or an approved factory/binding;
+  they MUST NOT bypass those contracts by reading package tables directly.
 - **Bypassing the Recorder:** Writers MUST NOT bypass the Recorder to write to storage.
 - **Mutable State:** DTOs MUST be immutable.
 
@@ -181,29 +189,32 @@ The module MUST provide a **Primitive Reader** for archiving and system access.
 - No other swallowing is permitted on the read-side.
 
 ### Why Required?
-Even if the application uses a separate UI reader, the module MUST be verifiable and exportable isolated from host applications.
+The primitive reader is independently verifiable and remains separate from the current Admin
+Query path described below.
 
 ---
 
-## 8. Optional UI Reader Pattern (NON-CANONICAL)
+## 8. Current Admin Query Path and Host Presentation Boundary
 
-**WARNING:** This pattern belongs to the **Host Application**, NOT the Module.
+The package provides a separate, domain-specific Admin Query path for all six logging domains.
+It supports the approved filters, trusted sort mapping, count/data alignment, row mapping, and
+offset/page result contract for each domain. It does not replace the primitive cursor reader.
 
-### Concept
-The Host Application often needs rich filtering (search, page numbers) that the Module's Primitive Reader does not support.
+### Package Responsibilities
+- Validate each domain's request DTO.
+- Build domain-owned filters, trusted SQL, and matching parameters.
+- Delegate generic pagination mechanics to `maatify/persistence`.
+- Return package-owned page and view DTOs with domain-specific exceptions.
 
-### Implementation Guidelines
-1.  **Location:** The host application's controller or domain layer.
-2.  **Access:** The Host MAY query the module's storage table directly (Read-Only).
-3.  **Pipeline:**
-    - **Input:** UI Request.
-    - **Normalize:** Validate filters.
-    - **Query:** SQL `SELECT ... WHERE ...`.
-    - **Hydrate:** Map rows to **Host DTOs** (not Module DTOs).
-    - **Output:** JSON Response.
+### Host Responsibilities
+1. The host maps its request and permissions to the domain Admin Query request DTO.
+2. The host invokes the package-owned domain contract and maps the result to its response.
+3. The host owns controllers, routes, authorization, UI presentation, exports, localization,
+   and actor/entity name resolution.
 
-### Why Separation?
-The Module owns the **Write Semantics** (Schema). The Host owns the **Read Experience** (UX).
+The host MUST NOT query the package's storage tables directly as a substitute for the current
+Admin Query contracts. Reporting, dashboard summaries, and cross-domain analytics remain future
+scope governed by `docs/architecture/DEFERRED_SCOPE.md`.
 
 ---
 
@@ -244,8 +255,9 @@ The Module owns the **Write Semantics** (Schema). The Host owns the **Read Exper
 - **Assert:** Data persists, Round-trip (Write -> Read) works, Constraints (foreign keys, types) are honored.
 
 ### Constraints
-- **MUST NOT** assert specific UI behaviors (filtering, sorting).
-- **MUST** assume the Reader is primitive/sequential.
+- **MUST NOT** assert controller, permission, or UI behavior in package tests.
+- **MUST** cover the primitive cursor reader and the current domain-specific Admin Query
+  filtering, sorting, count/data alignment, mapping, and exception contracts.
 
 ---
 
@@ -256,7 +268,8 @@ Use this checklist to certify a module as "Blueprint Compliant".
 - [ ] **Directory Structure**: strict separation of `Recorder`, `DTO`, `Contract`.
 - [ ] **Dependency Safety**: No dependence on framework helpers (`request()`, `auth()`).
 - [ ] **DTO Strictness**: All inputs/outputs are DTOs.
-- [ ] **Fail-Open**: Recorder catches all exceptions.
+- [ ] **Failure Boundary**: Non-authoritative Recorders catch all exceptions; AuthoritativeAudit
+   preserves fail-closed behavior.
 - [ ] **Policy Isolated**: Validation logic is in a separate class.
 - [ ] **Primitive Reader**: A cursor-based reader is present.
 - [ ] **Documentation**: `{PACKAGE_NAME}_PACKAGE_REFERENCE.md` exists as the canonical Package Reference.
@@ -274,16 +287,18 @@ Use this checklist to certify a module as "Blueprint Compliant".
 **Fix:** Convert to DTOs immediately at the Recorder boundary.
 
 ### ❌ UI Coupling
-**Anti-Pattern:** Adding `search($term)` to the Module's Reader interface.
-**Fix:** Keep the Module Reader primitive. Build a separate UI Reader in the Host.
+**Anti-Pattern:** Adding UI routes, permissions, or dashboard behavior to a module.
+**Fix:** Keep package queries domain-specific and framework-agnostic. Build presentation in the
+Host on top of the current Admin Query contracts; keep the primitive reader separate.
 
 ### ❌ Hardcoded Dependencies
 **Anti-Pattern:** `new MySQLRepository()`.
 **Fix:** Inject `LoggerInterface`.
 
 ### ❌ Throwing on Write
-**Anti-Pattern:** Allowing DB errors to bubble up to the Controller.
-**Fix:** The Recorder MUST try-catch block everything.
+**Anti-Pattern:** Allowing non-authoritative logging DB errors to bubble up to the Controller.
+**Fix:** Non-authoritative Recorders MUST catch and report failures; AuthoritativeAudit MUST
+preserve its explicit fail-closed boundary.
 
 
 ## Namespace & Library Isolation (MANDATORY)
