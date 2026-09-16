@@ -10,7 +10,7 @@ use InvalidArgumentException;
 final readonly class RecordBehaviorTraceCommand
 {
     /**
-     * @param array<string, mixed>|null $metadata
+     * @param array<mixed>|null $metadata
      */
     public function __construct(
         public string $action,

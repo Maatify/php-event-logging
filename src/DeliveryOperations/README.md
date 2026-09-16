@@ -71,12 +71,11 @@ use Maatify\EventLogging\DeliveryOperations\Enum\DeliveryChannelEnum;
 use Maatify\EventLogging\DeliveryOperations\Enum\DeliveryStatusEnum;
 use Maatify\EventLogging\DeliveryOperations\Enum\DeliveryOperationTypeEnum;
 use Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsLoggerMysqlRepository;
-use DateTimeZone;
 use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 // Dependencies
 $writer = new DeliveryOperationsLoggerMysqlRepository($pdo);
-$clock = new SystemClock(new DateTimeZone('UTC'));
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 $recorder = new DeliveryOperationsRecorder($writer, $clock, $psrLogger);
 
 // Record Event

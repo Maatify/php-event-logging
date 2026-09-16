@@ -83,6 +83,27 @@ final class AuditTrailRecorderTest extends TestCase
         $this->assertEmpty($spyLogger->logs);
     }
 
+    public function testSanitizesReferrerPathBeforeWriterBoundary(): void
+    {
+        $clock = new FixedClock();
+        $logger = $this->createMock(AuditTrailLoggerInterface::class);
+
+        $logger->expects($this->once())
+            ->method('write')
+            ->with($this->callback(function (AuditTrailRecordDTO $dto): bool {
+                return $dto->referrerPath === '/reset/token/[redacted]';
+            }));
+
+        (new AuditTrailRecorder($logger, $clock))->record(
+            eventKey: 'password.reset',
+            actorType: AuditTrailActorTypeEnum::USER,
+            actorId: null,
+            entityType: 'account',
+            entityId: null,
+            referrerPath: 'https://example.test/reset/token/abc123?next=/dashboard#fragment'
+        );
+    }
+
     public function testSanitizesMetadataBeforeWriterBoundary(): void
     {
         $clock = new FixedClock();

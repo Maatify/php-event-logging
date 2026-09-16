@@ -15,7 +15,7 @@ final readonly class DiagnosticsTelemetryEventDTO implements \JsonSerializable
      * @param DiagnosticsTelemetrySeverityInterface $severity
      * @param DiagnosticsTelemetryContextDTO $context
      * @param int|null $durationMs
-     * @param array<string, mixed>|null $metadata
+     * @param array<mixed>|null $metadata
      */
     public function __construct(
         public int $id,

@@ -82,12 +82,11 @@ This file should be used to initialize the database table.
 use Maatify\EventLogging\DiagnosticsTelemetry\Recorder\DiagnosticsTelemetryRecorder;
 use Maatify\EventLogging\DiagnosticsTelemetry\Enum\DiagnosticsTelemetrySeverityEnum;
 use Maatify\EventLogging\DiagnosticsTelemetry\Enum\DiagnosticsTelemetryActorTypeEnum;
-use DateTimeZone;
 use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 // Dependencies (usually injected)
 $writer = new DiagnosticsTelemetryLoggerMysqlRepository($pdo);
-$clock = new SystemClock(new DateTimeZone('UTC'));
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 $recorder = new DiagnosticsTelemetryRecorder($writer, $clock, $psrLogger);
 
 // Record Event (Pass scalars or Enums)

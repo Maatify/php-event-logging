@@ -14,7 +14,7 @@ use InvalidArgumentException;
 final readonly class RecordDeliveryOperationCommand
 {
     /**
-     * @param array<string, mixed>|null $metadata
+     * @param array<mixed>|null $metadata
      */
     public function __construct(
         public DeliveryChannelEnum|string $channel,

@@ -13,7 +13,7 @@ final readonly class BehaviorTraceEventDTO implements \JsonSerializable
      * @param string|null $entityType
      * @param int|null $entityId
      * @param BehaviorTraceContextDTO $context
-     * @param array<string, mixed>|null $metadata
+     * @param array<mixed>|null $metadata
      */
     public function __construct(
         public int $id,

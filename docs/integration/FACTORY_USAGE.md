@@ -16,14 +16,13 @@ The simplest way to use the library is via the `EventLoggingProviderFactory`. It
 
 ```php
 use Maatify\EventLogging\Provider\EventLoggingProviderFactory;
-use DateTimeZone;
 use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 // 1. Host provides a PDO instance
 $pdo = new \PDO('mysql:host=localhost;dbname=mydb', 'user', 'pass');
 
 // 2. Host provides a clock instance
-$clock = new SystemClock(new DateTimeZone('UTC'));
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 
 // 3. Host may provide a PSR-3 logger (e.g. Monolog) for fail-open domains
 $psrLogger = new \Monolog\Logger('event-logging-fallback');

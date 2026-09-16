@@ -31,7 +31,7 @@ class BehaviorTraceRecorder
     }
 
     /**
-     * @param array<string, mixed>|null $metadata
+     * @param array<mixed>|null $metadata
      */
     public function record(
         string $action,

@@ -27,7 +27,6 @@ Import the bindings and merge them into your container definitions:
 
 ```php
 use Maatify\EventLogging\Bootstrap\EventLoggingBindings;
-use DateTimeZone;
 use Maatify\SharedCommon\Contracts\ClockInterface;
 use Maatify\SharedCommon\Infrastructure\SystemClock;
 use Psr\Log\LoggerInterface;
@@ -39,7 +38,7 @@ $hostDefinitions = [
         return new PDO('mysql:host=127.0.0.1;dbname=app_db', 'user', 'pass');
     },
     ClockInterface::class => function () {
-        return new SystemClock(new DateTimeZone('UTC'));
+        return new SystemClock(new \DateTimeZone('UTC'));
     },
     LoggerInterface::class => function () {
         return new NullLogger(); // Optional

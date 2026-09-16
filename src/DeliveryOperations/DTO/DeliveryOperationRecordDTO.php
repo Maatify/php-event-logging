@@ -26,7 +26,7 @@ final readonly class DeliveryOperationRecordDTO implements \JsonSerializable
      * @param string|null $providerMessageId
      * @param string|null $errorCode
      * @param string|null $errorMessage
-     * @param array<string, mixed>|null $metadata
+     * @param array<mixed>|null $metadata
      * @param DateTimeImmutable $occurredAt
      */
     public function __construct(

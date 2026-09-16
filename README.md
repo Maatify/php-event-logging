@@ -76,11 +76,10 @@ Host applications provide their own dependencies (PDO, Clock, PSR-3 Logger) to i
 
 ```php
 use Maatify\EventLogging\Provider\EventLoggingProviderFactory;
-use DateTimeZone;
 use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 $pdo = new \PDO('mysql:host=localhost;dbname=mydb', 'user', 'pass');
-$clock = new SystemClock(new DateTimeZone('UTC'));
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 $psrLogger = new \Monolog\Logger('event-logging-fallback'); // Optional for fail-open domains
 
 // Create the provider service map

@@ -79,12 +79,11 @@ This file should be used to initialize the database table.
 use Maatify\EventLogging\BehaviorTrace\Recorder\BehaviorTraceRecorder;
 use Maatify\EventLogging\BehaviorTrace\Enum\BehaviorTraceActorTypeEnum;
 use Maatify\EventLogging\BehaviorTrace\Infrastructure\Mysql\BehaviorTraceWriterMysqlRepository;
-use DateTimeZone;
 use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 // Dependencies (usually injected)
 $writer = new BehaviorTraceWriterMysqlRepository($pdo);
-$clock = new SystemClock(new DateTimeZone('UTC'));
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 $recorder = new BehaviorTraceRecorder($writer, $clock, $psrLogger);
 
 // Record Event

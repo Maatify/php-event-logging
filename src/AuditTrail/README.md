@@ -81,8 +81,10 @@ The primitive `AuditTrailQueryInterface` remains available and unchanged. The re
 
 Before the write DTO is constructed, `AuditTrailRecorder` applies the path-safe
 `UrlSanitizer::sanitizePath()` boundary to `referrerPath` and applies structural
-`MetadataSanitizer` redaction before metadata size and JSON handling. Query strings,
-fragments, and sensitive path values are not persisted.
+`MetadataSanitizer` redaction before metadata size and JSON handling. Query strings and
+fragments are not persisted in `referrerPath`; values following recognized sensitive marker
+path segments are replaced with `[redacted]` according to the current
+`UrlSanitizer::sanitizePath()` marker policy.
 
 This package does not provide HTTP controllers, authorization, routes, UI, exports, localization, free-text search, metadata search, or dashboards.
 

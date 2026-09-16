@@ -112,12 +112,11 @@ This file should be used to initialize the database table.
 use Maatify\EventLogging\AuthoritativeAudit\Recorder\AuthoritativeAuditRecorder;
 use Maatify\EventLogging\AuthoritativeAudit\Enum\AuthoritativeAuditRiskLevelEnum;
 use Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditOutboxWriterMysqlRepository;
-use DateTimeZone;
 use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 // Dependencies
 $writer = new AuthoritativeAuditOutboxWriterMysqlRepository($pdo);
-$clock = new SystemClock(new DateTimeZone('UTC'));
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 $recorder = new AuthoritativeAuditRecorder($writer, $clock);
 
 // Record Event (Inside Transaction)
