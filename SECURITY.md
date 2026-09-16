@@ -5,7 +5,7 @@
 
 ## Supported Versions
 
-No Stable release of `maatify/php-event-logging` has been published yet. The project is in Development and currently has no supported Stable release line.
+No Stable release of `maatify/php-event-logging` has been published yet. The project is in Development / Pre-Stable and currently has no supported Stable release line.
 
 ---
 
