@@ -11,7 +11,7 @@ This module provides a framework-agnostic, host-independent logging mechanism fo
 
 The module follows the Canonical Logger Design Standard:
 
-1.  **Recorder** (`DiagnosticsTelemetryRecorder`): The policy layer. It accepts telemetry data (scalars or Interfaces), validates it (e.g., actor types, metadata size), enforces DB constraints (UTF-8 safe truncation), creates DTOs, and handles storage failures (best-effort).
+1.  **Recorder** (`DiagnosticsTelemetryRecorder`): The recording, coordinating, and reliability boundary. It coordinates command handling, bounded field normalization, Policy calls, DTO creation, writer invocation, and fail-open behavior.
 2.  **Contract** (`DiagnosticsTelemetryLoggerInterface`): The interface for the storage driver.
 3.  **DTOs**: Strict Data Transfer Objects for Context, Events, and Cursors. DTOs depend on Extensible Interfaces.
 4.  **Infrastructure** (`DiagnosticsTelemetryLoggerMysqlRepository`): The MySQL implementation of the writer using PDO.
@@ -37,12 +37,10 @@ Call DiagnosticsTelemetryRecorder::record(eventKey, severity, actorType, ...)
   |
   v
 DiagnosticsTelemetryRecorder
-  - Enforces DB Constraints (UTF-8 safe truncation)
+  - Applies bounded field normalization (UTF-8 safe truncation)
   - Normalizes Duration (>= 0)
-  - Normalizes Actor Type (via Policy)
-  - Normalizes Severity (via Policy)
+  - Delegates actor/severity normalization and metadata-size validation to Policy
   - Sanitizes nested sensitive metadata before size/encoding handling
-  - Validates Metadata Size (64KB via Policy)
   - Generates Event ID (UUID)
   - Constructs Context and Event DTOs
   |
@@ -82,9 +80,10 @@ This file should be used to initialize the database table.
 use Maatify\EventLogging\DiagnosticsTelemetry\Recorder\DiagnosticsTelemetryRecorder;
 use Maatify\EventLogging\DiagnosticsTelemetry\Enum\DiagnosticsTelemetrySeverityEnum;
 use Maatify\EventLogging\DiagnosticsTelemetry\Enum\DiagnosticsTelemetryActorTypeEnum;
+use Maatify\EventLogging\DiagnosticsTelemetry\Infrastructure\Mysql\DiagnosticsTelemetryLoggerMysqlRepository;
 use Maatify\SharedCommon\Infrastructure\SystemClock;
 
-// Dependencies (usually injected)
+// Dependencies (usually injected; $pdo and $psrLogger are host-provided, and the logger is optional)
 $writer = new DiagnosticsTelemetryLoggerMysqlRepository($pdo);
 $clock = new SystemClock(new \DateTimeZone('UTC'));
 $recorder = new DiagnosticsTelemetryRecorder($writer, $clock, $psrLogger);
@@ -107,9 +106,11 @@ $recorder->record(
 
 ### Failure Semantics (Best Effort)
 
-The `DiagnosticsTelemetryRecorder` is designed to be **fail-open**.
-- If the database write fails, the storage exception is **caught and swallowed** by the Recorder.
-- The failure is logged to the fallback `Psr\Log\LoggerInterface` (if provided).
+The `DiagnosticsTelemetryRecorder` is designed to be **fail-open at the Recorder boundary**.
+- Recording-flow failures are caught and swallowed by the Recorder, including failures during
+  command handling, Policy normalization/validation, DTO construction, and writer execution.
+- A diagnostic may be sent to the optional fallback `Psr\Log\LoggerInterface`; omitting that
+  logger is valid.
 - This ensures that a telemetry logging failure does not crash the main application request.
 
 ### Archiving Readiness
@@ -122,7 +123,8 @@ The module is designed to support future archiving via the `DiagnosticsTelemetry
 
 - **Severity**: Implement `DiagnosticsTelemetrySeverityInterface`.
 - **ActorType**: Implement `DiagnosticsTelemetryActorTypeInterface`.
-- **Policy**: Implement `DiagnosticsTelemetryPolicyInterface` and inject it into the Recorder/Repository to change normalization/validation logic (e.g., allowed actor types, regex patterns).
+- **Policy**: Implement `DiagnosticsTelemetryPolicyInterface` and inject it into the Recorder to
+  change the domain-specific normalization/validation logic (e.g., allowed actor types, regex patterns).
 
 > **Reader Scope Clarification**
 >
@@ -136,8 +138,11 @@ The module is designed to support future archiving via the `DiagnosticsTelemetry
 - **Timezone**: Dates are strictly enforced as UTC.
 - **String Constraints**: The Recorder automatically truncates strings to fit database columns (e.g., `event_key` to 255, `user_agent` to 512) using UTF-8 safe truncation (if `mbstring` is available).
 - **Duration**: `duration_ms` is automatically coerced to 0 if negative.
-- **Metadata**: MUST be an array or null. Maximum size is 64KB (JSON encoded).
-- **Secrets**: Metadata MUST NOT contain secrets (passwords, tokens, OTPs).
+- **Metadata**: MUST be an array or null. The Recorder structurally sanitizes nested sensitive
+  associative keys before size/encoding handling and the writer boundary; maximum size is 64KB
+  (JSON encoded).
+- **Secrets**: Arbitrary free-text secret detection is not provided. Callers MUST NOT place raw
+  passwords, tokens, or OTPs in metadata.
 - **Actor Type**: Default policy enforces uppercase, max length 32, and sanitizes characters (replacing invalid chars with `_`) using pattern `[^A-Z0-9_.:-]`. It does NOT collapse invalid types to ANONYMOUS by default, but sanitizes them to valid ad-hoc types. Falls back to ANONYMOUS if sanitization results in an empty string.
 
 ## Admin Query API

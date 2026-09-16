@@ -20,7 +20,7 @@ To ensure compatibility with the provided schema, the host application must ensu
 
 ### Fallback Logging (PSR-3)
 For domains that support fail-open behavior, the package relies on the generic `Psr\Log\LoggerInterface`. The package does not require any specific logging implementation (e.g., Monolog). Any PSR-3 compatible logger provided by the host application is sufficient.
-Note that injecting a fallback logger does not change the fundamental failure semantics of the domains: `AuthoritativeAudit` remains strictly fail-closed (it does not accept a fallback logger), while other domains use the fallback logger only at the recorder boundary to fail-open upon storage failure.
+Note that injecting a fallback logger does not change the fundamental failure semantics of the domains: `AuthoritativeAudit` remains strictly fail-closed (it does not accept a fallback logger), while other domains use the fallback logger only at the Recorder boundary to report recording-flow failures before failing open. The fallback logger is optional, and its absence is valid.
 
 ## Manually Constructing Domain Recorders and Repositories
 
@@ -52,7 +52,7 @@ $auditTrailRecorder = new AuditTrailRecorder(
 
 ### Injecting Custom Policies
 
-Some domains use policies to determine specific behavior, which you can customize when manually wiring. For instance, the `AuthoritativeAudit` domain uses a policy to filter sensitive data from payloads or enforce specific actor types.
+Some domains use policies to determine specific behavior, which you can customize when manually wiring. For instance, the `AuthoritativeAudit` domain uses a Policy to normalize actor types and validate payload safety. A custom implementation must preserve the complete recursive payload-safety contract; checking only one field such as `credit_card` is not sufficient.
 
 ```php
 use Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAuditOutboxWriterMysqlRepository;
@@ -61,34 +61,37 @@ use Maatify\EventLogging\AuthoritativeAudit\Contract\AuthoritativeAuditPolicyInt
 use Maatify\EventLogging\AuthoritativeAudit\Enum\AuthoritativeAuditActorTypeInterface;
 use Maatify\SharedCommon\Infrastructure\SystemClock;
 
-// 1. Host provides dependencies
-$pdo = /* ... PDO instance ... */;
-$clock = new SystemClock(new \DateTimeZone('UTC'));
+// The host supplies both the PDO connection and the complete recursive payload validator.
+function wireAuthoritativeAudit(\PDO $pdo, \Closure $payloadValidator): AuthoritativeAuditRecorder
+{
+    $clock = new SystemClock(new \DateTimeZone('UTC'));
 
-// 2. Create a custom policy implementing the domain's policy contract
-class MyCustomAuditPolicy implements AuthoritativeAuditPolicyInterface {
-    public function validatePayload(array $payload): bool {
-        // Custom validation logic here
-        return !isset($payload['credit_card']);
-    }
+    $customPolicy = new class($payloadValidator) implements AuthoritativeAuditPolicyInterface {
+        public function __construct(
+            private readonly \Closure $payloadValidator
+        ) {
+        }
 
-    public function normalizeActorType(AuthoritativeAuditActorTypeInterface|string $actorType): string {
-        return is_string($actorType) ? $actorType : $actorType->value();
-    }
+        public function validatePayload(array $payload): bool
+        {
+            return ($this->payloadValidator)($payload);
+        }
+
+        public function normalizeActorType(AuthoritativeAuditActorTypeInterface|string $actorType): string
+        {
+            return is_string($actorType) ? $actorType : $actorType->value();
+        }
+    };
+
+    $authoritativeAuditRepository = new AuthoritativeAuditOutboxWriterMysqlRepository($pdo);
+
+    return new AuthoritativeAuditRecorder(
+        writer: $authoritativeAuditRepository,
+        clock: $clock,
+        policy: $customPolicy
+        // Note: No PSR logger is provided here because this domain is fail-closed.
+    );
 }
-
-$customPolicy = new MyCustomAuditPolicy();
-
-// 3. Construct the repository
-$authoritativeAuditRepository = new AuthoritativeAuditOutboxWriterMysqlRepository($pdo);
-
-// 4. Construct the recorder, injecting the custom policy
-$authoritativeAuditRecorder = new AuthoritativeAuditRecorder(
-    writer: $authoritativeAuditRepository,
-    clock: $clock,
-    policy: $customPolicy
-    // Note: No PSR logger provided here as this domain is fail-closed
-);
 ```
 
 By manually wiring, your application retains complete control over the configuration and behavior of the logging domains while keeping the core package strictly focused on logging operations.

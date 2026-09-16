@@ -22,7 +22,7 @@ class CustomerController {
         private AuditTrailRecorder $auditRecorder
     ) {}
 
-    public function show(int $id) {
+    public function show(int $id, int $currentUserId) {
         // ... business logic ...
 
         $this->auditRecorder->record(
@@ -44,7 +44,10 @@ Inject `Maatify\EventLogging\AuditTrail\Contract\AuditTrailQueryInterface`.
 ```php
 use Maatify\EventLogging\AuditTrail\Contract\AuditTrailQueryInterface;
 use Maatify\EventLogging\AuditTrail\DTO\AuditTrailQueryDTO;
+use Maatify\EventLogging\AuditTrail\Infrastructure\Mysql\AuditTrailQueryMysqlRepository;
 
+// $pdo is a host-provided PDO instance.
+$queryRepo = new AuditTrailQueryMysqlRepository($pdo);
 $query = new AuditTrailQueryDTO(
     actorId: 123,
     limit: 10
@@ -61,6 +64,7 @@ For host-owned admin tables that need offset pagination, instantiate the separat
 use Maatify\EventLogging\AuditTrail\DTO\AuditTrailAdminQueryRequestDTO;
 use Maatify\EventLogging\AuditTrail\Infrastructure\Mysql\AuditTrailAdminQueryMysqlRepository;
 
+// $pdo is a host-provided PDO instance.
 $adminQuery = new AuditTrailAdminQueryMysqlRepository($pdo);
 
 $page = $adminQuery->paginate(new AuditTrailAdminQueryRequestDTO(
@@ -85,6 +89,11 @@ Before the write DTO is constructed, `AuditTrailRecorder` applies the path-safe
 fragments are not persisted in `referrerPath`; values following recognized sensitive marker
 path segments are replaced with `[redacted]` according to the current
 `UrlSanitizer::sanitizePath()` marker policy.
+
+`AuditTrailRecorder` is the recording, coordinating, and reliability boundary. Its public
+`record()` boundary is fail-open for recording-flow failures; an optional PSR-3 fallback logger
+may receive a diagnostic, and omitting that logger is valid. `AuditTrailPolicyInterface` remains
+a separate domain-specific component for actor normalization and metadata-size validation.
 
 This package does not provide HTTP controllers, authorization, routes, UI, exports, localization, free-text search, metadata search, or dashboards.
 

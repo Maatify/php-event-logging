@@ -12,7 +12,8 @@ use Maatify\EventLogging\SecuritySignals\Command\RecordSecuritySignalCommand;
  * 05 - Security Signal Record
  *
  * Show how to record a security signal.
- * Make sure to sanitize sensitive data before passing it.
+ * The Recorder applies structural metadata sanitization before the writer boundary.
+ * Do not place arbitrary secrets in metadata; free-text secret detection is not provided.
  */
 
 // We assume $pdo, $clock, and $logger are available from 00-bootstrap.php.

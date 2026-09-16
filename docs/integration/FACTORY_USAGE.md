@@ -60,7 +60,7 @@ $auditTrailRecorder = AuditTrailFactory::create($pdo, $clock, $psrLogger);
 
 ### Important: AuthoritativeAudit Fail-Closed Semantics
 
-The `AuthoritativeAudit` domain acts as the governance and security posture log. It uses **fail-closed** semantics, meaning if it fails to record an event to the database, it must throw an exception rather than silently succeeding or falling back to a file.
+The `AuthoritativeAudit` domain acts as the governance and security posture log. It uses **fail-closed** semantics, meaning a failure anywhere in its recording boundary must throw an exception rather than silently succeeding or falling back to a file.
 
 As such, the factory for `AuthoritativeAudit` **does not receive the optional PSR-3 fallback logger**.
 

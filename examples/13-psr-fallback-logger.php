@@ -16,7 +16,7 @@ use Psr\Log\AbstractLogger;
  * Demonstrate fail-open behavior with a PSR-3 fallback logger.
  */
 
-// We create an explicitly failing mock PDO because this script intentionally requires a failing repository.
+// We create an explicitly failing mock PDO because this script intentionally exercises a failing writer path.
 class FailingMockPdo extends \PDO {
     public function __construct() {}
     public function prepare($query, $options = []): \PDOStatement|false {
@@ -40,7 +40,7 @@ $fallbackLogger = new class extends AbstractLogger {
 };
 
 $repository = new AuditTrailLoggerMysqlRepository($failingPdo);
-$clock = new SystemClock(new DateTimeZone('UTC'));
+$clock = new SystemClock(new \DateTimeZone('UTC'));
 
 $recorder = new AuditTrailRecorder(
     logger: $repository,
@@ -56,7 +56,7 @@ $command = new RecordAuditTrailCommand(
     entityId: 1
 );
 
-echo "Attempting to record event with failing DB...\n";
+echo "Attempting to record event through a failing writer...\n";
 // This should NOT throw an exception, it should be swallowed and sent to the fallback logger.
 $recorder->recordCommand($command);
 echo "Script finished without fatal exception.\n";
