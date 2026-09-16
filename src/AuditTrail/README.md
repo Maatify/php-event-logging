@@ -79,6 +79,11 @@ The Admin Query API supports actor, event key, entity, subject, request, correla
 
 The primitive `AuditTrailQueryInterface` remains available and unchanged. The removed AuditTrail cursor wrapper artifacts were unreleased post-legacy-v1 experiments, not contracts protected by the legacy `maatify/event-logging` `v1.0.0` compatibility baseline.
 
+Before the write DTO is constructed, `AuditTrailRecorder` applies the path-safe
+`UrlSanitizer::sanitizePath()` boundary to `referrerPath` and applies structural
+`MetadataSanitizer` redaction before metadata size and JSON handling. Query strings,
+fragments, and sensitive path values are not persisted.
+
 This package does not provide HTTP controllers, authorization, routes, UI, exports, localization, free-text search, metadata search, or dashboards.
 
 ## Configuration

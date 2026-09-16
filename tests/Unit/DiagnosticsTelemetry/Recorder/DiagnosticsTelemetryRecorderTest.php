@@ -73,6 +73,34 @@ final class DiagnosticsTelemetryRecorderTest extends TestCase
         $this->assertEmpty($spyLogger->logs);
     }
 
+    public function testSanitizesMetadataBeforeWriterBoundary(): void
+    {
+        $clock = new FixedClock();
+        $writer = $this->createMock(DiagnosticsTelemetryLoggerInterface::class);
+        $metadata = [
+            'visible' => 'value',
+            'request' => ['cookie' => 'session-secret', 'duration' => 120],
+        ];
+
+        $writer->expects($this->once())
+            ->method('write')
+            ->with($this->callback(function (DiagnosticsTelemetryEventDTO $dto): bool {
+                return $dto->metadata === [
+                    'visible' => 'value',
+                    'request' => ['cookie' => '[redacted]', 'duration' => 120],
+                ];
+            }));
+
+        (new DiagnosticsTelemetryRecorder($writer, $clock))->record(
+            eventKey: 'http.request',
+            severity: 'info',
+            actorType: 'system',
+            metadata: $metadata
+        );
+
+        $this->assertSame('session-secret', $metadata['request']['cookie']);
+    }
+
     public function testFailOpenOnStorageFailure(): void
     {
         $clock = new FixedClock();

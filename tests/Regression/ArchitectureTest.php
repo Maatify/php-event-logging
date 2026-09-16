@@ -345,17 +345,41 @@ class ArchitectureTest extends TestCase
 
     public function testClockContractUsesSharedCommonAsSourceOfTruth(): void
     {
+        $this->assertFileDoesNotExist(__DIR__ . '/../../src/Common/SystemClock.php');
         $this->assertFileDoesNotExist(__DIR__ . '/../../src/Common/ClockInterface.php');
 
+        $clockAwareProductionFiles = [];
         foreach ($this->getSrcFiles() as $file) {
             $content = (string) file_get_contents((string) $file);
 
+            $this->assertStringNotContainsString(
+                'Maatify\\EventLogging\\Common\\SystemClock',
+                $content,
+                "File $file must not use the removed local SystemClock"
+            );
             $this->assertStringNotContainsString(
                 'Maatify\\EventLogging\\Common\\ClockInterface',
                 $content,
                 "File $file must not use the removed internal ClockInterface"
             );
+
+            if (str_contains($content, 'ClockInterface')) {
+                $clockAwareProductionFiles[] = $file;
+                $this->assertStringContainsString(
+                    ClockInterface::class,
+                    $content,
+                    "File $file must use SharedCommon ClockInterface"
+                );
+            }
+
+            $this->assertStringNotContainsString(
+                'new SystemClock(',
+                $content,
+                "File $file must not define a package-local concrete clock"
+            );
         }
+
+        $this->assertNotEmpty($clockAwareProductionFiles, 'Production must consume SharedCommon ClockInterface.');
 
         $factoryRef = new ReflectionClass(EventLoggingProviderFactory::class);
         $clockParameter = $factoryRef->getMethod('createDefault')->getParameters()[1] ?? null;

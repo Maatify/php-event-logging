@@ -31,11 +31,12 @@ Wiring a domain typically involves constructing an infrastructure repository (th
 ```php
 use Maatify\EventLogging\AuditTrail\Infrastructure\Mysql\AuditTrailLoggerMysqlRepository;
 use Maatify\EventLogging\AuditTrail\Recorder\AuditTrailRecorder;
-use Maatify\EventLogging\Common\SystemClock;
+use DateTimeZone;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 // 1. Host provides dependencies
 $pdo = /* ... PDO instance ... */;
-$clock = new SystemClock();
+$clock = new SystemClock(new DateTimeZone('UTC'));
 $psrLogger = /* ... PSR-3 Logger Interface ... */;
 
 // 2. Construct the specific repository/writer
@@ -59,11 +60,12 @@ use Maatify\EventLogging\AuthoritativeAudit\Infrastructure\Mysql\AuthoritativeAu
 use Maatify\EventLogging\AuthoritativeAudit\Recorder\AuthoritativeAuditRecorder;
 use Maatify\EventLogging\AuthoritativeAudit\Contract\AuthoritativeAuditPolicyInterface;
 use Maatify\EventLogging\AuthoritativeAudit\Enum\AuthoritativeAuditActorTypeInterface;
-use Maatify\EventLogging\Common\SystemClock;
+use DateTimeZone;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 // 1. Host provides dependencies
 $pdo = /* ... PDO instance ... */;
-$clock = new SystemClock();
+$clock = new SystemClock(new DateTimeZone('UTC'));
 
 // 2. Create a custom policy implementing the domain's policy contract
 class MyCustomAuditPolicy implements AuthoritativeAuditPolicyInterface {

@@ -37,6 +37,9 @@ class AuthController {
 }
 ```
 
+The recorder structurally sanitizes nested sensitive metadata before size/encoding handling and
+the writer boundary. It does not perform arbitrary free-text redaction.
+
 ## Configuration
 
 Ensure `SecuritySignalsRecorder` is wired in your DI container with:

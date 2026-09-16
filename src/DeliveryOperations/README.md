@@ -41,6 +41,7 @@ Call DeliveryOperationsRecorder::record(...)
 DeliveryOperationsRecorder
   - Enforces DB Constraints
   - Normalizes Enums (Channel, Status, Type)
+  - Sanitizes nested sensitive metadata before size/encoding handling
   - Validates Metadata Size
   - Constructs DTO
   |
@@ -70,11 +71,12 @@ use Maatify\EventLogging\DeliveryOperations\Enum\DeliveryChannelEnum;
 use Maatify\EventLogging\DeliveryOperations\Enum\DeliveryStatusEnum;
 use Maatify\EventLogging\DeliveryOperations\Enum\DeliveryOperationTypeEnum;
 use Maatify\EventLogging\DeliveryOperations\Infrastructure\Mysql\DeliveryOperationsLoggerMysqlRepository;
-use Maatify\EventLogging\Common\SystemClock;
+use DateTimeZone;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 
 // Dependencies
 $writer = new DeliveryOperationsLoggerMysqlRepository($pdo);
-$clock = new SystemClock();
+$clock = new SystemClock(new DateTimeZone('UTC'));
 $recorder = new DeliveryOperationsRecorder($writer, $clock, $psrLogger);
 
 // Record Event

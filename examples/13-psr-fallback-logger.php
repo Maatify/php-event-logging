@@ -7,7 +7,7 @@ require_once __DIR__ . '/00-bootstrap.php';
 use Maatify\EventLogging\AuditTrail\Command\RecordAuditTrailCommand;
 use Maatify\EventLogging\AuditTrail\Infrastructure\Mysql\AuditTrailLoggerMysqlRepository;
 use Maatify\EventLogging\AuditTrail\Recorder\AuditTrailRecorder;
-use Maatify\EventLogging\Common\SystemClock;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 use Psr\Log\AbstractLogger;
 
 /**
@@ -40,7 +40,7 @@ $fallbackLogger = new class extends AbstractLogger {
 };
 
 $repository = new AuditTrailLoggerMysqlRepository($failingPdo);
-$clock = new SystemClock();
+$clock = new SystemClock(new DateTimeZone('UTC'));
 
 $recorder = new AuditTrailRecorder(
     logger: $repository,

@@ -344,22 +344,19 @@ Metadata MUST be:
 
 Raw payload dumps are FORBIDDEN.
 
-### 6.4 Current Runtime Gap / RC Blocker
+### 6.4 Runtime Safety Remediation Status
 
-The safety rules in this section remain canonical architectural requirements. They do not prove
-that the current Runtime already enforces every requirement.
+The WU-3 Runtime remediation closes the previously recorded Runtime gap at the package boundary:
 
-The current Runtime has an open **Current Runtime gap / RC blocker**:
+* `AuditTrailRecorder` uses `UrlSanitizer::sanitizePath()` for `referrerPath`, returning only a
+  path and masking sensitive marker/value segments with `[redacted]`.
+* `Common\UrlSanitizer::sanitize()` retains its existing public behavior; `sanitizePath()` is the
+  additive path-safe API.
+* The five non-authoritative Recorders apply `Common\MetadataSanitizer` before size/encoding
+  handling and before constructing or persisting their write DTOs.
 
-* `AuditTrailRecorder` strips query strings from `referrerPath` but does not currently mask or
-  hash sensitive path segments.
-* `Common\UrlSanitizer` does not currently satisfy the canonical path-only plus sensitive
-  path-segment masking requirement.
-* Non-authoritative metadata sanitization is not universally enforced at Recorder boundaries. The
-  existence of `Common\MetadataSanitizer` alone does not prove enforcement.
-
-This is not deferred optional functionality and is not a Host-only responsibility. WU-2 records
-the gap only; a separate Runtime remediation WU must close it before RC.
+The boundary remains structural and does not perform arbitrary free-text redaction. The
+AuthoritativeAudit fail-closed contract remains unchanged.
 
 ---
 

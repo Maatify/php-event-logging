@@ -11,6 +11,7 @@ use Maatify\EventLogging\DiagnosticsTelemetry\DTO\DiagnosticsTelemetryContextDTO
 use Maatify\EventLogging\DiagnosticsTelemetry\DTO\DiagnosticsTelemetryEventDTO;
 use Maatify\EventLogging\DiagnosticsTelemetry\Enum\DiagnosticsTelemetryActorTypeInterface;
 use Maatify\EventLogging\DiagnosticsTelemetry\Enum\DiagnosticsTelemetrySeverityInterface;
+use Maatify\EventLogging\Common\MetadataSanitizer;
 use Maatify\SharedCommon\Contracts\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -31,7 +32,7 @@ class DiagnosticsTelemetryRecorder
     }
 
     /**
-     * @param array<mixed>|null $metadata
+     * @param array<string, mixed>|null $metadata
      */
     public function record(
         string $eventKey,
@@ -84,7 +85,9 @@ class DiagnosticsTelemetryRecorder
 
                 $normalizedSeverity = $this->policy->normalizeSeverity($command->severity);
                 $normalizedActorType = $this->policy->normalizeActorType($command->actorType);
-                $metadata = $command->metadata;
+                $metadata = $command->metadata === null
+                    ? null
+                    : MetadataSanitizer::sanitize($command->metadata);
 
                 if ($metadata !== null) {
                     try {

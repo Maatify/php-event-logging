@@ -83,6 +83,36 @@ final class AuditTrailRecorderTest extends TestCase
         $this->assertEmpty($spyLogger->logs);
     }
 
+    public function testSanitizesMetadataBeforeWriterBoundary(): void
+    {
+        $clock = new FixedClock();
+        $logger = $this->createMock(AuditTrailLoggerInterface::class);
+        $metadata = [
+            'visible' => 'value',
+            'nested' => ['password' => 'secret123', 'keep' => true],
+        ];
+
+        $logger->expects($this->once())
+            ->method('write')
+            ->with($this->callback(function (AuditTrailRecordDTO $dto): bool {
+                return $dto->metadata === [
+                    'visible' => 'value',
+                    'nested' => ['password' => '[redacted]', 'keep' => true],
+                ];
+            }));
+
+        (new AuditTrailRecorder($logger, $clock))->record(
+            eventKey: 'customer.view',
+            actorType: AuditTrailActorTypeEnum::USER,
+            actorId: 123,
+            entityType: 'customer',
+            entityId: 456,
+            metadata: $metadata
+        );
+
+        $this->assertSame('secret123', $metadata['nested']['password']);
+    }
+
     public function testFailOpenOnStorageFailure(): void
     {
         $clock = new FixedClock();

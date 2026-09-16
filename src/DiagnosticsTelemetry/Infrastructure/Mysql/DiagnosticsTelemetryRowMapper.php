@@ -40,7 +40,10 @@ final class DiagnosticsTelemetryRowMapper
             try {
                 $decoded = json_decode($row['metadata'], true, 512, JSON_THROW_ON_ERROR);
                 if (is_array($decoded)) {
-                    $metadata = $decoded;
+                    $metadata = [];
+                    foreach ($decoded as $key => $value) {
+                        $metadata[(string) $key] = $value;
+                    }
                 }
             } catch (JsonException) {
                 // Metadata corruption in DB; treat as null

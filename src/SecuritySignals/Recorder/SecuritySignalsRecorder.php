@@ -10,6 +10,7 @@ use Maatify\EventLogging\SecuritySignals\Contract\SecuritySignalsPolicyInterface
 use Maatify\EventLogging\SecuritySignals\DTO\SecuritySignalRecordDTO;
 use Maatify\EventLogging\SecuritySignals\Enum\SecuritySignalActorTypeEnum;
 use Maatify\EventLogging\SecuritySignals\Enum\SecuritySignalSeverityEnum;
+use Maatify\EventLogging\Common\MetadataSanitizer;
 use Maatify\SharedCommon\Contracts\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -78,7 +79,9 @@ class SecuritySignalsRecorder
             $safeRouteName = $command->routeName ? substr($command->routeName, 0, 255) : null;
             $safeIpAddress = $command->ipAddress ? substr($command->ipAddress, 0, 45) : null;
             $safeUserAgent = $command->userAgent ? substr($command->userAgent, 0, 512) : null;
-            $metadata = $command->metadata;
+            $metadata = $command->metadata === null
+                ? null
+                : MetadataSanitizer::sanitize($command->metadata);
 
             if ($metadata !== null) {
                 try {

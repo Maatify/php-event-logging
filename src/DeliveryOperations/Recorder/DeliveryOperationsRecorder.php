@@ -6,6 +6,7 @@ namespace Maatify\EventLogging\DeliveryOperations\Recorder;
 
 use BackedEnum;
 use Maatify\EventLogging\DeliveryOperations\Command\RecordDeliveryOperationCommand;
+use Maatify\EventLogging\Common\MetadataSanitizer;
 use Maatify\SharedCommon\Contracts\ClockInterface;
 use UnitEnum;
 use DateTimeImmutable;
@@ -35,7 +36,7 @@ class DeliveryOperationsRecorder
     }
 
     /**
-     * @param array<mixed>|null $metadata
+     * @param array<string, mixed>|null $metadata
      */
     public function record(
         DeliveryChannelEnum|string $channel,
@@ -104,7 +105,9 @@ class DeliveryOperationsRecorder
             $provider = $this->truncate($command->provider, 64);
             $providerMessageId = $this->truncate($command->providerMessageId, 128);
             $errorCode = $this->truncate($command->errorCode, 64);
-            $metadata = $command->metadata;
+            $metadata = $command->metadata === null
+                ? null
+                : MetadataSanitizer::sanitize($command->metadata);
 
             if ($metadata !== null) {
                 try {
