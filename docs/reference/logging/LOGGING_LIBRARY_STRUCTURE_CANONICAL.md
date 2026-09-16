@@ -1,8 +1,8 @@
 # LOGGING_LIBRARY_STRUCTURE_CANONICAL
 
 > **Project:** maatify/php-event-logging
-> **Status:** NON-BINDING (Structural blueprint for logging modules as future standalone libraries)
-> **Scope:** Defines the required folder structure, module boundaries, shared primitives, and extraction-ready layout for the six logging domains.
+> **Status:** NON-BINDING (Future extraction and structural mapping)
+> **Scope:** Preserves useful module boundaries and extraction mappings for the six logging domains without imposing future folders, classes, storage backends, or APIs on the current Runtime.
 > **Terminology Source of Truth:** `../../architecture/logging/LOG_DOMAINS_OVERVIEW.md`
 > **Design Standard Source of Truth:** `../../architecture/logging/CANONICAL_LOGGER_DESIGN_STANDARD.md`
 
@@ -10,16 +10,19 @@
 
 ## 0) Purpose
 
-This document enforces a single structural rule:
-
-> Every logging domain MUST be structured as if it will be extracted into a standalone library from host applications (uses explicit Composer/runtime dependencies) later.
+This document records a possible future extraction shape. It is not a current
+Runtime contract and does not authorize extraction, new Composer dependencies,
+new folders/classes, archive adapters, or API changes.
 
 This prevents:
 
 * “one mega logger”
 * cross-domain coupling
 * hidden policy in infrastructure
-* ad-hoc DTO shapes
+* ad-hoc DTO shapes replacing defined contracts
+
+The current package remains one Composer library with six domain-isolated
+modules. Any future standalone-library target requires separate Owner approval.
 
 ---
 
@@ -45,19 +48,21 @@ Definitions are canonical in:
 1. **One module per domain.**
 2. **No shared storage drivers across domains.**
 3. **No domain policy inside infrastructure.**
-4. **No raw arrays as public inputs.**
+4. **Ad-hoc associative arrays MUST NOT substitute for defined commands, DTOs,
+   or contracts.** Domain-defined metadata arrays remain allowed where the
+   current domain contract permits them.
 5. All DTO class names MUST end with `DTO`.
 6. All Enum names MUST end with `Enum`.
-7. “Swallowing” is allowed ONLY at the Recorder boundary and ONLY for
-   Non-Authoritative domains.
-   The Recorder MUST catch `Throwable` at the top-level of `record()`
-   to guarantee fail-open behavior.
-   Swallowing inside Infrastructure, Repository, DTO, or Policy layers
-   is strictly forbidden.
+7. The five non-authoritative package recorders catch and swallow recording
+   failures at their recorder boundary. An explicitly supplied PSR-3 logger
+   MAY receive a diagnostic; no mandatory fallback channel exists when none is
+   supplied. `AuthoritativeAuditRecorder` is fail-closed and must propagate
+   recorder-boundary failures. Infrastructure, repositories, DTOs, and
+   Policies MUST NOT swallow.
 
 ---
 
-## 3) Canonical In-Repo Module Layout
+## 3) Illustrative Module Layout (Non-Binding)
 
 All domain modules live under:
 
@@ -65,17 +70,17 @@ All domain modules live under:
 src/
 ```
 
-Required structure:
+Illustrative future extraction structure only (not required current Runtime):
 
 ```
 src/<DomainName>/
+Command/
 Contract/
 DTO/
 Enum/
 Recorder/
 Infrastructure/
     Mysql/
-    Mongo/
 Exception/
 
 ┌──────────────────────────────────────────────────────────────┐
@@ -99,8 +104,8 @@ Exception/
               |
               v
         ┌───────────────┬─────────────────────────────────────┐
-        │    Mysql/     │              Mongo/                 │
-        │ (Baseline)    │      (Archive-Eligible Domains)     │
+        │    Mysql/     │       Future archive adapter        │
+        │ (current)     │       (not specified/approved)      │
         └───────────────┴─────────────────────────────────────┘
 
         |
@@ -113,8 +118,13 @@ Exception/
 
 Notes:
 
-* `Mongo/` is required only for archive-eligible domains (see storage doc).
-* `Exception/` is mandatory for honest contracts.
+* Current persistence is MySQL only. MongoDB and other non-MySQL backends are
+  unsupported.
+* The approved deferred archive direction is MySQL → MySQL Mode B only; it is
+  not implemented.
+* The diagram does not require a future archive folder or class name.
+* `Exception/` is a conceptual role for honest contracts; exact current
+  locations follow the Runtime tree.
 
 ---
 
@@ -156,13 +166,13 @@ AuthoritativeAuditRecorder
 AuthoritativeAuditOutboxWriterInterface
               |
               v
-MySQL: authoritative_audit_outbox   [AUTHORITATIVE SOURCE]
+MySQL: maa_event_logging_authoritative_audit_outbox   [AUTHORITATIVE SOURCE]
               |
               v
 Outbox Consumer / Materializer
               |
               v
-MySQL: authoritative_audit_log      [QUERY / READ MODEL]
+MySQL: maa_event_logging_authoritative_audit_log      [QUERY / READ MODEL]
 
 
 ```
@@ -170,14 +180,14 @@ MySQL: authoritative_audit_log      [QUERY / READ MODEL]
 Hard rule:
 
 * The outbox writer is part of the authoritative pipeline.
-* No Mongo archive.
+* No MongoDB archive is supported by the current Runtime.
 
 ---
 
 ### 4.2 Audit Trail Module
 
 **Domain intent:** Data exposure + navigation (views/reads/exports/downloads).
-**Storage:** MySQL hot + Mongo archive.
+**Storage:** Current Runtime MySQL only; any future archive remains deferred.
 
 ```
 src/AuditTrail/
@@ -197,8 +207,6 @@ src/AuditTrail/
         Mysql/
             AuditTrailLoggerMysqlRepository.php
             AuditTrailQueryMysqlRepository.php
-        Mongo/
-            AuditTrailArchiveMongoRepository.php
     Exception/
         AuditTrailStorageException.php
 ```
@@ -212,7 +220,7 @@ Hard rule:
 ### 4.3 Security Signals Module
 
 **Domain intent:** Auth/authorization anomalies, policy violations, suspicious signals.
-**Storage:** MySQL hot + Mongo archive.
+**Storage:** Current Runtime MySQL only; any future archive remains deferred.
 
 ```
 src/SecuritySignals/
@@ -233,8 +241,6 @@ src/SecuritySignals/
         Mysql/
             SecuritySignalsLoggerMysqlRepository.php
             SecuritySignalsQueryMysqlRepository.php
-        Mongo/
-            SecuritySignalsArchiveMongoRepository.php
     Exception/
         SecuritySignalsStorageException.php
 ```
@@ -248,7 +254,7 @@ Hard rule:
 ### 4.4 Operational Activity Domain — BehaviorTrace Module
 
 **Domain intent:** Mutations + operational actions (create/update/delete/approve/etc).
-**Storage:** MySQL hot + Mongo archive.
+**Storage:** Current Runtime MySQL only; any future archive remains deferred.
 
 > **Library / Module Name:** BehaviorTrace  
 > **Domain Classification:** Operational Activity  
@@ -272,8 +278,6 @@ src/BehaviorTrace/
         Mysql/
             BehaviorTraceLoggerMysqlRepository.php
             BehaviorTraceQueryMysqlRepository.php
-        Mongo/
-            BehaviorTraceArchiveMongoRepository.php
     Exception/
         BehaviorTraceStorageException.php
 ```
@@ -287,7 +291,7 @@ Hard rule:
 ### 4.5 Diagnostics Telemetry Module
 
 **Domain intent:** Technical observability (timings, sanitized errors, counters).
-**Storage:** MySQL hot + Mongo archive.
+**Storage:** Current Runtime MySQL only; any future archive remains deferred.
 
 ```
 src/DiagnosticsTelemetry/
@@ -306,8 +310,6 @@ src/DiagnosticsTelemetry/
         Mysql/
             DiagnosticsTelemetryLoggerMysqlRepository.php
             DiagnosticsTelemetryQueryMysqlRepository.php
-        Mongo/
-            DiagnosticsTelemetryArchiveMongoRepository.php
     Exception/
         DiagnosticsTelemetryStorageException.php
 ```
@@ -322,7 +324,7 @@ Hard rule:
 ### 4.6 Delivery Operations Module
 
 **Domain intent:** Job/queue/notification/webhook lifecycle + retries + provider results.
-**Storage:** MySQL hot + Mongo archive.
+**Storage:** Current Runtime MySQL only; any future archive remains deferred.
 
 ```
 src/DeliveryOperations/
@@ -344,8 +346,6 @@ src/DeliveryOperations/
         Mysql/
             DeliveryOperationsLoggerMysqlRepository.php
             DeliveryOperationsQueryMysqlRepository.php
-        Mongo/
-            DeliveryOperationsArchiveMongoRepository.php
     Exception/
         DeliveryOperationsStorageException.php
 ```
@@ -366,9 +366,7 @@ src/LoggingCommon/
     Correlation/
         CorrelationId.php
         RequestId.php
-    Actor/
-        ActorTypeEnum.php (only if truly shared and identical)
-    Sanitization/
+        Sanitization/
         UrlSanitizer.php
         MetadataSanitizer.php
     Clock/
@@ -381,19 +379,19 @@ src/LoggingCommon/
         v
 LoggingCommon
         |
-        +───────────+───────────+───────────+─────────────+
-        |           |           |           |             |
-        v           v           v           v
-Correlation/     Actor/     Sanitization/   Clock/
-(CorrelationId) (ActorType) (Url/Metadata) (Maatify\SharedCommon\Contracts\ClockInterface)
+        +───────────────+────────────────+─────────────+
+        |               |                |             |
+        v               v                v
+Correlation/     Sanitization/        Clock/
+(CorrelationId)  (Url/Metadata)       (Maatify\SharedCommon\Contracts\ClockInterface)
 
 ```
 Important:
-- A shared ActorTypeEnum MAY exist ONLY if its allowed values are
-  strictly identical to the canonical actor_type list.
-- Domain-specific ActorTypeEnums MUST NOT extend or override semantics.
-- If a domain requires additional actor classification, it MUST use
-  domain-specific fields, not actor_type.
+- There is no global ActorTypeEnum or global actor list in the current
+  Runtime.
+- `actor_type` normalization and validation are governed by each domain's
+  current Policy and contract.
+- Domain-specific actor classification must follow that domain contract.
 
 Hard rule:
 
@@ -405,7 +403,12 @@ Hard rule:
 
 ## 6) Extraction Mapping (Future Library Targets)
 
-This structure is extraction-ready. Each domain maps cleanly to a package:
+This mapping records possible future extraction targets. It is non-binding:
+the current package has no separate extracted packages, and no target folder,
+class, backend, or API is authorized by this document. Separate Owner approval
+is required before adopting any target architecture.
+
+Each domain could map to a package:
 
 * `maatify/authoritative-audit`
 * `maatify/audit-trail`
@@ -434,14 +437,24 @@ LoggingCommon                           → maatify/logging-common
 
 ## 7) Minimum Interfaces (Canonical)
 
-Every domain module MUST expose at least:
+For a future extraction, each domain would be expected to define applicable
+roles such as:
 
-1. `Recorder` (policy boundary)
-2. `LoggerInterface` (write contract)
-3. `QueryInterface` (read contract, optional for telemetry depending on UI needs)
-4. `StorageException` (domain-specific)
+1. `Recorder` (public recording/coordinator boundary)
+2. `Policy` (independent domain-specific normalization/validation role)
+3. An applicable write contract and domain storage exception
+4. An applicable primitive or Admin Query read contract where exposed
 
-The public write API MUST accept only a `...RecordDTO` (no arrays).
+The current public recording surface may accept commands and primitive
+convenience arguments through domain recorders. Writer/storage contracts use
+their defined write DTOs. A public write API is not globally RecordDTO-only,
+and domain-defined metadata arrays remain valid under their contracts.
+
+DTO categories are not interchangeable: write/persistence DTOs,
+query/request DTOs, page/result/view DTOs, and commands each follow their own
+current boundary contract. Contract-defined value objects and nested DTOs may
+be properties where the current contract defines them; any JsonSerializable
+output must be JSON-safe according to that contract.
 
 ---
 
@@ -461,8 +474,8 @@ A logging module violates this document if any of the following occurs:
 
 * A domain module writes to another domain’s table/collection.
 * A driver swallows exceptions.
-* A public API accepts raw arrays.
-* A recorder performs SQL/Mongo operations.
+* An ad-hoc array replaces a defined command, DTO, or contract.
+* A recorder performs SQL or storage-adapter operations.
 * Views/reads/exports are logged outside Audit Trail.
 * Telemetry is used to represent business access events.
 

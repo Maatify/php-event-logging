@@ -103,7 +103,11 @@ To maintain the integrity and standalone nature of this package, all contributio
 * **No host app namespaces:** Code must not reference `App`, `Athar`, `EP4N`, or any project-specific namespaces.
 * **No generic logger API:** The package does not expose a catch-all logging API, generic recorder, or domain-string-routed logger. PSR-3 is only accepted as an optional fallback logger for fail-open domains.
 * **No generic recorder/repository:** Each domain has its own dedicated recorder and repository.
-* **No shared generic `logs` or `event_logs` table:** Each domain corresponds to a specific `maa_event_logging_*` table.
+* **No shared generic `logs` or `event_logs` table:** Storage is
+  domain-isolated; a domain may own more than one package table when its
+  approved architecture requires it. `AuthoritativeAudit` owns its
+  authoritative outbox and materialized read log. There is no universal
+  one-table-per-domain rule.
 * **MySQL/PDO only:** We strictly support MySQL-backed repositories.
 * **Host provides PDO:** The consuming application is responsible for passing an active PDO connection.
 * **No controllers/routes/UI/permissions:** This package does not provide admin screens, API routes, or UI components.
