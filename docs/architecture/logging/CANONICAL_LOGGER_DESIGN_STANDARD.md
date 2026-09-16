@@ -162,7 +162,13 @@ Documented public recorder convenience methods may continue to accept primitive 
 #### DTO Properties
 
 * Immutable (readonly where possible)
-* Serializable into primitives only
+* Property shapes MUST follow their own current boundary contract.
+* Write, query, view, and page/result DTOs MAY contain contract-defined value objects or nested
+  DTOs, including `DateTimeImmutable` and `list<...ViewDTO>` where the current Runtime contract
+  defines them.
+* When a DTO participates in a `JsonSerializable` boundary, its final serialized representation
+  MUST be JSON-safe primitive/array values, including recursively serialized nested DTOs, according
+  to the current contract.
 * Contain only the fields required by their own current boundary contract, such as:
 
     * domain-specific fields
@@ -171,7 +177,7 @@ Documented public recorder convenience methods may continue to accept primitive 
 
     * secrets
     * raw request payloads
-    * unserialized objects
+    * values or objects outside their own current boundary contract
 
 ---
 
