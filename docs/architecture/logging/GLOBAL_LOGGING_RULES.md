@@ -324,7 +324,7 @@ each domain follows its own current contract.
   * structured
   * minimal
   * allowlisted
-  * **maximum size: 64KB**
+  * size and oversized-value handling follow each domain's current policy and Runtime contract
 * Logs MUST NOT be treated as a source of business truth
   (e.g. permissions, balances, ownership, or state).
 

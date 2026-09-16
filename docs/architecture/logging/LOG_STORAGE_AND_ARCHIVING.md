@@ -2,7 +2,8 @@
 
 > **Project:** maatify/php-event-logging
 > **Status:** CANONICAL (Binding storage guidance — subordinate to repository authority)
-> **Scope:** Defines **baseline storage** and **optional archiving** rules for the Unified Logging System.
+> **Scope:** Defines the MySQL-only baseline and the deferred MySQL → MySQL Mode B archive
+> contract for the Unified Logging System.
 > **Terminology Source of Truth:** `docs/architecture/logging/LOG_DOMAINS_OVERVIEW.md`
 > **Logging Semantics References:**
 >
@@ -16,11 +17,12 @@
 
 ## 0) Baseline First (Hard Rule)
 
-The logging system MUST be **fully correct and complete using MySQL only**.
+The current Runtime persistence MUST be **fully correct and complete using MySQL only**.
 
-* MongoDB or any non-MySQL backend is **NOT assumed**.
-* Archiving is **OPTIONAL** and **NOT required** for baseline correctness.
-* Any archiving implementation MUST:
+* MongoDB and any other non-MySQL backend are **unsupported**; no optional additional runtime
+  backend contract exists.
+* Future archiving is **deferred** and **NOT required** for baseline correctness.
+* Any separately approved future archive implementation MUST:
 
     * Be explicitly enabled
     * Be documented
@@ -34,9 +36,11 @@ This rule exists to ensure portability across constrained or shared hosting envi
 
 ## 1) Baseline Storage Model (MySQL Only)
 
-### 1.1 Canonical Hot Tables
+### 1.1 Canonical Hot Relations
 
-Each logging domain maps to a dedicated MySQL table.
+Persistence is domain-isolated within MySQL. A domain is not required to map to exactly one table;
+its current topology may contain multiple domain-owned tables. The following are the current
+canonical hot relations:
 
 | Domain                    | MySQL Table                  | Notes                                               |
 |---------------------------|------------------------------|-----------------------------------------------------|
@@ -73,15 +77,9 @@ Recommended starting points (non-binding defaults):
 
 ---
 
-## 3) Optional Archiving Model — Mode B (MySQL → MySQL)
+## 3) Deferred Archiving Model — Mode B (MySQL → MySQL)
 
-Note:
-Any references to Mongo-based archiving (Mode A) in other documents
-(e.g. ASCII overviews) are illustrative only.
-This document defines the ONLY supported and approved archiving model.
-
-
-> **Status:** OPTIONAL / DEFERRED  
+> **Status:** DEFERRED
 > This is the **only supported archiving model**.
 
 This document preserves the future archiving contract and safety constraints. It does not claim
@@ -90,7 +88,7 @@ current package Runtime. See `../DEFERRED_SCOPE.md` for the active deferred-scop
 
 ### 3.1 Why Mode B
 
-* No dependency on MongoDB or external storage
+* No dependency on unsupported non-MySQL storage
 * Preserves column-based searchability
 * Easy to review, migrate, or disable
 * Aligns with portability and audit requirements
@@ -207,11 +205,16 @@ Even if archive tables exist:
 
 ## 8) Operational Safety Policies (Binding)
 
-### 8.1 Metadata Size Policy
+### 8.1 Metadata Handling (Domain Policy)
 
-* `metadata` MUST NOT exceed **64KB**
-* Enforced at application layer
-* Oversized metadata MUST be rejected
+`metadata` size and handling follow the current policy and Runtime contract of each domain. This
+storage document does not impose a global maximum or rejection rule.
+
+For fail-open domains, oversized metadata MAY be sanitized, dropped, or replaced and recording may
+continue according to the domain contract. This document does not invent size or rejection
+behavior for an AuthoritativeAudit payload that the current Runtime does not define.
+
+The future archiver copies stored records and does not redefine recorder metadata policy.
 
 ---
 

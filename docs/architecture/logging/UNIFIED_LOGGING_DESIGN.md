@@ -4,7 +4,8 @@
 > **Status:** CANONICAL logging-domain design (subordinate to repository authority)
 > **Scope:** Defines the unified logging architecture, layering, authority boundaries, storage semantics, and forbidden patterns.
 > **Terminology Source of Truth:** `docs/architecture/logging/LOG_DOMAINS_OVERVIEW.md`
-> **Storage Guidance (Optional):** `docs/architecture/logging/LOG_STORAGE_AND_ARCHIVING.md` *(not required for baseline)*
+> **Storage Guidance:** `docs/architecture/logging/LOG_STORAGE_AND_ARCHIVING.md` defines the
+> deferred MySQL → MySQL Mode B archive contract; it does not add runtime backends.
 > **Runtime Contract:** `EVENT_LOGGING_PACKAGE_REFERENCE.md` remains canonical for public Runtime behavior.
 
 ---
@@ -16,7 +17,7 @@ This document defines a single unified approach to logging across the system tha
 * prevents domain mixing (conceptual confusion)
 * enforces consistent layering (HTTP → Domain policy → Storage)
 * provides honest failure semantics (no hidden failures except where explicitly permitted)
-* supports scalable retention (baseline first; archiving remains optional guidance)
+* preserves a MySQL-only baseline while keeping the approved archive contract deferred
 * enables future extraction of each logging domain as a standalone library from host applications
 
 ---
@@ -54,7 +55,7 @@ v
 Domain Logger / Writer (storage adapter interface)
 |
 v
-Storage Driver (MySQL baseline; optional additional backends)
+Storage Driver (MySQL only)
 @@@
 
 `HTTP / UI / Controllers` are host-side callers shown at the integration boundary; they are not
@@ -95,11 +96,12 @@ Recorders prevent:
 
 * MUST be pure “policy + DTO construction” using safe context.
 * MUST NOT contain SQL / direct storage logic.
-* MUST enforce data safety and metadata limits (see Section 9 and Section 14).
+* MUST apply the current domain policy for data safety and metadata handling (see Section 9 and
+  Section 14).
 
 **Infrastructure Drivers**
 
-* MUST be storage-specific only (MySQL, optional backends if enabled).
+* MUST be MySQL-specific in the current Runtime.
 * MUST NOT reinterpret policy or classify domains.
 * MUST throw domain-specific storage exceptions (never swallow).
 
@@ -142,9 +144,11 @@ These logs are operationally important, but not “compliance source of truth”
 
 ## 5) Storage Semantics (Canonical Baseline)
 
-### 5.1 Baseline Storage Targets (MySQL)
+### 5.1 Baseline Storage Topology (MySQL Only)
 
-The baseline schema defines one dedicated MySQL table per domain:
+Current persistence is domain-isolated within MySQL. A domain is not required to map to exactly
+one table; its topology may contain multiple domain-owned tables. The current canonical relations
+include:
 
 * Authoritative Audit:
 
@@ -171,17 +175,12 @@ The baseline schema defines one dedicated MySQL table per domain:
 
   * `maa_event_logging_delivery_operations`
 
-### 5.2 Optional Backends (Deferred / Not Required)
+### 5.2 Supported Backend Boundary
 
-Additional backends are not part of the current Runtime. MongoDB archiving is explicitly
-unsupported; the deferred archive boundary is documented in `DEFERRED_SCOPE.md` and
+The current Runtime persistence backend is MySQL only. MongoDB and all other non-MySQL backends
+are unsupported; no optional additional runtime backend contract exists. The only approved future
+archive contract is deferred MySQL → MySQL Mode B, governed by `DEFERRED_SCOPE.md` and
 `LOG_STORAGE_AND_ARCHIVING.md`.
-
-If enabled in the future, storage and retention behavior MUST be documented in:
-
-* `docs/architecture/logging/LOG_STORAGE_AND_ARCHIVING.md`
-
-**Baseline rule:** the system MUST remain correct and complete with MySQL-only storage.
 
 ### 5.3 Current Read Paths
 
@@ -231,7 +230,9 @@ primitive fallback channel when an optional PSR-3 logger was not supplied.
 
 * Infrastructure drivers MUST NOT swallow exceptions silently.
 * “Try/catch empty” in storage drivers is forbidden.
-* Best-effort does not mean “silent”.
+* Best-effort means that a non-authoritative recorder swallows its failure; it does not require a
+  diagnostic channel. An optional supplied PSR-3 logger MAY receive a diagnostic, and no mandatory
+  reporting or fallback channel exists when no logger was supplied.
 * Swallowing is ONLY permitted at the **Recorder boundary** for **Non-Authoritative** domains (best-effort).
 * Any swallowing inside Infrastructure/Repository/DTO layers is forbidden.
 
@@ -373,7 +374,7 @@ Logging must NEVER store:
 * prefer allowlisted keys
 * avoid dumping raw payloads
 * keep JSON minimal and structured
-* enforce maximum size policy (Section 14.1)
+* apply the current domain policy for size and oversized-metadata handling (Section 14.1)
 
 ---
 
@@ -426,7 +427,7 @@ A logging implementation is compliant only if:
 * Operational Activity does not contain reads/views.
 * Audit Trail contains reads/views/exports/navigation.
 * Authoritative Audit uses outbox + consumer pipeline.
-* Optional storage backends (if enabled) are documented explicitly.
+* Current persistence remains MySQL only; non-MySQL runtime backends are unsupported.
 
 ---
 
@@ -436,15 +437,16 @@ This section records current safety rules and future operational constraints. Th
 current Runtime does not implement outbox consumers, archivers, dashboards, or reporting; the
 deferred portions below preserve the requirements for separately approved future work.
 
-### 14.1 Metadata Size Policy (Hard)
+### 14.1 Metadata Handling (Domain Policy)
 
-* `metadata` MUST have an enforced maximum size at the application layer.
-* Canonical limit: **64 KB per event** (post-serialization).
-* Violations MUST result in:
+`metadata` size and handling follow each domain's current policy and Runtime contract. This
+unified design does not impose a global maximum or a global rejection rule.
 
-  * trimming to allowlisted safe keys, OR
-  * rejection for Authoritative Audit events (integrity), OR
-  * best-effort drop with PSR-3 warning for non-authoritative domains (policy decision)
+For fail-open domains, oversized metadata MAY be sanitized, dropped, or replaced and recording
+may continue according to that domain's contract. This document does not invent size or rejection
+behavior for an AuthoritativeAudit payload that the current Runtime does not define.
+
+The future archiver copies stored records and does not redefine recorder metadata policy.
 
 **Forbidden patterns:**
 
@@ -490,10 +492,11 @@ Monitoring requirement:
 
 * Alert if outbox lag exceeds a policy threshold (example: > 5 minutes)
 
-### 14.5 Archiving Trigger Policy (Deferred; If Optional Archiving Is Enabled)
+### 14.5 Archiving Trigger Policy (Deferred; MySQL → MySQL Mode B Only)
 
-Archiving is OPTIONAL and not required for baseline correctness.
-If enabled, an explicit trigger policy MUST be documented and implemented.
+Archiving is deferred and not required for baseline correctness. If the separately approved Mode B
+archiver is implemented, its trigger policy MUST be documented and implemented within the MySQL →
+MySQL boundary.
 
 Recommended canonical defaults (adjust per deployment):
 
@@ -524,7 +527,7 @@ This document does not mandate a specific throughput target, but it mandates des
 
   * partitioning (future ADR)
   * read replicas for reporting
-  * archiving automation (optional modes)
+  * deferred MySQL → MySQL Mode B archiving automation
 
 ### 14.8 GDPR / Retention / Right-to-Be-Forgotten (Policy Boundary)
 

@@ -20,7 +20,7 @@ Build a strict logging architecture that prevents semantic mixing and enables:
 ### Core Outcomes
 
 * Each event logged in exactly **one domain**
-* One MySQL table per domain, column-searchable
+* Domain-isolated MySQL storage with domain-owned, column-searchable relations
 * No secrets or sensitive data logged
 * Design extractable into framework-agnostic standalone libraries
 
@@ -208,8 +208,12 @@ URLs:
 
 * Structured JSON only
 * Minimal fields
-* **Max size: 64KB**
-* Enforced at application layer
+* Size and oversized-value handling follow each domain's current policy and Runtime contract.
+* Fail-open domains MAY sanitize, drop, or replace oversized metadata and continue according to
+  their domain contract.
+* This document does not invent a size or rejection rule for an AuthoritativeAudit payload that
+  the current Runtime does not define.
+* The future archiver does not redefine recorder metadata policy.
 
 **Read-Mapping Corruption Tolerance (Explicit Exception):**
 - Reader implementations MAY swallow JSON decode errors for `metadata` ONLY during read-mapping.
@@ -228,9 +232,12 @@ own current contract and documents its domain-specific behavior.
 
 ## 11. Storage Baseline
 
-* MySQL 5.7+
-* Separate tables per domain
-* Deterministic paging: `(occurred_at, id)`
+* Current Runtime persistence is MySQL only (5.7+).
+* Storage is domain-isolated and is not required to use exactly one table per domain.
+* AuthoritativeAudit owns `maa_event_logging_authoritative_audit_outbox` as its authoritative
+  source and `maa_event_logging_authoritative_audit_log` as its materialized read model.
+* MongoDB and all other non-MySQL runtime backends are unsupported.
+* Deterministic paging: `(occurred_at, id)` where applicable to the current domain contract.
 
 **PDO Numeric Hydration Rule (MySQL):**
 - Numeric columns (e.g., BIGINT) MAY be returned as strings by PDO.
@@ -238,7 +245,7 @@ own current contract and documents its domain-specific behavior.
 
 ---
 
-## 12. Archiving (Mode B — Deferred and Optional)
+## 12. Archiving (Deferred; MySQL → MySQL Mode B Only)
 
 * MySQL → MySQL
 * `*_archive` tables
@@ -247,7 +254,8 @@ own current contract and documents its domain-specific behavior.
 * Move-then-delete only
 
 These are future constraints only. The current package Runtime does not implement archiving,
-retention workers, or hot/archive reads; see `DEFERRED_SCOPE.md`.
+retention workers, or hot/archive reads. No non-MySQL archive/backend mode is supported; see
+`DEFERRED_SCOPE.md`.
 
 ---
 

@@ -47,9 +47,13 @@ The module is a strict **Black Box**. The single canonical root Package Referenc
 
 ### Outside the Module (The Host Application)
 - **Configuration:** Injecting dependencies (PDO, Clock, and an optional PSR-3 logger).
-- **UI & Presentation:** Any dashboards or admin panels.
-- **HTTP/API:** Routes, controllers, middleware, and permissions.
-- **Reporting:** Dashboard summaries, aggregates, and cross-domain analytics.
+- **UI & Presentation:** UI, presentation, and reporting screens.
+- **HTTP/API:** Controllers, routes, middleware, and permissions.
+- **Exports & Localization:** Host-owned exports and localization.
+- **Analytics:** Host-specific and cross-system analytics.
+- **Future package boundary:** Phase 5 MAY introduce package-owned, domain-scoped reporting or
+  dashboard-summary contracts only after separate Owner approval; those contracts are not current
+  Runtime.
 
 ### Forbidden Access Patterns
 - **Contract Bypass:** Consumers MUST use the domain contracts or an approved factory/binding;
@@ -149,7 +153,8 @@ To keep the Recorder clean and allow the Host Application to customize rules wit
 ### Logic Responsibilities
 - **Actor Type Normalization:** e.g., "Convert 'super-admin' to 'ADMIN'".
 - **Severity Normalization:** e.g., "Truncate custom levels".
-- **Metadata Validation:** e.g., "Enforce 64KB JSON limit".
+- **Metadata Handling:** Follow the current domain policy for size, sanitization, dropping, or
+  replacement of oversized metadata.
 
 ### Forbidden Logic
 - **Database Access:** Policies MUST be pure functions.
@@ -225,8 +230,10 @@ offset/page result contract for each domain. It does not replace the primitive c
    and actor/entity name resolution.
 
 The host MUST NOT query the package's storage tables directly as a substitute for the current
-Admin Query contracts. Reporting, dashboard summaries, and cross-domain analytics remain future
-scope governed by `docs/architecture/DEFERRED_SCOPE.md`.
+Admin Query contracts. The host owns reporting screens and host-specific/cross-system analytics.
+Future Phase 5 may add package-owned domain-scoped reporting or dashboard-summary contracts only
+after separate Owner approval; the current Runtime does not include them. Deferred scope remains
+governed by `docs/architecture/DEFERRED_SCOPE.md`.
 
 ---
 

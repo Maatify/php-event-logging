@@ -329,7 +329,7 @@ Absence of a domain log is a design error, not a PSR-3 use case.
 * Metadata discipline:
 
   * structured, minimal, allowlisted where possible
-  * **maximum size: 64KB** (enforced at application layer)
+  * size and oversized-value handling follow each domain's current policy and Runtime contract
 * Prefer stable taxonomy keys:
 
   * `event_key`, `signal_type`, `action`, `operation_type`
@@ -359,4 +359,5 @@ Storage rules, retention guidance, and archiving mechanics are defined in:
 
 * `docs/architecture/logging/LOG_STORAGE_AND_ARCHIVING.md`
 
-**Baseline note:** Archiving is OPTIONAL and not required for the baseline schema.
+**Baseline note:** Archiving is deferred and not required for the baseline schema. The approved
+future archive contract is limited to MySQL → MySQL Mode B.

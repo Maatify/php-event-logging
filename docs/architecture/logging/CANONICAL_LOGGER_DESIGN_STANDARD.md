@@ -78,7 +78,8 @@ The Recorder is the **only policy-aware component**.
 
     * allowlisted keys
     * sanitized values
-    * **maximum size: 64KB**
+    * size and oversized-value handling according to the current domain policy and Runtime
+      contract
 * Decide whether storage failures may be swallowed (best-effort domains only)
 
 #### Forbidden Responsibilities
@@ -288,7 +289,7 @@ Metadata MUST be:
 * structured
 * minimal
 * allowlisted where possible
-* size-limited to **64KB**
+* size and oversized-value handling follow the current domain policy and Runtime contract
 * free of PII/secrets
 
 Raw payload dumps are FORBIDDEN.
