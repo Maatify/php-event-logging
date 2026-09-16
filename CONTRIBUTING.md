@@ -113,7 +113,13 @@ To maintain the integrity and standalone nature of this package, all contributio
 * **No controllers/routes/UI/permissions:** This package does not provide admin screens, API routes, or UI components.
 * **AuthoritativeAudit remains fail-closed:** Storage failures in the AuthoritativeAudit domain must throw exceptions and must not be swallowed.
 * **Fail-open behavior stays at recorder boundary:** For non-authoritative domains, failure swallowing (fail-open) occurs only at the recorder layer, with optional fallback logging.
-* **PSR-3 is an optional fallback:** A PSR-3 `LoggerInterface` is only used as a fallback mechanism for fail-open domains when database storage fails.
+* **PSR-3 is an optional fallback diagnostic sink:** In the five
+  non-authoritative domains, an injected `LoggerInterface` MAY receive
+  diagnostics for recording failures, including domain-specific metadata-size
+  or encoding handling where the current recording path uses it. If no logger
+  is supplied, there is no mandatory fallback or reporting channel and the
+  fail-open recorder contract remains in effect. `AuthoritativeAudit` does not
+  use fallback logging and remains fail-closed.
 
 ## Pull Request Guidelines
 

@@ -83,7 +83,9 @@ Explicit coverage of failure boundaries for each domain type.
 **B. Non-authoritative domains (AuditTrail, SecuritySignals, BehaviorTrace, DiagnosticsTelemetry, DeliveryOperations)**
 - Fail-open behavior validation.
 - Recorder MUST catch `Throwable` at the boundary.
-- Fallback logger is called when storage fails.
+- When an optional fallback logger is supplied, storage and recording failure
+  tests verify the expected diagnostic behavior. Absence of a fallback logger
+  is valid and must preserve fail-open behavior.
 - Fallback logger failure does not leak back to the caller.
 - Repository exceptions are NOT swallowed by the repository itself (only by the recorder).
 - Direct repository usage (bypassing recorder) still throws.
