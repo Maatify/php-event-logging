@@ -258,7 +258,7 @@ How examples should be validated:
 
 **Phase I — Final Testing Hardening Audit**
 - **Goal:** Final review of coverage.
-- **Files:** `docs/audits/TESTING_HARDENING_AUDIT.md`.
+- **Record:** Keep the completion review in the corresponding Git and PR history; do not add a historical audit artifact to the current package tree.
 - **Validation:** All tests, CI pass.
 - **Out of scope:** Feature additions.
 - **Commit:** `docs(audit): finalize testing hardening audit`

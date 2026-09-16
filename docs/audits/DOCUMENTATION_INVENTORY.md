@@ -1,5 +1,7 @@
 # Documentation Inventory
 
+> This inventory reflects the current tracked documentation tree. WU-1 removed only documents whose complete content was classified as implemented/represented, superseded, or historical evidence. Documents retained by the Content Preservation Audit remain listed until their current, future, Owner, or unique information has a current authoritative home.
+
 | Path | Category | Status | Purpose | Notes / Required Action |
 |---|---|---|---|---|
 | `./CHANGELOG.md` | Root / Package Docs | Active | Tracks changes between releases |  |
@@ -30,7 +32,7 @@
 | `./docs/architecture/ADMIN_QUERY_SECURITY_SIGNALS_REBUILD_BLUEPRINT.md` | Architecture Docs | Active (Owner Approved / Runtime Implemented / Complete) | SecuritySignals Admin Query Rebuild Blueprint | Runtime implementation is complete. The primitive cursor placeholder correction is applied, coverage is complete, and the superseded post-legacy-v1 pagination artifacts were deleted. |
 | `./docs/architecture/ADMIN_QUERY_SECURITY_SIGNALS_POST_V1_RETIREMENT_DECISION.md` | Architecture Docs | Active (Owner Decision Applied) | Defines the mandatory retirement boundary for the SecuritySignals post-legacy-v1 wrapper | The seven superseded Runtime/test artifacts were outside the legacy `maatify/event-logging` `v1.0.0` compatibility baseline, their wrapper/cursor contracts were not preserved, and they were deleted atomically in the completed Runtime rebuild. |
 | `./docs/roadmap/ADMIN_QUERY_API_ROADMAP.md` | Roadmap Docs | Active | Current post-legacy-v1 execution roadmap | Phase 4 pagination is complete across all six domains; Phase 5 reporting/dashboard has not started; no release or tag is authorized. |
-| `./docs/audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md` | Historical Audit Docs | Historical | Historical Phase 1 Baseline |  |
+| `./docs/audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md` | Retained Preservation Evidence | Historical | Historical Admin Query compatibility inventory | Retained because current Admin Query documents cite its exact primitive/schema/index compatibility baseline; not current Runtime truth. |
 | `./docs/architecture/logging/CANONICAL_LOGGER_DESIGN_STANDARD.md` | Standards / Architecture Docs | Active | Architectural rules and logging patterns |  |
 | `./docs/architecture/logging/GLOBAL_LOGGING_RULES.md` | Standards / Architecture Docs | Active | Architectural rules and logging patterns |  |
 | `./docs/architecture/logging/LOGGING_MODULE_BLUEPRINT.md` | Standards / Architecture Docs | Active | Architectural rules and logging patterns |  |
@@ -40,32 +42,10 @@
 | `./docs/architecture/logging/UNIFIED_LOGGING_DESIGN.md` | Standards / Architecture Docs | Active | Architectural rules and logging patterns |  |
 | `./docs/architecture/logging/unified-logging-system.ar.md` | Standards / Architecture Docs | Active | Architectural rules and logging patterns |  |
 | `./docs/architecture/logging/unified-logging-system.en.md` | Standards / Architecture Docs | Active | Architectural rules and logging patterns |  |
-| `./docs/audits/ADMIN_READ_BINDING_REFERENCE_ALIGNMENT.md` | Historical Audit Docs | Historical | Past audit record (not active) |  |
-| `./docs/audits/AUDIT_REPORT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions generic logger/recorder/repo, RuntimeException as storage exception |
-| `./docs/audits/DOCUMENTATION_EXCELLENCE_REVIEW.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions SQLite support, Common ClockInterface |
-| `./docs/audits/DOCUMENTATION_FINAL_EXCELLENCE_REVIEW.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions RuntimeException as storage exception |
-| `./docs/audits/DOCUMENTATION_FINAL_VERIFICATION.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions SQLite support, RuntimeException as storage exception, Common ClockInterface, framework bindings (Slim, PHP-DI, etc) |
-| `./docs/audits/DOCUMENTATION_GAP_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions generic logger/recorder/repo, SQLite support, RuntimeException as storage exception, Common ClockInterface, framework bindings (Slim, PHP-DI, etc), host app namespaces (App, Athar, EP4N) |
 | `./docs/audits/DOCUMENTATION_INVENTORY.md` | Active Audit Docs | Active | Current Markdown documentation inventory and cleanup planning aid | Active working audit; should be refreshed when documentation structure changes. |
 | `./docs/audits/FULL_STANDARDS_COMPLIANCE_AUDIT.md` | Active Audit Docs | Active | Full standards compliance audit for the current resolved adoption set | Audited against base SHA `351769df5769f4ab6bd947667c847c79c3f06821`; records confirmed findings, Owner Decisions, verification evidence, and proposed Work Units only. |
-| `./docs/audits/FINAL_DOCUMENTATION_STATE_CLEANUP_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions SQLite support, RuntimeException as storage exception |
-| `./docs/audits/FINAL_INTEGRATION_RELEASE_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions generic logger/recorder/repo, framework bindings (Slim, PHP-DI, etc) |
-| `./docs/audits/FINAL_RELEASE_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions generic logger/recorder/repo, RuntimeException as storage exception, framework bindings (Slim, PHP-DI, etc), host app namespaces (App, Athar, EP4N) |
-| `./docs/audits/FINAL_TESTING_HARDENING_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions generic logger/recorder/repo, SQLite support, framework bindings (Slim, PHP-DI, etc), host app namespaces (App, Athar, EP4N) |
-| `./docs/audits/FULL_ARCHITECTURE_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) |  |
-| `./docs/audits/PHASE_0_DOCS_CLEANUP_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions host app namespaces (App, Athar, EP4N) |
-| `./docs/audits/PHASE_2_FACTORY_PROVIDER_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions generic logger/recorder/repo, RuntimeException as storage exception |
-| `./docs/audits/PHASE_3_CODE_CONSISTENCY_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions RuntimeException as storage exception |
-| `./docs/audits/PHASE_3_PRIMITIVE_READ_SUPPORT_GAP_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions RuntimeException as storage exception |
-| `./docs/audits/PHASE_3_PRIMITIVE_READ_SUPPORT_IMPLEMENTATION_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions RuntimeException as storage exception, framework bindings (Slim, PHP-DI, etc) |
-| `./docs/audits/PHASE_5_VALIDATION_GATE.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions generic logger/recorder/repo, framework bindings (Slim, PHP-DI, etc) |
-| `./docs/audits/PHASE_J_MAATIFY_CORE_CONTRACTS_ALIGNMENT_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions generic logger/recorder/repo, RuntimeException as storage exception, Common ClockInterface, framework bindings (Slim, PHP-DI, etc) |
-| `./docs/audits/POST_PHASE_J_RELEASE_READINESS_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions SQLite support, RuntimeException as storage exception, Common ClockInterface, framework bindings (Slim, PHP-DI, etc) |
+| `./docs/audits/PHASE_J_MAATIFY_CORE_CONTRACTS_ALIGNMENT_AUDIT.md` | Retained Preservation Evidence | Historical | Historical Maatify core contract alignment decision | Retained because it records the accepted ClockInterface compatibility break and the Owner-approved exception/contract migration; not current Runtime truth. |
 | `./docs/audits/ADMIN_QUERY_DELIVERY_OPERATIONS_AUDIT.md` | Active Audit Docs | Active | Current audit and historical baseline for DeliveryOperations Admin Query | Audited against base SHA `7863f6797389a0037045725fe779ebae416cbbbb`; historical discovery gaps and host-usage verification gap remain explicitly labeled. Not an architecture authority. |
-| `./docs/audits/RELEASE_READINESS_GATE.md` | Historical Audit Docs | Historical | Historical release-readiness snapshot for the legacy package identity | Not a current verdict for `maatify/php-event-logging`; retained as historical evidence only. |
-| `./docs/audits/STANDALONE_WORDING_CLARIFICATION_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions zero-dependency standalone, self-contained, dependency-free |
-| `./docs/audits/ADMIN_QUERY_AUTHORITATIVE_AUDIT_AUDIT.md` | Historical Audit Docs | Historical | Historical audit for AuthoritativeAudit remediation | Historical/resolved. Superseded by approved Blueprint. |
-| `./docs/audits/WHOLE_LIBRARY_GAP_AUDIT.md` | Historical Audit Docs | Historical | Past audit record (not active) | Historical wording: mentions SQLite support, RuntimeException as storage exception, Common ClockInterface, framework bindings (Slim, PHP-DI, etc), host app namespaces (App, Athar, EP4N) |
 | `./docs/examples/EXAMPLES_COVERAGE_PLAN.md` | Examples Docs | Active | Code example coverage and plans | Safe guardrail wording: explicitly states SQLite must not be presented as compatible. |
 | `./docs/integration/ADMIN_READ_USAGE.md` | Public Integration Docs | Active | Instructions for integrating primitive reads and Admin Query APIs | Documents host construction, filters, pagination response, sort behavior, and exception boundaries for implemented Admin Query domains. |
 | `./docs/integration/FACTORY_USAGE.md` | Public Integration Docs | Active | Instructions for integrating the package |  |
@@ -74,27 +54,12 @@
 | `./docs/reference/logging/ASCII_FLOW_LEGENDS.md` | Standards / Architecture Docs | Active | Architectural rules and logging patterns |  |
 | `./docs/reference/logging/LOGGING_ASCII_OVERVIEW.md` | Standards / Architecture Docs | Active | Architectural rules and logging patterns |  |
 | `./docs/reference/logging/LOGGING_LIBRARY_STRUCTURE_CANONICAL.md` | Standards / Architecture Docs | Active | Architectural rules and logging patterns | Reviewed: generic/framework mentions are safe guardrails or explicit prohibitions; no current wording update needed. |
-| `./docs/roadmap/EVENT_LOGGING_INTEGRATION_READINESS_ROADMAP.md` | Roadmap Docs | Historical | Completed historical v1.0.0 roadmap | Added status banner identifying it as historical. |
-| `./docs/roadmap/EVENT_LOGGING_RELEASE_READINESS_ROADMAP.md` | Roadmap Docs | Historical | Completed historical v1.0.0 roadmap | Added status banner identifying it as historical. |
 | `./docs/roadmap/TESTING_AND_EXAMPLES_HARDENING_ROADMAP.md` | Roadmap Docs | Active | Future plans and readiness tracks | Reviewed: generic/framework mentions are safe guardrails or explicit prohibitions; no current wording update needed. |
 | `./docs/testing/TEST_COVERAGE_MATRIX.md` | Standards / Architecture Docs | Active | Architectural rules and logging patterns | Pagination row explicitly names the legacy `maatify/event-logging` `v1.0.0` primitive cursor pagination. |
 | `./schema/README.md` | Standards / Architecture Docs | Active | Architectural rules and logging patterns | Reviewed: generic/framework mentions are safe guardrails or explicit prohibitions; no current wording update needed. |
-| `./docs/archive/domain-docs/AuditTrail/CANONICAL_ARCHITECTURE.md` | Domain Docs | Archived | Domain canonical architecture |  |
-| `./docs/archive/domain-docs/AuditTrail/CHECKLIST.md` | Domain Docs | Archived | Domain specific checklist |  |
 | `./src/AuditTrail/README.md` | Domain Docs | Active | Domain overview | Documents primitive query and separate Admin Query pagination API. |
-| `./docs/archive/domain-docs/AuditTrail/TESTING_STRATEGY.md` | Domain Docs | Archived | Domain testing strategy |  |
 | `./src/AuthoritativeAudit/README.md` | Domain Docs | Active | Domain overview |  |
-| `./docs/archive/domain-docs/BehaviorTrace/CANONICAL_ARCHITECTURE.md` | Domain Docs | Archived | Domain canonical architecture |  |
-| `./docs/archive/domain-docs/BehaviorTrace/CHECKLIST.md` | Domain Docs | Archived | Domain specific checklist |  |
 | `./src/BehaviorTrace/README.md` | Domain Docs | Active | Domain overview | Read scope boundary clarified. |
-| `./docs/archive/domain-docs/BehaviorTrace/TESTING_STRATEGY.md` | Domain Docs | Archived | Domain testing strategy |  |
 | `./src/DeliveryOperations/README.md` | Domain Docs | Active | Domain overview |  |
-| `./docs/archive/domain-docs/DiagnosticsTelemetry/CANONICAL_ARCHITECTURE.md` | Domain Docs | Archived | Domain canonical architecture |  |
-| `./docs/archive/domain-docs/DiagnosticsTelemetry/CHECKLIST.md` | Domain Docs | Archived | Domain specific checklist | Needs manual review: mentions host app namespaces (App, Athar, EP4N) |
-| `./docs/archive/domain-docs/DiagnosticsTelemetry/OPEN_QUESTIONS.md` | Domain Docs | Archived | Domain-specific internal documentation (Resolved) |  |
 | `./src/DiagnosticsTelemetry/README.md` | Domain Docs | Active | Domain overview | Read scope boundary clarified. |
-| `./docs/archive/domain-docs/DiagnosticsTelemetry/TESTING_STRATEGY.md` | Domain Docs | Archived | Domain testing strategy |  |
-| `./docs/archive/domain-docs/SecuritySignals/CANONICAL_ARCHITECTURE.md` | Domain Docs | Archived | Domain canonical architecture |  |
-| `./docs/archive/domain-docs/SecuritySignals/CHECKLIST.md` | Domain Docs | Archived | Domain specific checklist |  |
 | `./src/SecuritySignals/README.md` | Domain Docs | Active | Domain overview | Documents recording and separate Admin Query pagination API. |
-| `./docs/archive/domain-docs/SecuritySignals/TESTING_STRATEGY.md` | Domain Docs | Archived | Domain testing strategy |  |
