@@ -147,7 +147,11 @@ For the following domains:
 
 **Infrastructure Contract (Hard Rule):**
 - Storage drivers / repositories MUST remain honest: they MUST NOT swallow.
-- They MUST throw domain-specific storage exceptions.
+- Storage/PDO failures MUST use the applicable domain storage exception.
+- Admin Query validation, configuration, and execution failures MUST use the applicable domain
+  query exceptions.
+- Infrastructure MUST NOT apply domain policy or decide the Recorder's fail-open/fail-closed
+  boundary.
 
 **Recursion Guard (Hard Rule):**
 - Failure reporting MUST NOT call any logging recorder/writer again.

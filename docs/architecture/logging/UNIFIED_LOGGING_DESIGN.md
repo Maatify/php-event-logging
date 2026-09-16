@@ -113,9 +113,10 @@ Recorders prevent:
 
 * MUST be MySQL-specific in the current Runtime.
 * MUST NOT reinterpret policy or classify domains.
-* MUST surface failures through the current domain exception boundary and never swallow.
-* Storage/PDO failures use the applicable domain storage exception; Admin Query
-  validation/configuration/execution failures use the applicable domain query exceptions.
+* MUST surface failures through the current domain exception boundary and never swallow:
+  * Storage/PDO failures use the applicable domain storage exception.
+  * Admin Query validation, configuration, and execution failures use the applicable domain query
+    exceptions.
 
 ### 3.2 Forbidden Shortcuts
 
@@ -219,7 +220,10 @@ Logging must not fail silently in infrastructure unless explicitly permitted by 
 **Recorder Exception Boundary (Hard Rule):**
 - For all **Non-Authoritative** domains, `Recorder::record()` MUST be **fail-open** and MUST NOT throw under any condition.
 - Therefore, the Recorder MUST catch **`Throwable` at the top-level boundary** of `record()`.
-- Infrastructure MUST remain honest (never swallow) and MUST throw **domain-specific storage exceptions**.
+- Infrastructure MUST remain honest (never swallow) and MUST surface failures through the current
+  domain exception boundary: Storage/PDO failures use the applicable domain storage exception;
+  Admin Query validation, configuration, and execution failures use the applicable domain query
+  exceptions.
 - The Recorder MUST swallow after catching `Throwable` (record() MUST NOT throw). If an optional
   PSR-3 logger was supplied, it MAY receive a sanitized diagnostic; no mandatory primitive
   last-resort channel is part of the current Runtime.

@@ -179,7 +179,11 @@ HTTP/UI
 
 #### عقد الـ Infrastructure (قاعدة صارمة)
 - أي Driver / Repository **ممنوع** يبلع Exceptions.
-- يجب رمي Exceptions خاصة بالدومين (Domain-specific storage exceptions).
+- فشل Storage/PDO يجب أن يستخدم استثناء التخزين الخاص بالدومين حسب العقد الحالي.
+- فشل التحقق أو الإعداد أو التنفيذ في Admin Query يجب أن يستخدم استثناءات الاستعلام الخاصة
+  بالدومين حسب العقد الحالي.
+- لا يجوز لطبقة Infrastructure تطبيق Policy الدومين أو تقرير حدّ fail-open/fail-closed الخاص
+  بالـ Recorder.
 - الصدق التشغيلي (Honest failure) إلزامي في طبقة التخزين.
 
 #### منع التكرار اللانهائي (Recursion Guard)

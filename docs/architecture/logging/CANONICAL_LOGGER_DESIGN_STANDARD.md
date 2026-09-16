@@ -83,25 +83,28 @@ remain Policy responsibilities where the current domain contract assigns them th
 ### 2.2 Policy Role (Domain-Specific)
 
 Policy is an independent architectural role, not a new required directory or file. Each domain's
-Policy is responsible for its own normalization and validation according to the current domain
-contract, including only the fields and metadata rules that contract defines.
+Policy is responsible only for the normalization and validation operations explicitly defined by
+that domain's current Policy contract. It is not a universal context assembler or a universal
+safety-enforcement layer.
+
+The current Runtime Policy contracts expose different combinations of domain behavior, including:
+
+* `actor_type` normalization where the domain Policy contract defines it
+* `severity` normalization in the domains whose Policy contracts define it
+* metadata JSON-size validation where the current domain contract defines it
+* AuthoritativeAudit payload validation
+
+No common Policy contract requires every one of these operations for every domain.
 
 The Policy MUST:
 
-* normalize and validate domain-specific context such as:
-
-    * `actor_type`, `actor_id`
-    * `request_id`, `correlation_id`
-    * `route_name`
-    * `ip_address`, `user_agent`
-    * `occurred_at` (**UTC only**)
-* Enforce metadata policy:
-
-    * allowlisted keys
-    * sanitized values
-    * size and oversized-value handling according to the current domain policy and Runtime
-      contract
-* expose only the validation and normalization behavior required by the current domain contract
+* expose and apply only the domain-specific normalization and validation behavior required by the
+  current domain contract
+* preserve that domain's documented fallback, normalization, and validation semantics
+* leave timestamp, event-id, and complete context assembly to the Recorder where the current
+  domain contract assigns those responsibilities
+* not be treated as proof that the canonical safety requirements are enforced universally; those
+  requirements and the open Runtime gap are recorded in Section 6.4
 
 The Policy MUST NOT:
 
