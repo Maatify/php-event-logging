@@ -2,7 +2,7 @@
   "name": "maatify/php-event-logging-consumer-verification-harness",
   "description": "External consumer project used to verify maatify/php-event-logging through Composer.",
   "type": "project",
-  "license": "MIT",
+  "license": "proprietary",
   "repositories": [
     {
       "type": "path",

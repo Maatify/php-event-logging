@@ -1,15 +1,16 @@
 # Admin Query API Architecture
 
-**Status:** Approved Architecture
-**Phase:** Phase 4 Complete
+**Status:** Approved Architecture / Current Runtime
+**Phase:** Phase 4 Complete; Phase 5 Deferred
 
 ## 1. Purpose
 
-This document defines the canonical architecture for Admin pagination, reporting, and dashboard query work inside the `maatify/php-event-logging` package.
+This document defines the current architecture for the six domain-specific Admin Query APIs in
+the `maatify/php-event-logging` package and the boundary for future reporting and dashboard work.
 
 All `v1.0.0` references in this document refer to the inherited compatibility baseline from the legacy `maatify/event-logging` package. They do not indicate that `maatify/php-event-logging` has a published Stable release.
 
-It applies only to work started **after the legacy package's first Stable release (`maatify/event-logging` `v1.0.0`)** and must be read together with:
+It applies to the additive post-legacy-v1 Admin Query path and must be read together with:
 
 - [ADMIN_QUERY_API_ROADMAP.md](../roadmap/ADMIN_QUERY_API_ROADMAP.md)
 - [ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md](../audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md)
@@ -19,8 +20,8 @@ It applies only to work started **after the legacy package's first Stable releas
 The architecture separates three distinct layers:
 
 1. The inherited and protected legacy `maatify/event-logging` `v1.0.0` Runtime compatibility baseline.
-2. Incorrect post-legacy-v1.0 pagination work that must be rebuilt.
-3. The target Admin Query API and later reporting contracts.
+2. The current package-owned, domain-specific Admin Query APIs.
+3. Future reporting and dashboard contracts, which are not implemented.
 
 No implementation is authorized by this document alone.
 
@@ -42,56 +43,43 @@ No Admin pagination or reporting phase may redesign, replace, remove, or silentl
 
 Any internal refactor required by later work must prove through regression coverage that all legacy first-release behavior remains identical.
 
-## 3. Incorrect Post-Legacy-v1.0 Pagination Experiment
+## 3. Superseded Post-Legacy-v1 Pagination Experiment
 
-After the legacy `maatify/event-logging` `v1.0.0` release, a separate pagination feature track introduced additional artifacts in four domains:
+The post-legacy-v1 pagination wrapper family in four domains was an implementation experiment,
+not part of the protected legacy `maatify/event-logging` `v1.0.0` baseline:
 
 - `AuditTrail`
 - `BehaviorTrace`
 - `SecuritySignals`
 - `AuthoritativeAudit`
 
-These artifacts include combinations of:
+These artifacts included combinations of:
 
 - `*PaginatedQueryInterface`
 - cursor/page DTOs
 - `*PaginatedQueryService`
 
-This work is not part of the protected legacy `maatify/event-logging` `v1.0.0` baseline.
+The wrapper family is not current API and is not a compatibility target. It must not be
+generalized or copied to additional domains. The completed replacement implementations use the
+current Admin Query architecture, and the superseded artifacts were retired only with their
+replacement and compatibility gates. Retiring them does not affect any protected legacy
+contract or Runtime behavior.
 
-It was implemented using an architecture that does not follow the approved `maatify/persistence v1.1.0` package standard and was stopped before all six domains were covered.
+## 4. Current Admin Query API
 
-Therefore:
-
-- It must not be generalized or copied to additional domains.
-- It must not be preserved merely because it already exists.
-- Each affected domain must be rebuilt through the approved Admin Query API architecture.
-- Superseded post-legacy-v1.0 pagination artifacts may be removed or retired only after the replacement passes its complete implementation, test, and compatibility gate.
-- Removal or retirement must not affect any contract or Runtime behavior protected by legacy `maatify/event-logging` `v1.0.0`.
-
-## 4. Target Admin Query API
-
-The target Admin Query API is a separate, offset/page-based execution path designed for admin grids, filtering, sorting, and deterministic pagination.
+The Admin Query API is a separate, offset/page-based execution path for host-owned
+administrative screens that need domain-specific filtering, sorting, and deterministic pagination.
 
 It does not replace the primitive Runtime.
 
-It must cover all six domains in the order fixed by the roadmap.
+It is implemented for all six domains:
 
-### 4.1 Rebuild domains
-
-These domains already contain incorrect post-legacy-v1.0 pagination work and must be rebuilt:
-
-1. `AuditTrail` — rebuild POC.
-2. `BehaviorTrace` — rebuild.
-3. `SecuritySignals` — rebuild.
-4. `AuthoritativeAudit` — rebuild last among remediation domains because of its fail-closed behavior and outbox/materialized-log boundary. (Runtime Implemented)
-
-### 4.2 New implementation domains
-
-These domains never received the incorrect post-legacy-v1.0 pagination experiment and require a new Admin Query API path:
-
-5. `DiagnosticsTelemetry` — new implementation. (Runtime Implemented)
-6. `DeliveryOperations` — new implementation after the simpler domains because of its broader state and provider-related query surface. (Runtime Implemented)
+- `AuditTrail`
+- `BehaviorTrace`
+- `SecuritySignals`
+- `AuthoritativeAudit`
+- `DiagnosticsTelemetry`
+- `DeliveryOperations`
 
 The six domains must not be implemented as one bulk generic repository or one cross-domain query layer.
 
@@ -175,9 +163,10 @@ The implementation must:
 - Follow all `PdoPaginationQueryDescriptor` SQL and parameter restrictions.
 - Use explicit selected columns rather than `SELECT *` for the new Admin path.
 
-## 8. Reporting and Dashboard Contracts
+## 8. Reporting and Dashboard Contracts — Future / Not Implemented
 
-Reporting and dashboard summary work is a separate post-legacy-v1.0 phase.
+Reporting and dashboard summary work is a separate future Phase 5 and is not implemented by the
+current Runtime.
 
 It begins only after pagination is complete and stable across all six domains.
 
@@ -197,8 +186,10 @@ Cross-domain reporting queries remain prohibited unless a separate approved arch
 - [EVENT_LOGGING_PACKAGE_REFERENCE.md](../../EVENT_LOGGING_PACKAGE_REFERENCE.md) remains the canonical current Runtime and public API contract.
 - [PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md](PRIMITIVE_READ_QUERY_SUPPORT_DESIGN.md) remains authoritative for the legacy first-release primitive query path.
 - [ADMIN_QUERY_API_ROADMAP.md](../roadmap/ADMIN_QUERY_API_ROADMAP.md) defines the approved post-legacy-v1.0 execution order.
-- [ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md](../audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md) defines the historical Phase 1 baseline. Current per-domain truth is established by the latest approved/reviewable domain blueprint and actual main state.
-- The approved Runtime implementation PRs have now delivered all six Admin Query paths. A future package release remains separately governed and is not implied by this development state.
+- [ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md](../audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md) defines the historical Phase 1 baseline and retained compatibility evidence. It is not current Runtime authority.
+- Current per-domain Runtime truth is established by the current `main` implementation and [EVENT_LOGGING_PACKAGE_REFERENCE.md](../../EVENT_LOGGING_PACKAGE_REFERENCE.md).
+- The current Runtime implementation has delivered all six Admin Query paths. A future package
+  release remains separately governed and is not implied by this development state.
 
 ## 10. Absolute Prohibitions
 
@@ -214,22 +205,23 @@ The following are prohibited:
 - Starting reporting work before all six Admin pagination paths are complete.
 - Skipping any domain from the final pagination or reporting coverage.
 
-## 11. Implementation Sequence
+## 11. Current State and Future Boundary
 
-The approved implementation sequence is:
+- Phase 4 Admin Query pagination is complete across all six domains.
+- The primitive cursor-based path remains protected and separate.
+- Phase 5 reporting and dashboard summary work is future and not implemented.
+- Phase 6 host integration documentation and validation remains separate from this package's
+  current Runtime contracts.
 
-1. Phase 2 — `AuditTrail` pagination rebuild POC.
-2. Phase 3 — rebuild `BehaviorTrace`, then `SecuritySignals`, then `AuthoritativeAudit`.
-3. Phase 4 — add new implementations for `DiagnosticsTelemetry`, then `DeliveryOperations`.
-4. Phase 5 — implement reporting and dashboard summary contracts for all six domains.
-5. Phase 6 — complete host integration documentation and validation.
+The roadmap records sequencing and status; this document records the current architecture. No
+implementation, release, or tag is authorized by this section.
 
 ## 12. Implementation Gate
 
 Phase 3 Remediation Complete.
 Phase 4 Complete.
 All six Admin Query Runtime implementations complete.
-Reporting/dashboard remains blocked pending separate Phase 5 work.
+Reporting/dashboard remains blocked pending separate Phase 5 approval and implementation.
 No release or tag authorized
 
 - `AuditTrail`: Runtime implemented.

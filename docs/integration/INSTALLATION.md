@@ -4,7 +4,7 @@
 
 ## Composer Requirements
 
-This repository is currently under Development. `maatify/php-event-logging` is registered on [Packagist](https://packagist.org/packages/maatify/php-event-logging), but no Stable or RC release, or other published exact SemVer version, is claimed under this identity. To work on the package from its source repository:
+This repository is currently in **Development / Pre-Stable**. `maatify/php-event-logging` is registered on [Packagist](https://packagist.org/packages/maatify/php-event-logging), but no Stable or RC release, or other published exact SemVer version, is claimed under this identity. To work on the package from its source repository:
 
 ```bash
 git clone https://github.com/Maatify/php-event-logging.git

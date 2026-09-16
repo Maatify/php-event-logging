@@ -41,10 +41,33 @@ class MetadataSanitizerTest extends TestCase
 
         $sanitized = MetadataSanitizer::sanitize($metadata);
 
-        /** @var array<string, mixed> $user */
-        $user = $sanitized['user'] ?? [];
+        $user = $sanitized['user'];
+        if (!is_array($user)) {
+            self::fail('Expected sanitized user metadata to remain an array.');
+        }
+
         $this->assertSame('John', $user['name'] ?? null);
         $this->assertSame('[redacted]', $user['password'] ?? null);
+    }
+
+    public function testPreservesNumericKeysAndShapeWithoutMutatingOriginal(): void
+    {
+        $metadata = [
+            0 => ['visible' => 'first', 'password' => 'secret-one'],
+            1 => ['visible' => 'second', 'nested' => ['token' => 'secret-two']],
+            'items' => ['one', 'two'],
+        ];
+
+        $sanitized = MetadataSanitizer::sanitize($metadata);
+
+        $this->assertSame([
+            0 => ['visible' => 'first', 'password' => '[redacted]'],
+            1 => ['visible' => 'second', 'nested' => ['token' => '[redacted]']],
+            'items' => ['one', 'two'],
+        ], $sanitized);
+        $this->assertSame([0, 1, 'items'], array_keys($sanitized));
+        $this->assertSame('secret-one', $metadata[0]['password']);
+        $this->assertSame('secret-two', $metadata[1]['nested']['token']);
     }
 
     public function testCustomSensitiveKeys(): void

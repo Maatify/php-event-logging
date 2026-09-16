@@ -1,9 +1,10 @@
 # 📘 النسخة العربية
 
-## **Unified Logging System — الوثيقة المعمارية النهائية (Source of Truth)**
+## **Unified Logging System — الوثيقة المعمارية المعيارية للدومينات**
 
 **الحالة:** Canonical / Approved
-**الغرض:** المرجع الوحيد المُلزم للتصميم والتنفيذ والمراجعة
+**الغرض:** المرجع المُلزم لدلالات الدومينات وقواعد السلامة، مع خضوعه لترتيب السلطة في المستودع؛
+أما سلوك Runtime العام الحالي فيحكمه `EVENT_LOGGING_PACKAGE_REFERENCE.md`.
 
 ---
 
@@ -19,7 +20,7 @@
 ### المخرجات الأساسية
 
 * كل حدث يُسجَّل في **دومين واحد فقط** (One-Domain Rule)
-* كل دومين يمتلك جدول MySQL مستقل قابل للبحث بالأعمدة
+* كل دومين يملك تخزينًا معزولًا دلاليًا داخل MySQL، وقد يتكون من علاقة أو أكثر مملوكة للدومين
 * منع تسجيل أي أسرار أو بيانات حساسة
 * تصميم قابل للاستخراج لاحقًا كمكتبات مستقلة
 
@@ -61,8 +62,8 @@
     * security posture
     * الصلاحيات
     * السياسات الحاكمة
-* **مصدر الحقيقة:** `authoritative_audit_outbox` (Transactional)
-* `authoritative_audit_log` = materialized view فقط
+* **مصدر الحقيقة:** `maa_event_logging_authoritative_audit_outbox` (Transactional)
+* `maa_event_logging_authoritative_audit_log` = نموذج قراءة materialized فقط
 
 ❌ ممنوع:
 
@@ -129,6 +130,8 @@ HTTP/UI
      → MySQL Storage
 ```
 
+يمثل `HTTP/UI` جهة الاستدعاء في التطبيق المضيف عند حدود التكامل، ولا توفره هذه الحزمة.
+
 ### توزيع المسؤوليات (ملزم)
 
 * **Recorder**
@@ -147,6 +150,11 @@ HTTP/UI
 * Controllers أو Services تكتب Logs مباشرة
 * بناء DTO يدوي خارج Recorder
 
+يوفر Runtime الحالي أيضًا عقود Admin Query مستقلة ومملوكة للحزمة للدومينات الستة. وهي تدعم
+القراءة المتخصصة لكل دومين باستخدام pagination من نوع offset/page، ولا تضيف Controllers أو واجهة
+مستخدم أو صلاحيات أو تقارير أو طبقة استعلام عامة عابرة للدومينات. وتبقى القراءة البدائية القائمة
+على cursor مسارًا منفصلًا ومحميًا.
+
 ---
 
 ## 5.1 دلالات الفشل (Failure Semantics — Canonical)
@@ -164,27 +172,30 @@ HTTP/UI
 - `Recorder::record()` **ممنوع أن يرمي أي Exception** تحت أي ظرف.
 - لذلك **يجب** على الـ Recorder أن يقوم بـ `catch(Throwable)` عند أعلى Boundary داخل `record()`.
 - بعد الإمساك بـ `Throwable`:
-  - يُسمح بالـ swallow (عدم إعادة الرمي)
-  - **لكن يجب** إظهار الفشل تشغيليًا عبر:
-    - PSR-3 logger
-    - أو قناة بدائية أخيرة (مثل `error_log`)
+  - يُسمح بالـ swallow (عدم إعادة الرمي).
+  - إذا تم توفير PSR-3 logger اختياري، فيجوز إرسال تشخيص تشغيلي منقّى إليه.
+  - لا توجد في Runtime الحالية قناة بدائية إلزامية أخيرة.
 - يمنع منعًا باتًا كسر الـ control-flow للتطبيق بسبب logging.
 
 #### عقد الـ Infrastructure (قاعدة صارمة)
 - أي Driver / Repository **ممنوع** يبلع Exceptions.
-- يجب رمي Exceptions خاصة بالدومين (Domain-specific storage exceptions).
+- فشل Storage/PDO يجب أن يستخدم استثناء التخزين الخاص بالدومين حسب العقد الحالي.
+- فشل التحقق أو الإعداد أو التنفيذ في Admin Query يجب أن يستخدم استثناءات الاستعلام الخاصة
+  بالدومين حسب العقد الحالي.
+- لا يجوز لطبقة Infrastructure تطبيق Policy الدومين أو تقرير حدّ fail-open/fail-closed الخاص
+  بالـ Recorder.
 - الصدق التشغيلي (Honest failure) إلزامي في طبقة التخزين.
 
 #### منع التكرار اللانهائي (Recursion Guard)
 - ممنوع أن تؤدي محاولة الإبلاغ عن فشل logging إلى استدعاء Recorder أو Writer آخر.
-- قناة الـ fallback الأخيرة **يجب** أن تكون بدائية:
-  - بدون DTO
-  - بدون UUID
-  - بدون JSON encoding
+- يجب ألا تؤدي معالجة الفشل إلى استدعاء Recorder أو Writer آخر، ولا يجوز الادعاء بوجود قناة
+  primitive بديلة غير منفذة.
 
 ---
 
 ## 6. الحقول المشتركة (Normalized Context)
+
+يتبع كل دومين عقد التخزين الحالي الخاص به. وعند وجود الحقل في العقد، يشمل السياق الموحّد:
 
 * event_id (UUID)
 * actor_type
@@ -195,6 +206,9 @@ HTTP/UI
 * ip_address
 * user_agent
 * occurred_at DATETIME(6)
+
+لا يجوز اختراع حقول غير موجودة في مخطط الدومين؛ فعلى سبيل المثال لا يحتوي AuthoritativeAudit
+على حقل `request_id`.
 
 ### سياسة الوقت
 
@@ -244,10 +258,13 @@ HTTP/UI
 
 ## 9. سياسة metadata JSON
 
-* Structured فقط
-* Minimal keys
-* **الحد الأقصى: 64KB**
-* enforcement في application layer
+* يجب أن تكون metadata منظمة ومحدودة.
+* يتبع حجم metadata ومعالجة القيم المتجاوزة سياسة كل دومين وعقد Runtime الحالي.
+* يجوز للدومينات ذات fail-open تنقية metadata المتجاوزة أو إسقاطها أو استبدالها ثم متابعة التسجيل
+  وفق عقد الدومين.
+* لا تضع هذه الوثيقة حدًا عالميًا أو قاعدة رفض عامة، ولا تخترع سلوكًا لحمولة AuthoritativeAudit
+  غير معرف في Runtime الحالية.
+* لا تعيد الأرشفة المستقبلية تعريف سياسة metadata الخاصة بالـRecorder.
 
 ### استثناء تلف JSON أثناء القراءة (Read-Mapping)
 
@@ -259,26 +276,21 @@ HTTP/UI
 
 ---
 
-## 10. actor_type — القيم المسموحة
+## 10. actor_type — قواعد التطبيع والتحقق
 
-قائمة مغلقة (enum-like):
-
-* SYSTEM
-* ADMIN
-* USER
-* SERVICE
-* API_CLIENT
-* ANONYMOUS
-
-❗ أي قيمة خارج القائمة تُرفض في التطبيق.
+تخضع عملية تطبيع والتحقق من `actor_type` لسياسة وعقد كل دومين في Runtime الحالية. لا تفرض هذه
+الوثيقة قائمة عالمية مغلقة للقيم؛ ويتبع كل دومين القيم والسلوك المحددين في عقده الحالي.
 
 ---
 
 ## 11. التخزين (Baseline)
 
-* MySQL 5.7+
-* جداول منفصلة لكل دومين
-* paging ثابت: `(occurred_at, id)`
+* التخزين في Runtime الحالية هو MySQL فقط (5.7+).
+* التخزين معزول دلاليًا لكل دومين، وليس مطلوبًا أن يستخدم جدولًا واحدًا بالضبط لكل دومين.
+* يملك AuthoritativeAudit جدول `maa_event_logging_authoritative_audit_outbox` بوصفه مصدر الحقيقة
+  authoritative، وجدول `maa_event_logging_authoritative_audit_log` بوصفه نموذج القراءة المادي.
+* MongoDB وأي backend آخر غير MySQL غير مدعوم.
+* paging ثابت: `(occurred_at, id)` حيث ينطبق ذلك على عقد الدومين الحالي.
 
 ### قاعدة تحويل الأرقام (PDO / MySQL)
 
@@ -289,7 +301,7 @@ HTTP/UI
 
 ---
 
-## 12. الأرشفة (Mode B — اختياري)
+## 12. الأرشفة (مؤجلة؛ MySQL → MySQL Mode B فقط)
 
 * MySQL → MySQL
 * جداول `*_archive`
@@ -297,13 +309,19 @@ HTTP/UI
 * بدون Foreign Keys
 * ملف SQL منفصل
 
+هذه قيود مستقبلية فقط. لا ينفذ Runtime الحالي للحزمة الأرشفة أو عمال الاحتفاظ أو القراءة من
+الجداول الساخنة والمؤرشفة. ولا يوجد Mode للأرشفة أو backend غير MySQL؛ راجع `DEFERRED_SCOPE.md`.
+
 ### قاعدة صارمة
 
 > لا حذف من hot table إلا بعد نجاح النقل للأرشيف.
 
 ---
 
-## 13. سياسات تشغيل افتراضية (Operational Policies)
+## 13. سياسات تشغيل مؤجلة (Operational Policies)
+
+القواعد التالية قيود تشغيلية مستقبلية للمستهلكين أو الأرشفة أو عمال التسليم عند اعتمادها بشكل
+منفصل. لا ينفذها Runtime الحالي للحزمة، ويحدد `DEFERRED_SCOPE.md` حدودها الحالية.
 
 ### 13.1 Outbox Processing
 
@@ -346,7 +364,8 @@ HTTP/UI
 
 ## 15. حالة الوثيقة
 
-✅ **Approved — Source of Truth**
-أي تغيير مستقبلي = Architectural Change ويتطلب Review جديدة.
+✅ **دلالات الدومينات معتمدة**
+أي تغيير مستقبلي يُعد تغييرًا معماريًا ويتطلب مراجعة رسمية، مع الحفاظ على التوافق مع مرجع الحزمة
+الجذري وترتيب السلطة في المستودع.
 
 ---

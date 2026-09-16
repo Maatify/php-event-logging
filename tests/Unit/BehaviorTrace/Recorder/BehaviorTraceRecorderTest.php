@@ -77,6 +77,33 @@ final class BehaviorTraceRecorderTest extends TestCase
         $this->assertEmpty($spyLogger->logs);
     }
 
+    public function testSanitizesMetadataBeforeWriterBoundary(): void
+    {
+        $clock = new FixedClock();
+        $writer = $this->createMock(BehaviorTraceWriterInterface::class);
+        $metadata = [
+            'visible' => 'value',
+            'request' => ['authorization' => 'Bearer secret123', 'attempt' => 2],
+        ];
+
+        $writer->expects($this->once())
+            ->method('write')
+            ->with($this->callback(function (BehaviorTraceEventDTO $dto): bool {
+                return $dto->metadata === [
+                    'visible' => 'value',
+                    'request' => ['authorization' => '[redacted]', 'attempt' => 2],
+                ];
+            }));
+
+        (new BehaviorTraceRecorder($writer, $clock))->record(
+            action: 'customer.view',
+            actorType: 'user',
+            metadata: $metadata
+        );
+
+        $this->assertSame('Bearer secret123', $metadata['request']['authorization']);
+    }
+
     public function testFailOpenOnStorageFailure(): void
     {
         $clock = new FixedClock();

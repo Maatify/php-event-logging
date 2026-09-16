@@ -6,13 +6,16 @@ This document defines the complete approved architecture for replacing the super
 
 > **Identity and release-state note:** All references below to `v1.0.0`, the first release, or post-v1 work refer to the inherited compatibility/runtime baseline of legacy `maatify/event-logging` `v1.0.0`. They do not claim a published Stable release for `maatify/php-event-logging`.
 
-It establishes the blueprint for the final remediation phase, ensuring strict fail-closed behavior, protected transaction boundaries, and separation from outbox semantics. PR #118 implemented the approved Runtime contract. The primitive placeholder correction, strict Unit/Regression/live-MySQL coverage, and atomic seven-file retirement are complete.
+It establishes the approved current contract for strict fail-closed behavior, protected
+transaction boundaries, and separation from outbox semantics. The primitive placeholder
+correction, strict Unit/Regression/live-MySQL coverage, and atomic seven-file retirement are
+complete.
 
 ## Owner Decision
 
 - **Owner approval date:** `2026-07-16`
 - The full contract defined in this Blueprint is approved exactly as written.
-- The approved Runtime implementation task/PR is complete.
+- The approved Runtime implementation is complete.
 - The completed Runtime PR:
   - Preserved the contracts protected by legacy `maatify/event-logging` `v1.0.0` completely.
   - Implemented the Admin Query API exactly as documented here.
@@ -20,15 +23,15 @@ It establishes the blueprint for the final remediation phase, ensuring strict fa
   - Provided full coverage (Unit, Regression, and strict real-MySQL Integration).
   - Deleted the 7 superseded Runtime/test artifacts atomically.
   - Updated the final documentation states.
-- **Historical disclaimer:** This approval document did not execute the Runtime implementation itself; the approved Runtime PR did.
+- This approval document defines the contract and does not itself authorize a new Runtime change.
 - **Prohibited Actions:** No tagging, release, schema changes, Composer changes, CI changes, or host wiring are permitted in the documentation PR.
 
 ---
 
-## 1. Audited Baseline
+## 1. Current and Protected Contract
 
-- **Exact audited main SHA:** `fc590f53687935d1f02d5b96782f2349de7e931a`
-- **Purpose:** Rebuild the post-legacy-v1 pagination experiment into Admin Query API architecture.
+- **Purpose:** Preserve the protected primitive contract and define the current
+  AuthoritativeAudit Admin Query API.
 
 ### 1.1 Protected Legacy `maatify/event-logging` `v1.0.0` Contract
 

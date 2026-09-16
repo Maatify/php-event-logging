@@ -163,6 +163,3 @@ composer test
 The normal latest-compatible dependency path runs `composer update`, platform
 checks, Unit, and Regression. CI executes the applicable paths on PHP 8.4 and
 8.5; a local run proves the current PHP environment only.
-
-This phase changes documentation only and does not wire the package into host
-application runtime behavior.

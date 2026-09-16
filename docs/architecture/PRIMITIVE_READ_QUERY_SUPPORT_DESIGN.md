@@ -12,7 +12,14 @@
 *   It must not be used to justify extending the superseded cursor-wrapper experiment.
 
 ## 1. Overview
-This design document outlines the required primitive read/query support for the `maatify/php-event-logging` library, allowing host applications to build admin viewing functionality. It defines strict boundaries: the package provides pure query contracts and DTOs, while the host application owns controllers, dashboard UI, presentation, permissions, localization, exports, and complex host-specific analytics. Future domain-scoped reporting/dashboard summary contracts may be package-owned under the approved Admin Query architecture.
+This design document outlines the required primitive read/query support for the
+`maatify/php-event-logging` library. It defines strict boundaries: the package provides the
+primitive query contracts and DTOs, while the host application owns controllers, dashboard UI,
+presentation, permissions, localization, exports, and complex host-specific analytics.
+
+The package also provides a separate current Admin Query path for all six domains. That additive
+path is governed by `ADMIN_QUERY_API_ARCHITECTURE.md`; it does not change the primitive contract
+defined here. Future domain-scoped reporting and dashboard summary contracts remain deferred.
 
 ## 2. Public Read/Query Contracts
 Each domain MUST implement its own isolated query interface. There MUST NOT be any shared or generic readers.

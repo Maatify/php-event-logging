@@ -83,7 +83,9 @@ Explicit coverage of failure boundaries for each domain type.
 **B. Non-authoritative domains (AuditTrail, SecuritySignals, BehaviorTrace, DiagnosticsTelemetry, DeliveryOperations)**
 - Fail-open behavior validation.
 - Recorder MUST catch `Throwable` at the boundary.
-- Fallback logger is called when storage fails.
+- When an optional fallback logger is supplied, storage and recording failure
+  tests verify the expected diagnostic behavior. Absence of a fallback logger
+  is valid and must preserve fail-open behavior.
 - Fallback logger failure does not leak back to the caller.
 - Repository exceptions are NOT swallowed by the repository itself (only by the recorder).
 - Direct repository usage (bypassing recorder) still throws.
@@ -124,10 +126,12 @@ Define integration test strategy using a disposable MySQL database.
 - Storage failures throw domain-specific exceptions.
 
 **Implementation:**
-- GitHub Actions MySQL service container.
-- Local Docker optional only for running tests locally.
-- Environment variables for test DSN (e.g., `DB_DSN`).
-- Skip integration tests dynamically if DB env is missing, OR separate them into a distinct CI job.
+- GitHub Actions MySQL service container for the required package gate.
+- Local Docker is optional only as a way to run the required tests locally.
+- Environment variables for the test DSN and credentials.
+- When persistence verification is required, real MySQL Integration is a
+  required gate. Missing local MySQL is `UNAVAILABLE`, never `PASS`; CI must
+  fail closed and must not replace the required evidence with a dynamic skip.
 
 ## 6. Regression Tests
 
@@ -156,7 +160,9 @@ Required CI gates:
 - PHP lint (`find src -name "*.php" -exec php -l {} \;`)
 - PHPStan max (`vendor/bin/phpstan analyse -c phpstan.neon`)
 - PHPUnit unit tests (`vendor/bin/phpunit --testsuite Unit`)
-- PHPUnit integration tests (if DB available, `--testsuite Integration`)
+- PHPUnit integration tests against real MySQL (`--testsuite Integration`) when
+  persistence verification is in scope; missing MySQL is `UNAVAILABLE`, not a
+  passing result.
 - Infection/mutation testing as optional future hardening.
 - Test coverage report as optional target.
 
@@ -258,22 +264,26 @@ How examples should be validated:
 
 **Phase I — Final Testing Hardening Audit**
 - **Goal:** Final review of coverage.
-- **Files:** `docs/audits/TESTING_HARDENING_AUDIT.md`.
-- **Validation:** All tests, CI pass.
+- **Record:** Keep the completion review in the corresponding Git and PR history; do not add a historical audit artifact to the current package tree.
+- **Validation:** All required tests and CI gates pass. Completion evidence is
+  recorded in Git and PR history; no historical final-audit document is added
+  to the current package tree.
 - **Out of scope:** Feature additions.
-- **Commit:** `docs(audit): finalize testing hardening audit`
+- **Commit:** `docs(audit): record testing hardening completion`
 
 ## 13. Final Hardening Gate
 
 Gate before the first Stable release under the new package identity:
 - All unit tests pass.
-- Integration tests pass (or are documented as optional CI job).
+- Required real-MySQL Integration tests pass; missing infrastructure is
+  `UNAVAILABLE`, never a passing result or an optional substitute.
 - Examples syntax pass.
 - PHPStan max pass.
 - No architecture regression.
 - Docs updated.
 - No public API drift.
-- Final audit doc created.
+- Completion evidence is recorded in Git and PR history; no final audit
+  document is required in the current tree.
 
 *Important architecture rules maintained throughout:*
 - Do not propose adding framework-specific examples.
@@ -289,6 +299,7 @@ Gate before the first Stable release under the new package identity:
 ## Required Recommendation
 
 The testing and examples hardening described in this roadmap are:
-- **NOT required** for current Integration Release Readiness (the package is already ready for integration).
+- **Not a release authorization:** this roadmap does not declare a Stable or RC
+  release and does not authorize release action.
 - **Recommended** before the first Stable release under the new package identity.
-- **Required** before the first public Stable release under the new package identity.
+- **Required** before the first public Stable release under the new package identity, including the applicable real-MySQL Integration gate.

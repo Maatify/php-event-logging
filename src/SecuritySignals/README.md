@@ -37,6 +37,15 @@ class AuthController {
 }
 ```
 
+The recorder structurally sanitizes nested sensitive metadata before size/encoding handling and
+the writer boundary. It does not perform arbitrary free-text redaction.
+
+`SecuritySignalsRecorder` is the recording, coordinating, and reliability boundary. Its public
+`record()` boundary is fail-open for recording-flow failures; an optional PSR-3 fallback logger
+may receive a diagnostic, and omitting that logger is valid. `SecuritySignalsPolicyInterface`
+remains a separate domain-specific component for actor/severity normalization and metadata-size
+validation.
+
 ## Configuration
 
 Ensure `SecuritySignalsRecorder` is wired in your DI container with:
@@ -51,6 +60,7 @@ For host-owned administrative screens that need deterministic offset pagination,
 use Maatify\EventLogging\SecuritySignals\DTO\SecuritySignalsAdminQueryRequestDTO;
 use Maatify\EventLogging\SecuritySignals\Infrastructure\Mysql\SecuritySignalsAdminQueryMysqlRepository;
 
+// $pdo is a host-provided PDO instance.
 $query = new SecuritySignalsAdminQueryMysqlRepository($pdo);
 
 $page = $query->paginate(new SecuritySignalsAdminQueryRequestDTO(

@@ -2,21 +2,23 @@
 
 ## 1. Overview
 
-To simplify the integration of the `maatify/php-event-logging` package without dictating a specific Dependency Injection container, the package will provide optional, framework-agnostic **Factories** and a **Provider** (Service Map).
+To simplify integration of the `maatify/php-event-logging` package without dictating a specific
+Dependency Injection container, the package provides optional, framework-agnostic **Factories**
+and a **Provider** (Service Map).
 
 These components are designed to construct domain-specific loggers/recorders with explicit dependencies, preserving the isolated boundaries of each logging domain.
 
 ## 2. Factory Design
 
-**Decision: Optional, domain-specific factories will be provided.**
+**Decision: Optional, domain-specific factories are provided.**
 
-Factories will construct each domain logger/recorder. They require explicit dependencies.
+Factories construct each domain logger/recorder. They require explicit dependencies.
 
 ### Construction API / Shape
 
 Each factory will typically require:
 1.  `PDO`: The database connection.
-2.  `ClockInterface`: (e.g., `SystemClock`) For timestamp generation. Must implement `Maatify\SharedCommon\Contracts\ClockInterface`.
+2.  `ClockInterface`: For timestamp generation, supplied from `Maatify\SharedCommon\Contracts\ClockInterface`. A concrete default may use `Maatify\SharedCommon\Infrastructure\SystemClock` with an explicit `DateTimeZone`.
 3.  `?LoggerInterface`: An optional PSR-3 logger. For fail-open domains, this serves as a fallback logger. For the fail-closed AuthoritativeAudit domain, a PSR-3 logger is not a fallback that alters failure semantics; AuthoritativeAudit remains strictly fail-closed.
 4.  `?DomainPolicy`: Optional domain-specific policies where applicable.
 
@@ -58,7 +60,7 @@ final class AuditTrailFactory
 }
 ```
 
-A factory class will be created for each of the six canonical domains:
+A factory class exists for each of the six canonical domains:
 *   `AuthoritativeAuditFactory`
 *   `AuditTrailFactory`
 *   `SecuritySignalsFactory`
@@ -66,13 +68,15 @@ A factory class will be created for each of the six canonical domains:
 *   `DiagnosticsTelemetryFactory`
 *   `DeliveryOperationsFactory`
 
-These factories MUST NOT hide domain boundaries (e.g., they will not return a unified `LoggerInterface` but rather the specific `DomainRecorder`).
+These factories MUST NOT hide domain boundaries (for example, they do not return a unified
+`LoggerInterface`, but rather the specific `DomainRecorder`).
 
 ## 3. Provider / Optional Bindings
 
-**Decision: An optional, framework-agnostic Provider / Service Map and optional pure-PHP binding helper will be included.**
+**Decision: An optional, framework-agnostic Provider / Service Map and optional pure-PHP binding helper are provided.**
 
-To allow host applications to inject a single object that provides access to all event logging capabilities, an `EventLoggingProvider` will be provided.
+To allow host applications to inject a single object that provides access to the recording
+capabilities, an `EventLoggingProvider` is provided.
 
 ### Characteristics:
 *   **Framework-Agnostic:** It is a pure PHP class. It does not implement any framework-specific service provider interface (e.g., Illuminate\Support\ServiceProvider).
@@ -132,7 +136,12 @@ final class EventLoggingProviderFactory
 
 `Maatify\EventLogging\Bootstrap\EventLoggingBindings` provides a pure-PHP `definitions()` map for hosts that want container wiring shortcuts. The helper is optional and does not require PHP-DI, Laravel, Slim, Symfony, or any host namespace. Containers that can consume callable definitions may use it; other hosts can continue wiring the factories manually.
 
-The helper binds `EventLoggingProvider`, typed domain recorders, and domain query interfaces using host-provided `PDO` and `ClockInterface` services. If a host provides `Psr\Log\LoggerInterface`, it is passed through the provider factory only to fail-open domains. `AuthoritativeAudit` remains fail-closed and does not receive a PSR-3 fallback logger.
+The helper binds `EventLoggingProvider`, typed domain recorders, and all six primitive domain query
+interfaces using host-provided `PDO` and `ClockInterface` services. The six Admin Query
+repositories are package-owned public adapters and may be wired by the host through their domain
+contracts. If a host provides `Psr\Log\LoggerInterface`, it is passed through the provider
+factory only to fail-open domains. `AuthoritativeAudit` remains fail-closed and does not receive a
+PSR-3 fallback logger.
 
 ## 4. Alignment with Rules
 

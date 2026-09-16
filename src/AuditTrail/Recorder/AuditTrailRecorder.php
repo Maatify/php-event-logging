@@ -9,6 +9,8 @@ use Maatify\EventLogging\AuditTrail\Contract\AuditTrailLoggerInterface;
 use Maatify\EventLogging\AuditTrail\Contract\AuditTrailPolicyInterface;
 use Maatify\EventLogging\AuditTrail\DTO\AuditTrailRecordDTO;
 use Maatify\EventLogging\AuditTrail\Enum\AuditTrailActorTypeEnum;
+use Maatify\EventLogging\Common\MetadataSanitizer;
+use Maatify\EventLogging\Common\UrlSanitizer;
 use Maatify\SharedCommon\Contracts\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
@@ -78,16 +80,14 @@ class AuditTrailRecorder
     public function recordCommand(RecordAuditTrailCommand $command): void
     {
         try {
-                $referrerPath = $command->referrerPath;
-                if ($referrerPath !== null) {
-                    $parsed = parse_url($referrerPath, PHP_URL_PATH);
-                    $referrerPath = is_string($parsed)
-                        ? $parsed
-                        : explode('?', $referrerPath)[0];
-                }
+                $referrerPath = $command->referrerPath === null
+                    ? null
+                    : UrlSanitizer::sanitizePath($command->referrerPath);
 
                 $normalizedActorType = $this->policy->normalizeActorType($command->actorType);
-                $metadata = $command->metadata;
+                $metadata = $command->metadata === null
+                    ? null
+                    : MetadataSanitizer::sanitize($command->metadata);
 
                 if ($metadata !== null) {
                     try {

@@ -6,18 +6,14 @@ This document defines the complete approved architecture for replacing the super
 
 > **Identity and release-state note:** All references below to `v1.0.0`, the first release, or post-v1 work refer to the inherited compatibility/runtime baseline of legacy `maatify/event-logging` `v1.0.0`. They do not claim a published Stable release for `maatify/php-event-logging`.
 
-It records the Owner decisions made on `2026-07-14`, the post-legacy-v1 retirement rule recorded by `ADMIN_QUERY_SECURITY_SIGNALS_POST_V1_RETIREMENT_DECISION.md`, and final approval of the complete coherent blueprint on `2026-07-15`. The approved Runtime implementation task/PR delivered the documented Runtime; this blueprint does **not** authorize tagging or release work.
+It records the Owner decisions made on `2026-07-14`, the post-legacy-v1 retirement rule recorded
+by `ADMIN_QUERY_SECURITY_SIGNALS_POST_V1_RETIREMENT_DECISION.md`, and final approval of the
+complete coherent blueprint on `2026-07-15`. The current Runtime implements the documented
+contract; this blueprint does **not** authorize tagging or release work.
 
 ---
 
-## 1. Audited Baseline
-
-- **Audit date:** `2026-07-14` (UTC)
-- **Exact audited `main` SHA:** `3169947e107df66f61884abb5c95f1dfa621a69b`
-- **Original PR #102 HEAD:** `d5121cee3a3069aaaaea5dded2521ae1316f5fdb`
-- **Pre-Owner-decision corrected HEAD:** `c4f3b234e1d82b0b08b8207c76b64f46474ec058`
-- **Regressed Owner-decision commit inspected:** `0da1f2f28c5146c84a6cada1c0534eabb401c84a`
-- **Historical post-legacy-v1 pagination origin:** PR #74, `Add SecuritySignals paginated query support`
+## 1. Current and Protected Sources
 
 ### 1.1 Runtime and schema sources reviewed
 
@@ -77,7 +73,7 @@ The audit distinguishes three different contracts:
 2. **Superseded post-legacy-v1 pagination experiment**
    - four Runtime wrapper artifacts;
    - three directly associated unit tests;
-   - introduced by PR #74;
+   - superseded post-legacy-v1 implementation detail;
    - not part of the surface protected by legacy `maatify/event-logging` `v1.0.0`;
    - replaced and deleted atomically inside the approved Runtime rebuild.
 3. **Approved Admin Query path**
@@ -372,7 +368,7 @@ Admin Query calls are direct read operations. Their validation, execution, and s
 
 ## 5. Superseded Post-Legacy-v1 Pagination Experiment
 
-PR #74 introduced exactly these Runtime artifacts:
+The superseded wrapper family consisted exactly of these Runtime artifacts:
 
 ```text
 src/SecuritySignals/Contract/SecuritySignalsPaginatedQueryInterface.php
@@ -381,7 +377,7 @@ src/SecuritySignals/DTO/SecuritySignalsQueryPageDTO.php
 src/SecuritySignals/Service/SecuritySignalsPaginatedQueryService.php
 ```
 
-It introduced exactly these tests:
+The wrapper family included exactly these tests:
 
 ```text
 tests/Unit/SecuritySignals/DTO/SecuritySignalsQueryCursorDTOTest.php
@@ -431,8 +427,6 @@ The package-level Runtime rebuild is atomic:
 3. preserve the primitive behavior protected by legacy `maatify/event-logging` `v1.0.0`;
 4. delete the exact seven superseded post-legacy-v1 artifacts;
 5. update package and integration documentation.
-
-PR #102 and PR #103 were documentation-only and implemented no deletion themselves.
 
 ---
 
@@ -1030,8 +1024,6 @@ This required correction:
 - was delivered with primitive regression coverage;
 - was proven using real MySQL with native prepared statements.
 
-PR #102 documented the requirement but did not implement it.
-
 ---
 
 ## 16. Required Test and Compatibility Matrix
@@ -1389,24 +1381,16 @@ The approval covered the completed Runtime implementation described in this blue
 
 ## 19. Runtime Authorization
 
-PR #102 and PR #103 are merged documentation history. They implemented no SecuritySignals Runtime code or artifact deletion.
-
-The implementation occurred across the following sequence:
-* `907b24b`: added the initial Runtime implementation.
-* `2b4003b`: expanded the Runtime coverage and updated the documentation, but later review identified remaining exception-boundary gaps.
-* `bcadba8`: added the missing exception-boundary tests but opened unauthorized production seams.
-* `4cfb536`: removed those seams and established the final accepted Runtime state.
-
-The Runtime change:
+The current Runtime:
 
 1. implements the exact approved Admin Query public and internal contracts in this blueprint;
 2. preserves every primitive, schema, write-policy, and fail-open behavior protected by legacy `maatify/event-logging` `v1.0.0`;
 3. applies the behavior-preserving native-PDO distinct-placeholder correction;
 4. adds the complete Unit, Regression, and strict real-MySQL Integration coverage defined here;
 5. adds the approved replacement and deletes the exact seven superseded Runtime/test artifacts inside the same Runtime rebuild change set;
-6. searches maintained host repositories and records no discovered wrapper usage;
-7. updates the Package Reference, SecuritySignals README, Admin integration documentation, roadmap, documentation inventory, and changelog as applicable;
-8. passes Composer validation, PHPStan, Unit, Regression, strict real-MySQL Integration, documentation, architecture-boundary, and `git diff --check` gates.
+6. preserves the package and integration documentation boundaries defined by this blueprint;
+7. is subject to Composer validation, PHPStan, Unit, Regression, strict real-MySQL Integration,
+   documentation, architecture-boundary, and `git diff --check` gates.
 
 No tag, release publication, reporting work, dashboard work, schema change, Composer dependency change, CI workflow change, or host framework wiring is authorized by this approval.
 

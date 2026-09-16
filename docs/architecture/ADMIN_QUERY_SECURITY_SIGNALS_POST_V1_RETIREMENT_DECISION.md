@@ -6,7 +6,9 @@ This document records the retirement rule for the SecuritySignals pagination art
 
 > **Identity and release-state note:** The protected release references in this decision refer to the inherited legacy `maatify/event-logging` `v1.0.0` compatibility/runtime baseline. They do not claim a published Stable release for `maatify/php-event-logging`.
 
-It applied to the SecuritySignals Admin Query rebuild documented by PR #102 and supersedes any wording that delayed package-level deletion of the superseded wrapper until a later host-migration or cleanup phase.
+It applies to the completed SecuritySignals Admin Query rebuild and supersedes any wording that
+delayed package-level deletion of the superseded wrapper until a later host-migration or cleanup
+phase.
 
 ---
 

@@ -2,7 +2,7 @@
 
 `maatify/php-event-logging` is the canonical successor framework-agnostic Composer package for Maatify event logging. This document is the single root package-reference source of truth for the package contract, public runtime API, infrastructure adapters, schema ownership, and package-specific standards decisions.
 
-The legacy `maatify/event-logging` `v1.0.0` release remains historical evidence from before this successor package identity was adopted. `maatify/php-event-logging` is registered on [Packagist](https://packagist.org/packages/maatify/php-event-logging), but registration alone is not a published exact SemVer version. This repository does not claim a Stable or RC release under the successor identity; stable consumer installation remains tied to a future Owner-approved exact SemVer release.
+The package is currently in **Development / Pre-Stable**. The legacy `maatify/event-logging` `v1.0.0` release remains historical evidence from before this successor package identity was adopted. `maatify/php-event-logging` is registered on [Packagist](https://packagist.org/packages/maatify/php-event-logging), but registration alone is not a published exact SemVer version. This repository does not claim a Stable or RC release under the successor identity; stable consumer installation remains tied to a future Owner-approved exact SemVer release.
 
 ## 1. Package identity and stable contract
 
@@ -80,7 +80,6 @@ The package exposes `Maatify\EventLogging\` via PSR-4 autoloading. The public ru
 
 ### Shared, factory, provider, and bootstrap classes
 
-- `Maatify\EventLogging\Common\SystemClock`
 - `Maatify\EventLogging\Common\UrlSanitizer`
 - `Maatify\EventLogging\Common\MetadataSanitizer`
 - `Maatify\EventLogging\Factory\AuthoritativeAuditFactory`
@@ -111,11 +110,15 @@ Each domain is isolated. Cross-domain helpers are limited to neutral utilities a
 
 `Common` contains framework-neutral primitives only:
 
-- `SystemClock`: package clock implementation for hosts that want a default `ClockInterface` implementation.
-- `UrlSanitizer`: URL normalization/sanitization helper for logging-safe values.
+- `UrlSanitizer`: URL normalization/sanitization helper for logging-safe values. Its existing `sanitize()` behavior is preserved; `sanitizePath()` is the explicit path-safe boundary for path-only values, query/fragment removal, and deterministic sensitive marker/value redaction.
 - `MetadataSanitizer`: metadata sanitization helper for safe structural metadata.
 
-`Common` is not a shared logging domain and does not own logging policy or persistence.
+`Common` is not a shared logging domain and does not own logging policy or persistence. Clock
+ownership is external to this package: the contract comes from
+`Maatify\SharedCommon\Contracts\ClockInterface`, and the concrete system-clock implementation
+comes from `Maatify\SharedCommon\Infrastructure\SystemClock`. EventLogging owns no duplicate
+clock contract or implementation. Hosts may inject any compatible `ClockInterface`; when a
+concrete default is needed, construct the SharedCommon implementation with an explicit timezone.
 
 ## 6. `Factory` public surface
 
@@ -159,7 +162,7 @@ View DTOs are read/output models returned by primitive query interfaces and read
 
 ## 10. Recorder, writer, and repository responsibilities
 
-Recorders own public recording behavior. They validate command input, apply domain policies, generate event identifiers, normalize metadata, assign timestamps, construct write DTOs, call domain writers/repositories, and enforce each domain's fail-open or fail-closed boundary.
+Recorders own public recording behavior. They validate command input, apply domain policies, generate event identifiers, sanitize structural metadata before size/encoding handling, assign timestamps, construct write DTOs, call domain writers/repositories, and enforce each domain's fail-open or fail-closed boundary. The five non-authoritative Recorders (`AuditTrail`, `SecuritySignals`, `BehaviorTrace`, `DiagnosticsTelemetry`, and `DeliveryOperations`) apply `MetadataSanitizer` before metadata reaches their writer boundary. `AuditTrailRecorder` also applies `UrlSanitizer::sanitizePath()` to `referrerPath` before constructing its write DTO.
 
 Writers and repositories persist already-structured DTOs only. They do not apply policy, generate event ids, normalize actor/severity values, or decide fail-open/fail-closed behavior. Storage failures are wrapped in domain-specific storage exceptions.
 
@@ -475,6 +478,11 @@ Hosts may catch the package marker when they intentionally need a package-wide E
 - **Fail-open at recorder boundary:** `AuditTrail`, `SecuritySignals`, `BehaviorTrace`, `DiagnosticsTelemetry`, and `DeliveryOperations` catch `Throwable` across the full recording flow, including primitive command construction, validation, policy normalization, DTO construction, repository calls, and fallback logger failures. These domains may accept an optional PSR-3 fallback logger for best-effort reporting before swallowing recorder-boundary failures.
 
 Fail-open behavior applies to recorder boundaries only. Concrete repositories still expose storage exceptions when used directly.
+
+The five non-authoritative Recorders sanitize nested sensitive metadata before size validation,
+JSON encoding, DTO construction, and persistence. This structural boundary does not perform
+arbitrary free-text redaction. `AuthoritativeAudit` retains its existing fail-closed payload
+semantics and is not changed by this metadata policy.
 
 ## 15. DTO serialization rules
 

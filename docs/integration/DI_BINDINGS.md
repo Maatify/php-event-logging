@@ -14,12 +14,12 @@ Before using this feature, please understand its boundaries:
 If you choose to use `EventLoggingBindings::definitions()`, your host container must be configured to provide the following dependencies:
 
 1. **`PDO::class`**: A configured PDO connection (compatible with the `utf8mb4_unicode_ci` schema).
-2. **`ClockInterface::class`**: An implementation of `Maatify\SharedCommon\Contracts\ClockInterface` (e.g., `Maatify\EventLogging\Common\SystemClock`).
+2. **`ClockInterface::class`**: An implementation of `Maatify\SharedCommon\Contracts\ClockInterface` (e.g., `Maatify\SharedCommon\Infrastructure\SystemClock`).
 3. **`LoggerInterface::class` (Optional)**: A PSR-3 `LoggerInterface` implementation used as a fallback.
 
 ### Important Note on Fallback Logging
 The optional PSR-3 `LoggerInterface` is **only** used for fail-open domains (e.g., `BehaviorTrace`, `SecuritySignals`).
-The `AuthoritativeAudit` domain explicitly rejects the fallback logger to maintain its strict **fail-closed** guarantee. Storage failures during authoritative auditing will surface as system exceptions rather than silently degrading.
+The `AuthoritativeAudit` domain explicitly rejects the fallback logger to maintain its strict **fail-closed** guarantee. Recording failures during authoritative auditing will surface as exceptions rather than silently degrading.
 
 ## Usage Example
 
@@ -27,8 +27,8 @@ Import the bindings and merge them into your container definitions:
 
 ```php
 use Maatify\EventLogging\Bootstrap\EventLoggingBindings;
-use Maatify\EventLogging\Common\SystemClock;
 use Maatify\SharedCommon\Contracts\ClockInterface;
+use Maatify\SharedCommon\Infrastructure\SystemClock;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -38,7 +38,7 @@ $hostDefinitions = [
         return new PDO('mysql:host=127.0.0.1;dbname=app_db', 'user', 'pass');
     },
     ClockInterface::class => function () {
-        return new SystemClock();
+        return new SystemClock(new \DateTimeZone('UTC'));
     },
     LoggerInterface::class => function () {
         return new NullLogger(); // Optional

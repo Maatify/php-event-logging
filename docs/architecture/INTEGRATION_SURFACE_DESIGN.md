@@ -12,9 +12,10 @@ The boundary between the `maatify/php-event-logging` library and host applicatio
 *   Persistence contracts (`Contract\*`)
 *   Domain repositories (`Infrastructure\Mysql\*`)
 *   Optional framework-agnostic construction helpers (Factories and DI binding helpers)
-*   Domain-scoped Admin Query contracts
-*   Domain filters and trusted query construction
-*   Domain-scoped reporting and dashboard summary contracts
+*   Domain-scoped Admin Query contracts for all six logging domains
+*   Admin Query request/result DTOs and package-owned MySQL adapters
+*   Domain filters, trusted query construction, package-owned row mapping, and query exceptions
+*   Future domain-scoped reporting and dashboard summary contracts only when separately approved
 
 **Host Application owns:**
 *   PDO connection creation and configuration
@@ -22,7 +23,7 @@ The boundary between the `maatify/php-event-logging` library and host applicatio
 *   Dependency Injection (DI) and container wiring
 *   Controllers, routes, and middleware
 *   Permissions, authorization, and actor resolution
-*   Dashboard UI and presentation
+*   Dashboard UI and presentation, including all reporting screens
 *   Export generation
 *   Host-specific orchestration and cross-system analytics
 *   Localization
@@ -55,7 +56,13 @@ The optional `EventLoggingBindings` helper exists only as a convenience map for 
 
 ## 4. Public Contracts
 
-The existing public services, repositories, and contracts defined in `EVENT_LOGGING_PACKAGE_REFERENCE.md` will remain public.
+The existing public services, repositories, and contracts defined in
+`EVENT_LOGGING_PACKAGE_REFERENCE.md` are the current public Runtime surface.
+
+The six domain-scoped Admin Query contracts are current additive Runtime APIs. They do not
+authorize a generic query API, reporting implementation, dashboard implementation, or host
+framework wiring. Reporting and dashboard summary contracts remain future Phase 5 scope under
+`DEFERRED_SCOPE.md` and the Admin Query architecture.
 
 *   `Command\*`: Public input structures for logging.
 *   `Contract\*`: Interfaces for recorders and writers, useful for testing or swapping infrastructure.

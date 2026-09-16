@@ -227,7 +227,6 @@
   - `docs/architecture/ADMIN_QUERY_DIAGNOSTICS_TELEMETRY_BLUEPRINT.md` (Architecture)
   - `docs/architecture/ADMIN_QUERY_SECURITY_SIGNALS_POST_V1_RETIREMENT_DECISION.md` (Architecture)
   - `docs/architecture/ADMIN_QUERY_SECURITY_SIGNALS_REBUILD_BLUEPRINT.md` (Architecture)
-  - `docs/audits/ADMIN_QUERY_AUTHORITATIVE_AUDIT_AUDIT.md` (Audit)
   - `docs/audits/ADMIN_QUERY_DELIVERY_OPERATIONS_AUDIT.md` (Audit)
   - `docs/audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md` (Audit)
   - `docs/integration/ADMIN_READ_USAGE.md` (Integration Documentation)
