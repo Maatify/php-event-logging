@@ -1,26 +1,26 @@
 # 🌐 Global Logging Rules
 
 **Project:** maatify/php-event-logging
-**Status:** CANONICAL (Binding — Subordinate to unified-logging-system.*)
+**Status:** CANONICAL (Binding logging rules — subordinate to repository authority)
 **Audience:** Backend Developers, Security Reviewers, Auditors
-**Last Updated:** 2026-01
-
 **Terminology Source of Truth:**
 
 * `docs/architecture/logging/LOG_DOMAINS_OVERVIEW.md`
 
-**Architecture Source of Truth:**
+**Logging Semantics References:**
 
 * `unified-logging-system.ar.md`
 * `unified-logging-system.en.md`
 
-If a conflict exists, the Unified Logging System documents win.
+If a conflict exists, the repository authority order applies. The root Package Reference governs
+the current public Runtime contract, while `DEFERRED_SCOPE.md` governs unimplemented scope.
 
 ---
 
 ## 1) Purpose
 
-This document defines the **global, canonical rules** for all logging within the Admin Control Panel.
+This document defines the **global, canonical rules** for logging in the package and consuming
+host applications. It does not assume a particular host product or framework.
 
 It exists to enforce:
 
@@ -79,8 +79,8 @@ Authoritative Audit represents **compliance-grade, governance-critical** changes
 
 Authoritative Audit MUST be written via the authoritative pipeline:
 
-* **Authoritative source:** `authoritative_audit_outbox`
-* **Materialized query table:** `authoritative_audit_log`
+* **Authoritative source:** `maa_event_logging_authoritative_audit_outbox`
+* **Materialized query table:** `maa_event_logging_authoritative_audit_log`
 
 Rules:
 
@@ -131,7 +131,7 @@ It is the **only** domain for:
 
 Audit Trail MUST be written to:
 
-* `audit_trail` (MySQL hot table)
+* `maa_event_logging_audit_trail` (MySQL hot table)
 
 ### 5.3 Hard Rule
 
@@ -165,7 +165,7 @@ Security Signals:
 
 Security Signals MUST be written to:
 
-* `security_signals`
+* `maa_event_logging_security_signals`
 
 ### 6.4 Severity Levels
 
@@ -190,7 +190,7 @@ Operational Activity tracks **state-changing actions** that are not governance-g
 
 Operational Activity MUST be written to:
 
-* `operational_activity`
+* `maa_event_logging_behavior_trace`
 
 ### 7.3 Hard Prohibition
 
@@ -230,7 +230,7 @@ Diagnostics Telemetry:
 
 Diagnostics Telemetry MUST be written to:
 
-* `diagnostics_telemetry`
+* `maa_event_logging_diagnostics_telemetry`
 
 ---
 
@@ -250,7 +250,7 @@ Delivery Operations track **asynchronous execution lifecycle**:
 
 Delivery Operations MUST be written to:
 
-* `delivery_operations`
+* `maa_event_logging_delivery_operations`
 
 ---
 
@@ -282,7 +282,9 @@ PSR-3 MUST NOT be used to compensate for missing or skipped domain logging.
 
 ### 11.1 Normalized Context
 
-All domain logs MUST include normalized context:
+Each domain contract defines the normalized context fields it stores. When a field is part of the
+domain schema, it MUST be supplied and normalized as follows; fields absent from a domain schema
+are not invented (for example, AuthoritativeAudit has no `request_id` column):
 
 * `actor_type` (validated enum-like)
 * `actor_id`
@@ -293,18 +295,11 @@ All domain logs MUST include normalized context:
 * `user_agent`
 * `occurred_at` (**UTC only**)
 
-### 11.2 actor_type Allowed Values
+### 11.2 actor_type Normalization and Validation
 
-`actor_type` MUST be one of:
-
-* SYSTEM
-* ADMIN
-* USER
-* SERVICE
-* API_CLIENT
-* ANONYMOUS
-
-Any other value is invalid.
+`actor_type` normalization and validation are governed by each domain's current policy and
+contract. These global rules do not impose one closed set of values or a uniform rejection rule;
+each domain follows its own current contract.
 
 ---
 
@@ -327,7 +322,7 @@ Any other value is invalid.
   * structured
   * minimal
   * allowlisted
-  * **maximum size: 64KB**
+  * size and oversized-value handling follow each domain's current policy and Runtime contract
 * Logs MUST NOT be treated as a source of business truth
   (e.g. permissions, balances, ownership, or state).
 

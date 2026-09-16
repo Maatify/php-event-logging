@@ -6,10 +6,6 @@
 ## Approval Record
 
 - Owner approval was completed on July 22, 2026.
-- The approved blueprint was merged through PR #119.
-- Merge commit: `201d3369c78c6f88e6bb7cba1ae0a442befb0ee2`.
-- Runtime PR #121
-- Merge commit 2f5048fed08db56adf49d320bb7bc9443b2b820d
 - Runtime Implemented / Complete
 - No schema, Composer, CI, host, reporting, dashboard, tag, or release work is authorized.
 
@@ -23,10 +19,9 @@ This document defines the complete approved architecture for adding the new Admi
 - No schema, Composer, CI, host, factory/provider/binding, controller, route, permission, UI, export, dashboard, reporting, or framework-wiring change is authorized.
 - Primitive `find()` and legacy `read()` remain separate supported paths.
 
-## 2. Audited Baseline
+## 2. Current and Protected Sources
 
-- Exact audited `main` SHA: `4070718049aff7cd0b9efa9baba26673930d0ed2`
-- Exact current sources reviewed:
+- Current sources reviewed:
   - Runtime contracts (`DiagnosticsTelemetryQueryInterface`, `DiagnosticsTelemetryLoggerInterface`, `DiagnosticsTelemetryPolicyInterface`)
   - Policy (`DiagnosticsTelemetryDefaultPolicy`)
   - DTOs (`DiagnosticsTelemetryQueryDTO`, `DiagnosticsTelemetryCursorDTO`, `DiagnosticsTelemetryEventDTO`, `DiagnosticsTelemetryContextDTO`)
@@ -410,18 +405,15 @@ The exact Runtime implementation file and test inventory:
 - MySQL `PDO` must be strictly configured with `PDO::ATTR_EMULATE_PREPARES => false`, `PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION`, and `PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC`.
 - Integration tests must gate: exact cursor behavior, microsecond formatting, transaction preservation, metadata hydration, policy behavior, count/data semantic alignment, sorting mechanics, pagination boundaries, and previous-throwable wrapping.
 
-### Completed Runtime Sequence
-The Runtime implementation followed these reviewed stages:
-1. public contracts, DTO validation/serialization, and exceptions;
-2. policy-aware mapper and descriptor builder;
-3. Admin MySQL repository and Unit exception/execution gates;
-4. primitive `find()` distinct-placeholder correction plus complete `find()`/legacy `read()` Regression gates;
-5. strict native-MySQL Admin and primitive Integration gates;
-6. final package/integration/domain documentation and full verification.
+### Current Contract Verification Boundary
+The current implementation is complete only with the documented public contracts, DTO validation
+and serialization, policy-aware mapping, descriptor and exception boundaries, protected primitive
+`find()`/legacy `read()` behavior, and strict native-MySQL Admin and primitive Integration gates.
 
 ## 8. Protected Primitive Correction Details
 
-The distinct-placeholder correction was applied to the primitive `find()` query. At the pre-implementation baseline it reused `:cursor_at`; the completed implementation uses distinct native-PDO placeholders, for example:
+The distinct-placeholder correction is part of the current primitive `find()` query. It uses
+distinct native-PDO placeholders, for example:
 
 ```sql
 (

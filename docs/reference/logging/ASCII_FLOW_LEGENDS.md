@@ -124,10 +124,18 @@ swallow
 * Exception is intentionally silenced
 * Execution continues normally
 
-⚠️ **IMPORTANT RULE**
+⚠️ **CURRENT RUNTIME BOUNDARY**
 
-* `swallow` is **FORBIDDEN** inside libraries
-* `swallow` is **ONLY ALLOWED** at **project policy boundaries**
+* The five non-authoritative package recorders may catch and swallow recording
+  failures at their recorder boundary because their current contracts are
+  fail-open.
+* `AuthoritativeAuditRecorder` is fail-closed and must not catch or swallow
+  recorder-boundary failures.
+* An explicitly supplied PSR-3 logger may receive a diagnostic for a
+  non-authoritative failure. If none is supplied, the current Runtime has no
+  mandatory fallback or reporting channel.
+* Infrastructure and repositories MUST NOT swallow. They translate failures
+  according to the applicable domain storage or query contract.
 
 ---
 
@@ -153,39 +161,41 @@ throws <Subsystem>StorageException
 
 ```
 
-### Interpretation (Locked)
+### Interpretation (Current Boundary)
 
-* Library code:
-
-    * ALWAYS throws
-    * NEVER swallows
-    * NEVER logs silently (no PSR-3)
-* Storage failure is **explicit**
-* Responsibility is transferred upward
+* Storage/PDO failures become the applicable domain storage exception.
+* Admin Query validation, configuration, and execution failures become the
+  applicable domain query exception.
+* Infrastructure does not swallow, apply domain policy, or decide whether a
+  recorder is fail-open or fail-closed.
+* The recorder boundary owns the domain-specific failure semantics: the five
+  non-authoritative recorders catch and swallow recording failures, while
+  `AuthoritativeAuditRecorder` propagates them.
 
 ---
 
-## 5. Canonical Safety Boundary (Project Level)
+## 5. Canonical Recorder Safety Boundary (Package Level)
 
-> SafeRecorder exists only at explicit domain policy boundaries, not ad-hoc helpers.
+> Fail-open handling is part of the explicit non-authoritative package recorder
+> contract. An external `SafeRecorder` is not a required current Runtime role.
 
 ```
 
-Application / Domain
+Application / Host
   |
   v
-Safe<Subsystem>Recorder   (PROJECT POLICY)
+<Subsystem>Recorder        (PACKAGE RECORDER)
   |
   v
-Library Writer            (throws)
+<Subsystem>Writer          (PACKAGE CONTRACT)
   |
   X <Subsystem>StorageException
   |
   v
-SafeRecorder catches
+<Subsystem>Recorder catches (non-authoritative domains only)
   |
   v
-swallow   (optional PSR-3 warning)
+swallow   (optional diagnostic to a supplied PSR-3 logger)
   |
   v
 Main application flow continues
@@ -194,10 +204,13 @@ Main application flow continues
 
 ### Interpretation (Locked)
 
-* **Silence is a PROJECT decision**
-* Library remains honest and strict
-* PSR-3 logging (warning/error) is OPTIONAL and external
-* Business flow MUST NOT break
+* The five non-authoritative package recorder contracts are fail-open.
+* `AuthoritativeAuditRecorder` is the explicit fail-closed exception and does
+  not catch or swallow recorder-boundary failures.
+* A supplied PSR-3 logger MAY receive a diagnostic; reporting is not mandatory
+  when no logger is supplied.
+* The package remains framework-agnostic and does not require a host-side
+  `SafeRecorder` wrapper.
 
 ---
 
@@ -206,30 +219,29 @@ Main application flow continues
 These keywords are **semantic markers** and MUST be respected.
 
 ```
-Library
+Recorder
 ```
 
-* Reusable
-* Stateless
-* Throws custom exceptions
-* No swallow
-* No PSR-3 logging
+* Public package recording/coordinator boundary
+* Delegates domain normalization/validation to the applicable Policy
+* Builds commands/write DTOs as required by the domain contract
+* Applies the domain's fail-open or fail-closed recorder semantics
 
 ```
-Domain
+Policy
 ```
 
-* Business logic
-* May define policy
-* May decide to swallow or escalate
+* Independent domain-specific normalization/validation component
+* Implements only the operations defined by that domain's current contract
+* Does not decide storage failure handling
 
 ```
-SafeRecorder
+Infrastructure / Repository
 ```
 
-* Explicit safety boundary
-* Converts “throwing library” → “best-effort system”
-* ONLY place allowed to silence exceptions
+* Executes storage or query operations
+* Translates failures to applicable domain exceptions
+* MUST NOT swallow, apply domain policy, or choose fail-open/fail-closed
 
 ```
 Application
@@ -237,7 +249,7 @@ Application
 
 * Controllers / Middleware / CLI
 * Must NEVER contain persistence logic
-* Must NEVER swallow storage exceptions directly
+* Must not be presented as a package-owned recorder or storage boundary
 
 ---
 
@@ -252,15 +264,20 @@ Means:
 * Strongly typed object
 * Serializable
 * Has `toArray()` or equivalent
-* NO raw arrays in flow diagrams
+* Ad-hoc associative arrays MUST NOT replace a named command, DTO, or other
+  defined contract
+* Domain-defined metadata arrays may appear where the domain contract allows
+  them
 
-❌ This is FORBIDDEN:
+❌ This is FORBIDDEN as a contract substitute:
 
 ```
 array
 ```
 
-If data is passed → it MUST be named as a DTO.
+If data is passed, the diagram MUST name the applicable command, DTO, or
+contract. It must not imply that every public recorder convenience method is
+RecordDTO-only.
 
 ---
 
@@ -321,15 +338,15 @@ Every ASCII diagram MUST satisfy:
     * `catches` OR
     * `swallow`
 
-2. `swallow` appears ONLY:
+2. `swallow` appears only at the explicit non-authoritative Recorder boundary.
 
-    * In Project / Domain policy layer
+3. Infrastructure diagrams show the applicable domain storage or query
+   exception and never show swallowing.
 
-3. Library diagrams:
+4. AuthoritativeAudit recorder diagrams show propagation rather than
+   swallowing.
 
-    * ALWAYS end with `throws <CustomException>`
-
-4. No diagram relies on reader interpretation
+5. No diagram relies on reader interpretation
 
 Violation of any rule = **Architectural Error**
 

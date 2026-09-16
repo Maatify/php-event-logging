@@ -12,7 +12,9 @@ The unified logging system enforces exactly six distinct logging domains. No add
 ### 1. AuthoritativeAudit
 - **Intent:** Governance, security posture, compliance, and strict state transitions.
 - **Failure Mode:** **Fail-closed**. Storage failures must propagate as exceptions (e.g., `SystemMaatifyException`).
-- **Data Lifecycle:** Immutable. Logged data represents the undeniable source of truth.
+- **Data Lifecycle:** Immutable. `maa_event_logging_authoritative_audit_outbox` is the
+  authoritative source of truth. `maa_event_logging_authoritative_audit_log` is only the
+  materialized read model and must not be treated as the authoritative write-side record.
 
 ### 2. AuditTrail
 - **Intent:** Reads, views, exports, navigation, and data exposure tracking.
@@ -42,3 +44,9 @@ The unified logging system enforces exactly six distinct logging domains. No add
 
 ## 2. Shared Behavior (Fail-Open)
 Except for `AuthoritativeAudit`, all domains are strictly **fail-open**. The `Recorder::record()` methods must catch all `Throwable` exceptions at the boundary, ensuring host applications are not disrupted by logging infrastructure failures. An optional PSR-3 logger may be provided to the package for fail-open fallback logging.
+
+The package exposes both the protected primitive cursor read path and the separate current
+domain-specific Admin Query path for these six domains. Neither path changes the domain
+classification rules above. Retention and archiving are operationally deferred and are governed
+by `DEFERRED_SCOPE.md`; the lifecycle descriptions above do not constitute implemented cleanup
+policies.

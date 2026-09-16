@@ -1,10 +1,14 @@
 # Admin Query API Roadmap
 
-**Status:** Phase 4 Complete; Phase 5 Not Started
+**Status:** Phase 4 Complete; Phase 5 Not Started; No release/tag authorized
 
 ## 1. Scope Boundary
 
 > **Identity and release-state note:** All references below to `v1.0.0`, the first release, or post-v1 work refer to the inherited compatibility/runtime baseline of legacy `maatify/event-logging` `v1.0.0`. They do not claim a published Stable release for `maatify/php-event-logging`.
+
+The successor package `maatify/php-event-logging` currently has no published
+Stable or RC release, and no release or tag is authorized. The current priority
+is RC-readiness certification before any release action.
 
 This roadmap applies only to Admin pagination, reporting, and dashboard work that started **after the legacy package's first Stable release (`maatify/event-logging` `v1.0.0`)**.
 
@@ -57,12 +61,12 @@ The six domains must not be treated as one bulk implementation. Each domain requ
 - **Status:** Complete. ([View Audit](../audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md))
 
 ### Phase 2 — `AuditTrail` Pagination Rebuild POC
-**Status:** [Implemented and Merged / Pending v1.1.0 Release](../architecture/ADMIN_QUERY_AUDIT_TRAIL_POC_BLUEPRINT.md)
+**Status:** [Implemented and Merged / Complete](../architecture/ADMIN_QUERY_AUDIT_TRAIL_POC_BLUEPRINT.md)
 
 - **Classification:** Rebuild of incorrect post-legacy-v1.0 work.
 - **Goal:** Replace the existing post-legacy-v1.0 `AuditTrail` pagination experiment with the correct separate Admin Query API architecture using `maatify/persistence`.
 - **Requirements:** Approved blueprint, package-owned public contract, shared count/data filter source, mapper strategy, exception translation, sort whitelist, and complete regression coverage proving that legacy `maatify/event-logging` `v1.0.0` behavior remains unchanged.
-- **Status:** Implemented and Merged / Pending v1.1.0 Release.
+- **Status:** Implemented and Merged / Complete.
 
 ### Phase 3 — Remaining Post-Legacy-v1.0 Pagination Rebuilds
 

@@ -27,7 +27,9 @@ The domain operates with two tables:
 
 2. **`maa_event_logging_authoritative_audit_log`**
    - The primary schema/read model.
-   - Intended for querying, reporting, and immutable historical reference.
+   - Current materialized read model for primitive and Admin Query reads.
+   - Reporting and dashboard summaries are separate deferred Phase 5 work; this table is not a
+     claim that reporting is implemented.
 
 ## 4. Pipeline & Materialization (Deferred)
 

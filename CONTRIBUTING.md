@@ -103,13 +103,23 @@ To maintain the integrity and standalone nature of this package, all contributio
 * **No host app namespaces:** Code must not reference `App`, `Athar`, `EP4N`, or any project-specific namespaces.
 * **No generic logger API:** The package does not expose a catch-all logging API, generic recorder, or domain-string-routed logger. PSR-3 is only accepted as an optional fallback logger for fail-open domains.
 * **No generic recorder/repository:** Each domain has its own dedicated recorder and repository.
-* **No shared generic `logs` or `event_logs` table:** Each domain corresponds to a specific `maa_event_logging_*` table.
+* **No shared generic `logs` or `event_logs` table:** Storage is
+  domain-isolated; a domain may own more than one package table when its
+  approved architecture requires it. `AuthoritativeAudit` owns its
+  authoritative outbox and materialized read log. There is no universal
+  one-table-per-domain rule.
 * **MySQL/PDO only:** We strictly support MySQL-backed repositories.
 * **Host provides PDO:** The consuming application is responsible for passing an active PDO connection.
 * **No controllers/routes/UI/permissions:** This package does not provide admin screens, API routes, or UI components.
 * **AuthoritativeAudit remains fail-closed:** Storage failures in the AuthoritativeAudit domain must throw exceptions and must not be swallowed.
 * **Fail-open behavior stays at recorder boundary:** For non-authoritative domains, failure swallowing (fail-open) occurs only at the recorder layer, with optional fallback logging.
-* **PSR-3 is an optional fallback:** A PSR-3 `LoggerInterface` is only used as a fallback mechanism for fail-open domains when database storage fails.
+* **PSR-3 is an optional fallback diagnostic sink:** In the five
+  non-authoritative domains, an injected `LoggerInterface` MAY receive
+  diagnostics for recording failures, including domain-specific metadata-size
+  or encoding handling where the current recording path uses it. If no logger
+  is supplied, there is no mandatory fallback or reporting channel and the
+  fail-open recorder contract remains in effect. `AuthoritativeAudit` does not
+  use fallback logging and remains fail-closed.
 
 ## Pull Request Guidelines
 

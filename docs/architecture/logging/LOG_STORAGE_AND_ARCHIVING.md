@@ -1,24 +1,28 @@
 # LOG_STORAGE_AND_ARCHIVING
 
 > **Project:** maatify/php-event-logging
-> **Status:** CANONICAL (Binding — Subordinate to unified-logging-system.*)
-> **Scope:** Defines **baseline storage** and **optional archiving** rules for the Unified Logging System.
+> **Status:** CANONICAL (Binding storage guidance — subordinate to repository authority)
+> **Scope:** Defines the MySQL-only baseline and the deferred MySQL → MySQL Mode B archive
+> contract for the Unified Logging System.
 > **Terminology Source of Truth:** `docs/architecture/logging/LOG_DOMAINS_OVERVIEW.md`
-> **Architecture Source of Truth:**
+> **Logging Semantics References:**
 >
 > * `unified-logging-system.ar.md`
 > * `unified-logging-system.en.md`
-    >   If a conflict exists, the Unified Logging System documents win.
+>
+> If a conflict exists, the repository authority order applies; deferred archive behavior is
+> governed by `../DEFERRED_SCOPE.md`.
 
 ---
 
 ## 0) Baseline First (Hard Rule)
 
-The logging system MUST be **fully correct and complete using MySQL only**.
+The current Runtime persistence MUST be **fully correct and complete using MySQL only**.
 
-* MongoDB or any non-MySQL backend is **NOT assumed**.
-* Archiving is **OPTIONAL** and **NOT required** for baseline correctness.
-* Any archiving implementation MUST:
+* MongoDB and any other non-MySQL backend are **unsupported**; no optional additional runtime
+  backend contract exists.
+* Future archiving is **deferred** and **NOT required** for baseline correctness.
+* Any separately approved future archive implementation MUST:
 
     * Be explicitly enabled
     * Be documented
@@ -32,19 +36,21 @@ This rule exists to ensure portability across constrained or shared hosting envi
 
 ## 1) Baseline Storage Model (MySQL Only)
 
-### 1.1 Canonical Hot Tables
+### 1.1 Canonical Hot Relations
 
-Each logging domain maps to a dedicated MySQL table.
+Persistence is domain-isolated within MySQL. A domain is not required to map to exactly one table;
+its current topology may contain multiple domain-owned tables. The following are the current
+canonical hot relations:
 
 | Domain                    | MySQL Table                  | Notes                                               |
 |---------------------------|------------------------------|-----------------------------------------------------|
-| **Authoritative Audit**   | `authoritative_audit_outbox` | **Authoritative truth**, transactional, fail-closed |
-|                           | `authoritative_audit_log`    | Materialized query table only                       |
-| **Audit Trail**           | `audit_trail`                | Reads, views, exports, navigation                   |
-| **Security Signals**      | `security_signals`           | Auth / policy anomalies                             |
-| **Operational Activity**  | `operational_activity`       | Mutations only                                      |
-| **Diagnostics Telemetry** | `diagnostics_telemetry`      | Technical observability                             |
-| **Delivery Operations**   | `delivery_operations`        | Jobs, queues, notifications                         |
+| **Authoritative Audit**   | `maa_event_logging_authoritative_audit_outbox` | **Authoritative truth**, transactional, fail-closed |
+|                           | `maa_event_logging_authoritative_audit_log`    | Materialized query table only                       |
+| **Audit Trail**           | `maa_event_logging_audit_trail`               | Reads, views, exports, navigation                   |
+| **Security Signals**      | `maa_event_logging_security_signals`          | Auth / policy anomalies                             |
+| **Operational Activity**  | `maa_event_logging_behavior_trace`            | Mutations only                                      |
+| **Diagnostics Telemetry** | `maa_event_logging_diagnostics_telemetry`     | Technical observability                             |
+| **Delivery Operations**   | `maa_event_logging_delivery_operations`       | Jobs, queues, notifications                         |
 
 **Hard rule:**
 Tables are **semantically isolated**. Cross-domain writes are forbidden.
@@ -71,20 +77,18 @@ Recommended starting points (non-binding defaults):
 
 ---
 
-## 3) Optional Archiving Model — Mode B (MySQL → MySQL)
+## 3) Deferred Archiving Model — Mode B (MySQL → MySQL)
 
-Note:
-Any references to Mongo-based archiving (Mode A) in other documents
-(e.g. ASCII overviews) are illustrative only.
-This document defines the ONLY supported and approved archiving model.
-
-
-> **Status:** OPTIONAL / DEFERRED  
+> **Status:** DEFERRED
 > This is the **only supported archiving model**.
+
+This document preserves the future archiving contract and safety constraints. It does not claim
+that archive tables, retention workers, checkpoints, or hot/archive reads are implemented in the
+current package Runtime. See `../DEFERRED_SCOPE.md` for the active deferred-scope boundary.
 
 ### 3.1 Why Mode B
 
-* No dependency on MongoDB or external storage
+* No dependency on unsupported non-MySQL storage
 * Preserves column-based searchability
 * Easy to review, migrate, or disable
 * Aligns with portability and audit requirements
@@ -97,12 +101,12 @@ This document defines the ONLY supported and approved archiving model.
 
 For each hot table, a mirrored archive table MAY exist:
 
-* `audit_trail_archive`
-* `security_signals_archive`
-* `operational_activity_archive`
-* `diagnostics_telemetry_archive`
-* `delivery_operations_archive`
-* *(Optional)* `authoritative_audit_log_archive`
+* `maa_event_logging_audit_trail_archive`
+* `maa_event_logging_security_signals_archive`
+* `maa_event_logging_behavior_trace_archive`
+* `maa_event_logging_diagnostics_telemetry_archive`
+* `maa_event_logging_delivery_operations_archive`
+* *(Optional)* `maa_event_logging_authoritative_audit_log_archive`
 
 **Rules:**
 
@@ -112,7 +116,8 @@ For each hot table, a mirrored archive table MAY exist:
 * NO behavioral logic
 
 > **Important:**
-> Even if archived, **Authoritative Audit truth remains** `authoritative_audit_outbox`.
+> Even if archived, **Authoritative Audit truth remains**
+> `maa_event_logging_authoritative_audit_outbox`.
 
 ---
 
@@ -139,7 +144,7 @@ Eligibility:
 
 ### 5.2 Required Checkpointing
 
-Hard rule:
+Hard rule for a future archiver:
 Checkpoint updates MUST be atomic with archive operations
 to guarantee idempotency and crash safety.
 
@@ -177,7 +182,7 @@ Deletion is **FORBIDDEN** unless archive insert succeeded.
 
 ## 6) Read Strategy (Hot + Archive)
 
-If Mode B is enabled:
+If Mode B is enabled in a separately approved future implementation:
 
 * Recent range → query hot table only
 * Older range → query archive table only
@@ -192,19 +197,24 @@ If Mode B is enabled:
 
 Even if archive tables exist:
 
-* **Authoritative truth** = `authoritative_audit_outbox`
-* `authoritative_audit_log` and `_archive` tables are **materialized views only**
+* **Authoritative truth** = `maa_event_logging_authoritative_audit_outbox`
+* `maa_event_logging_authoritative_audit_log` and archive tables are **materialized views only**
 * Loss of archive data MUST NOT affect governance correctness
 
 ---
 
 ## 8) Operational Safety Policies (Binding)
 
-### 8.1 Metadata Size Policy
+### 8.1 Metadata Handling (Domain Policy)
 
-* `metadata` MUST NOT exceed **64KB**
-* Enforced at application layer
-* Oversized metadata MUST be rejected
+`metadata` size and handling follow the current policy and Runtime contract of each domain. This
+storage document does not impose a global maximum or rejection rule.
+
+For fail-open domains, oversized metadata MAY be sanitized, dropped, or replaced and recording may
+continue according to the domain contract. This document does not invent size or rejection
+behavior for an AuthoritativeAudit payload that the current Runtime does not define.
+
+The future archiver copies stored records and does not redefine recorder metadata policy.
 
 ---
 

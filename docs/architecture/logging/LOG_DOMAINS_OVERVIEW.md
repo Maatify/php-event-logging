@@ -1,13 +1,17 @@
 # LOG_DOMAINS_OVERVIEW
 
 > **Project:** maatify/php-event-logging
-> **Status:** CANONICAL (Binding — Subordinate to unified-logging-system.* as Source of Truth)
+> **Status:** CANONICAL (Binding logging-domain semantics; subordinate to repository authority)
 > **Scope:** Defines the **six** logging domains, their intent, boundaries, and classification rules.
-> **Authority Rule:** This document MUST fully align with:
+> **Authority Rule:** This document MUST align with:
 >
+> * `AGENTS.md`
+> * `EVENT_LOGGING_PACKAGE_REFERENCE.md`
 > * `unified-logging-system.ar.md`
 > * `unified-logging-system.en.md`
-    >   If a conflict exists, the **Unified Logging System documents win**.
+>
+> If a conflict exists, the repository authority order applies; the root Package Reference
+> governs the current public Runtime contract.
 
 ---
 
@@ -65,7 +69,7 @@ The logging system recognizes **exactly six** domains. No additions are allowed.
 **Key properties:**
 
 * Must be written through an **authoritative pipeline** (e.g., outbox → materialized log).
-* **Source of truth:** `authoritative_audit_outbox` (transactional).
+* **Source of truth:** `maa_event_logging_authoritative_audit_outbox` (transactional).
 * Log tables are materialized views only.
 * Must be minimal, structured, and safe (no secrets).
 * Must be **fail-closed**: the governed change MUST NOT commit without a successful outbox write.
@@ -325,7 +329,7 @@ Absence of a domain log is a design error, not a PSR-3 use case.
 * Metadata discipline:
 
   * structured, minimal, allowlisted where possible
-  * **maximum size: 64KB** (enforced at application layer)
+  * size and oversized-value handling follow each domain's current policy and Runtime contract
 * Prefer stable taxonomy keys:
 
   * `event_key`, `signal_type`, `action`, `operation_type`
@@ -341,18 +345,11 @@ Absence of a domain log is a design error, not a PSR-3 use case.
 
 ---
 
-## 7) actor_type Allowed Values
+## 7) actor_type Normalization and Validation
 
-`actor_type` MUST be validated at the application layer and restricted to:
-
-* SYSTEM
-* ADMIN
-* USER
-* SERVICE
-* API_CLIENT
-* ANONYMOUS
-
-Any value outside this set is invalid.
+`actor_type` normalization and validation are governed by each domain's current policy and
+contract. This overview does not impose one closed global set of values or a uniform rejection
+rule; each domain follows its own current contract.
 
 ---
 
@@ -362,4 +359,5 @@ Storage rules, retention guidance, and archiving mechanics are defined in:
 
 * `docs/architecture/logging/LOG_STORAGE_AND_ARCHIVING.md`
 
-**Baseline note:** Archiving is OPTIONAL and not required for the baseline schema.
+**Baseline note:** Archiving is deferred and not required for the baseline schema. The approved
+future archive contract is limited to MySQL → MySQL Mode B.

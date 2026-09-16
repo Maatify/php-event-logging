@@ -2,7 +2,7 @@
 
 > **Project:** maatify/php-event-logging
 > **Status:** NON-BINDING (ASCII overview of unified logging architecture)
-> **Legend Source of Truth:** `ASCII_FLOW_LEGENDS.md`
+> **Legend Source of Truth:** [`ASCII_FLOW_LEGENDS.md`](ASCII_FLOW_LEGENDS.md)
 > **Terminology Source of Truth:** `../../architecture/logging/LOG_DOMAINS_OVERVIEW.md`
 > **Storage Source of Truth:** `../../architecture/logging/LOG_STORAGE_AND_ARCHIVING.md`
 
@@ -32,7 +32,11 @@ Then this file MUST be updated to match them.
 
 * Failure semantics:
   - Authoritative Audit: fail-closed (transactional outbox)
-  - All other domains: fail-open (best-effort)
+  - AuditTrail, SecuritySignals, BehaviorTrace / Operational Activity,
+    DiagnosticsTelemetry, and DeliveryOperations: fail-open at the package
+    Recorder boundary
+  - A supplied PSR-3 logger MAY receive a diagnostic for a non-authoritative
+    failure; no mandatory fallback channel exists when none is supplied
 
 Each logging domain follows the same high-level pipeline shape.
 Only **policy strictness** and **failure semantics** differ by domain.
@@ -47,7 +51,7 @@ Only **policy strictness** and **failure semantics** differ by domain.
                       v
 ┌──────────────────────────────────────┐
 │        Domain Recorder Layer         │
-│  Policy + DTO Construction + Context │
+│  Policy delegation + DTO/context assembly │
 └─────────────────────┬────────────────┘
                       │
                       v
@@ -59,16 +63,17 @@ Only **policy strictness** and **failure semantics** differ by domain.
                       v
 ┌──────────────────────────────────────┐
 │            Storage Layer             │
-│   MySQL Hot (Baseline)               │
-│   + Optional Mongo Archive (Mode A)  │
+│   MySQL only; domain-isolated        │
+│   Current tables use maa_event_logging_* │
 └──────────────────────────────────────┘
 
 ```
 
 **Canonical notes:**
 
-* Recorder is the **only policy boundary**
-* Logger/Writer is **storage-only**
+* Recorder is the public recording/coordinator boundary.
+* Policy is an independent domain-specific normalization/validation component.
+* Logger/Writer is storage-only and follows the domain contract.
 * No controller or service writes logs directly
 * No domain mixes with another
 
@@ -83,7 +88,9 @@ Canonical meanings are defined in `../../architecture/logging/LOG_DOMAINS_OVERVI
 * Governance & security posture changes
 * Fail-closed
 * Authoritative pipeline (outbox → materialized log)
-* Never archived in Mode A
+* The outbox is the authoritative source of truth.
+* The materialized log is the read model used for reads.
+* No archive backend is implemented.
 
 ```
 ┌───────────────────────────────┐
@@ -92,7 +99,7 @@ Canonical meanings are defined in `../../architecture/logging/LOG_DOMAINS_OVERVI
                 │
                 v
 ┌──────────────────────────────────────┐
-│ MySQL: authoritative_audit_outbox    │
+│ MySQL: maa_event_logging_authoritative_audit_outbox │
 └─────────────────────┬────────────────┘
                       │
                       v
@@ -102,16 +109,16 @@ Canonical meanings are defined in `../../architecture/logging/LOG_DOMAINS_OVERVI
                       │
                       v
 ┌──────────────────────────────────────┐
-│ MySQL: authoritative_audit_log       │
+│ MySQL: maa_event_logging_authoritative_audit_log    │
 └──────────────────────────────────────┘
 
 ```
 
 ---
 
-### 2.2 Archive-Eligible Domains (5 Domains)
+### 2.2 Future Archive Scope (5 Domains; Not Implemented)
 
-These domains are **baseline-first** (MySQL) and **optionally archiveable**:
+These domains currently persist to isolated MySQL tables:
 
 * Audit Trail
 * Security Signals
@@ -119,32 +126,31 @@ These domains are **baseline-first** (MySQL) and **optionally archiveable**:
 * Diagnostics Telemetry
 * Delivery Operations
 
-Note:
-This diagram illustrates Mode A (MySQL → Mongo) for visualization purposes.
-Mode B (MySQL → MySQL archive tables) is equally canonical and defined in
-../../architecture/logging/LOG_STORAGE_AND_ARCHIVING.md, but omitted here for visual simplicity.
+The only approved future archive direction is MySQL → MySQL Mode B, as
+described in `../../architecture/logging/LOG_STORAGE_AND_ARCHIVING.md`.
+It is deferred and not part of the current Runtime. MongoDB and a current Mode
+A are unsupported, not alternate visual implementations.
 
 ```
 
 ┌───────────────────────────────┐
-│   MySQL Hot Table (Baseline)  │
+│ Current domain-isolated MySQL │
+│ table(s)                       │
 └───────────────┬───────────────┘
                 │
-                │   (optional Mode A)
-                ├──────────────────────────────▶
-                │                               ┌──────────────────────────────────┐
-                │                               │ Mongo Archive (Quarter Collection) │
-                │                               └──────────────────────────────────┘
-                │
+                │ future, deferred Mode B only
                 v
 ┌───────────────────────────────┐
-│   MySQL Delete After Success  │
+│ Future MySQL archive contract  │
+│ (separate approval required)   │
 └───────────────────────────────┘
 
 ```
 
 **Hard rule:**
-Delete from MySQL is FORBIDDEN unless Mongo write succeeded.
+No current Runtime path may be inferred from this future diagram. A future
+archiver must preserve domain contracts and may not redefine recorder metadata
+or failure policy.
 
 ---
 
@@ -162,10 +168,7 @@ AuditTrailRecorder
    v
 AuditTrailLogger
    │
-   ├──▶ MySQL : audit_trail
-   │
-   └──▶ Mongo : audit_trail_YYYYqN
-                (optional Mode A)
+   └──▶ MySQL : maa_event_logging_audit_trail
 
 ```
 
@@ -183,10 +186,7 @@ SecuritySignalsRecorder
    v
 SecuritySignalsLogger
    │
-   ├──▶ MySQL : security_signals
-   │
-   └──▶ Mongo : security_signals_YYYYqN
-                (optional Mode A)
+   └──▶ MySQL : maa_event_logging_security_signals
 
 ```
 
@@ -204,10 +204,7 @@ OperationalActivityRecorder
    v
 OperationalActivityLogger
    │
-   ├──▶ MySQL : operational_activity
-   │
-   └──▶ Mongo : operational_activity_YYYYqN
-                (optional Mode A)
+   └──▶ MySQL : maa_event_logging_behavior_trace
 
 ```
 
@@ -225,10 +222,7 @@ DiagnosticsTelemetryRecorder
    v
 DiagnosticsTelemetryLogger
    │
-   ├──▶ MySQL : diagnostics_telemetry
-   │
-   └──▶ Mongo : diagnostics_telemetry_YYYYqN
-                (optional Mode A)
+   └──▶ MySQL : maa_event_logging_diagnostics_telemetry
 
 ```
 
@@ -246,10 +240,7 @@ DeliveryOperationsRecorder
    v
 DeliveryOperationsLogger
    │
-   ├──▶ MySQL : delivery_operations
-   │
-   └──▶ Mongo : delivery_operations_YYYYqN
-                (optional Mode A)
+   └──▶ MySQL : maa_event_logging_delivery_operations
 
 ```
 
@@ -268,13 +259,13 @@ AuthoritativeAuditRecorder
 Outbox Writer
    │
    v
-MySQL : authoritative_audit_outbox
+MySQL : maa_event_logging_authoritative_audit_outbox
    │
    v
 Outbox Consumer / Materializer
    │
    v
-MySQL : authoritative_audit_log
+MySQL : maa_event_logging_authoritative_audit_log
 
 ```
 
@@ -288,7 +279,7 @@ MySQL : authoritative_audit_log
 Request Range
 |
 v
-MySQL (hot tables only)
+MySQL (current domain-isolated tables only)
 |
 v
 Response
@@ -296,23 +287,15 @@ Response
 
 ---
 
-### 4.2 Mode A Enabled (Hot + Cold)
+### 4.2 Future Mode B (MySQL → MySQL; Deferred)
 
 ```
 
 Request Range
    │
-   ├──▶ Hot Only   ─────────────▶ MySQL
+   ├──▶ Current MySQL read model
    │
-   ├──▶ Cold Only  ─────────────▶ Mongo
-   │
-   └──▶ Mixed      ─────────────▶ MySQL + Mongo
-                                     │
-                                     v
-                                   Merge
-                                     │
-                                     v
-                                  Response
+   └──▶ Future MySQL archive read path (deferred)
 
 ```
 
@@ -417,5 +400,6 @@ All authority remains with:
 * `../../architecture/logging/LOG_DOMAINS_OVERVIEW.md`
 * `../../architecture/logging/GLOBAL_LOGGING_RULES.md`
 * `../../architecture/logging/UNIFIED_LOGGING_DESIGN.md`
+* `../../architecture/logging/LOG_STORAGE_AND_ARCHIVING.md`
 
 **END OF FILE**
