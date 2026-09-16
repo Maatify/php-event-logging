@@ -3,10 +3,6 @@
 [![Maatify Event Logging](https://img.shields.io/badge/Maatify-EVENT--LOGGING-blue?style=for-the-badge)](https://github.com/Maatify/php-event-logging)
 [![Maatify Ecosystem](https://img.shields.io/badge/Maatify-Ecosystem-9C27B0?style=for-the-badge)](https://github.com/Maatify)
 
-## Publication Lifecycle Status
-
-This project is currently in **Development / Pre-Stable** phase.
-
 ## Our Pledge
 
 We as members, contributors, and leaders pledge to make participation in our project and our community a harassment-free experience for everyone, regardless of age, body size, visible or invisible disability, ethnicity, sex characteristics, gender identity and expression, level of experience, education, socio-economic status, nationality, personal appearance, race, religion, or sexual identity and orientation.

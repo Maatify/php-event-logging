@@ -20,6 +20,9 @@ The `1.0.0` entry below is a historical record of the legacy `maatify/event-logg
 - Corrected primitive `find()` cursor placeholders for native PDO prepared statements without changing cursor semantics across domains.
 - Updated blueprints, package references, integration guides, and domain READMEs to reflect the current post-legacy-v1 Admin Query architecture.
 - Polished Composer metadata (`composer.json`) to accurately reflect package scope, requirements, and dependencies.
+- Replaced the local `SystemClock` implementation with a direct dependency on `maatify/shared-common` `ClockInterface`.
+- Enforced path-safe referrer sanitization in the AuditTrail domain.
+- Enforced structural metadata sanitization before persistence in the five non-authoritative domains.
 
 ### Removed
 - Removed superseded pagination wrapper artifacts that were not protected contracts of the legacy `maatify/event-logging` `v1.0.0` compatibility baseline.
