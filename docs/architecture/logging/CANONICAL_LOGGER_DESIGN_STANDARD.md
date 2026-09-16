@@ -51,23 +51,44 @@ not a shared event.
 
 Every logging domain implementation MUST contain the following layers:
 
-1. **Recorder (Policy Boundary)**
-2. **Contract (Writer / Logger Interface)**
-3. **DTO Layer (Strong Types Only)**
-4. **Infrastructure Driver (Storage Adapter)**
+1. **Recorder (Public Recording / Coordinator Boundary)**
+2. **Policy (Domain-Specific Normalization / Validation Role)**
+3. **Contract (Writer / Logger Interface)**
+4. **DTO Layer (Strong Types Only)**
+5. **Infrastructure Driver (Storage Adapter)**
 
 No layer may be skipped or merged.
 
 ---
 
-### 2.1 Recorder Layer (Policy Boundary)
+### 2.1 Recorder Layer (Public Recording / Coordinator Boundary)
 
-The Recorder is the **only policy-aware component**.
+The Recorder is the public recording and coordination boundary. It delegates domain-specific
+normalization and validation to the independent domain Policy, builds the applicable command or
+write DTO, and delegates persistence to the domain writer.
 
 #### Mandatory Responsibilities
 
-* Construct domain DTOs
-* Normalize context:
+* Accept the documented public recording inputs, including primitive/enum convenience methods and
+  domain commands where the current contract provides them
+* Delegate domain-specific normalization and validation to the Policy
+* Build the applicable command or write DTO required by the current domain contract
+* Delegate persistence to the domain writer
+* Coordinate the current domain's reliability boundary; swallowing is allowed only for
+  non-authoritative best-effort recorder contracts
+
+The Recorder MUST NOT be treated as the owner of every policy rule. Context and metadata handling
+remain Policy responsibilities where the current domain contract assigns them there.
+
+### 2.2 Policy Role (Domain-Specific)
+
+Policy is an independent architectural role, not a new required directory or file. Each domain's
+Policy is responsible for its own normalization and validation according to the current domain
+contract, including only the fields and metadata rules that contract defines.
+
+The Policy MUST:
+
+* normalize and validate domain-specific context such as:
 
     * `actor_type`, `actor_id`
     * `request_id`, `correlation_id`
@@ -80,17 +101,17 @@ The Recorder is the **only policy-aware component**.
     * sanitized values
     * size and oversized-value handling according to the current domain policy and Runtime
       contract
-* Decide whether storage failures may be swallowed (best-effort domains only)
+* expose only the validation and normalization behavior required by the current domain contract
 
-#### Forbidden Responsibilities
+The Policy MUST NOT:
 
 * SQL or storage logic
 * Infrastructure concerns
-* Business decisions unrelated to logging policy
+* decide the Recorder's fail-open or fail-closed boundary
 
 ---
 
-### 2.2 Contract Layer (Interfaces)
+### 2.3 Contract Layer (Interfaces)
 
 Each domain MUST define a stable, explicit contract.
 
@@ -109,15 +130,26 @@ Examples (conceptual, not code):
 * `write(DomainWriteDTO $dto): void`
 * `find(DomainQueryDTO $query): array`
 
-❌ Raw arrays are FORBIDDEN.
+Ad-hoc associative arrays MUST NOT substitute for defined commands, DTOs, or contracts. Domain-
+defined `metadata` arrays are permitted where the current domain contract allows them and MUST
+follow that domain's Policy.
 
 ---
 
-### 2.3 DTO Layer (Strict Discipline)
+### 2.4 DTO Layer (Strict Discipline)
 
-DTO discipline applies to writer, storage, and query contracts where the current domain contract
-defines a DTO boundary. It does not prohibit documented public recorder convenience methods with
-primitive or enum inputs.
+DTO discipline applies at the boundary where the current domain contract defines a DTO. The
+following types are distinct and must not inherit one another's semantics:
+
+* **Commands:** Public mutation input contracts for recorder command methods.
+* **Write/persistence DTOs:** Recorder-to-writer values required by the current write and storage
+  contracts.
+* **Query/request DTOs:** Read filters and pagination inputs governed by the current query
+  contract.
+* **Page/result/view DTOs:** Read-side output and pagination result values governed by the current
+  read contract.
+
+Documented public recorder convenience methods may continue to accept primitive or enum inputs.
 
 #### Naming Rules
 
@@ -128,10 +160,10 @@ primitive or enum inputs.
 
 * Immutable (readonly where possible)
 * Serializable into primitives only
-* Contain:
+* Contain only the fields required by their own current boundary contract, such as:
 
     * domain-specific fields
-    * normalized context fields
+    * applicable context fields
 * MUST NOT contain:
 
     * secrets
@@ -140,7 +172,7 @@ primitive or enum inputs.
 
 ---
 
-### 2.4 Infrastructure Drivers (Storage Adapters)
+### 2.5 Infrastructure Drivers (Storage Adapters)
 
 Infrastructure drivers implement the domain contract and perform **I/O only**.
 
@@ -150,7 +182,16 @@ Infrastructure drivers implement the domain contract and perform **I/O only**.
 * MUST NOT swallow exceptions
 * Infrastructure drivers MUST be logging-silent.  
   All observability belongs to the Recorder or Host Application.
-* MUST throw **domain-specific storage exceptions**
+* MUST surface failures through the current domain exception boundary
+* MUST NOT decide domain policy or the Recorder's fail-open/fail-closed behavior
+
+#### Exception Boundaries
+
+* Storage/PDO failures MUST be translated to the applicable domain storage exception.
+* Admin Query validation, configuration, and execution failures MUST use the applicable domain
+  query exceptions defined by the current contract.
+* These query exception boundaries are not required to be storage exceptions merely because the
+  implementation is located under Infrastructure.
 
 Supported baseline driver:
 
@@ -294,6 +335,23 @@ Metadata MUST be:
 
 Raw payload dumps are FORBIDDEN.
 
+### 6.4 Current Runtime Gap / RC Blocker
+
+The safety rules in this section remain canonical architectural requirements. They do not prove
+that the current Runtime already enforces every requirement.
+
+The current Runtime has an open **Current Runtime gap / RC blocker**:
+
+* `AuditTrailRecorder` strips query strings from `referrerPath` but does not currently mask or
+  hash sensitive path segments.
+* `Common\UrlSanitizer` does not currently satisfy the canonical path-only plus sensitive
+  path-segment masking requirement.
+* Non-authoritative metadata sanitization is not universally enforced at Recorder boundaries. The
+  existence of `Common\MetadataSanitizer` alone does not prove enforcement.
+
+This is not deferred optional functionality and is not a Host-only responsibility. WU-2 records
+the gap only; a separate Runtime remediation WU must close it before RC.
+
 ---
 
 ## 7) Taxonomy & Naming Standards
@@ -330,7 +388,8 @@ A logging domain implementation is compliant ONLY if:
 * Infrastructure throws honest exceptions
 * Recorder is the only swallow boundary (if any)
 * Context normalization is complete and UTC-based
-* Data safety rules are enforced
+* Data safety rules remain canonical requirements; current enforcement status is tracked in
+  Section 6.4 as an open RC blocker
 * Storage targets are correct and exclusive
 
 ---

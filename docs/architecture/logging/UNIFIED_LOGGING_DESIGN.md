@@ -49,7 +49,10 @@ All logging domains follow the same conceptual pipeline:
 HTTP / UI / Controllers
 |
 v
-Domain Recorder (policy + context)
+Domain Recorder (public coordination boundary)
+|
+v
+Domain Policy (domain-specific normalization / validation)
 |
 v
 Domain Logger / Writer (storage adapter interface)
@@ -61,13 +64,19 @@ Storage Driver (MySQL only)
 `HTTP / UI / Controllers` are host-side callers shown at the integration boundary; they are not
 components shipped by this package.
 
-### 2.1 What “Recorder” Means (Mandatory)
+### 2.1 Recorder and Policy Roles (Mandatory)
 
-A Recorder is the **single** place where:
+A Recorder is the public recording and coordination boundary. It:
 
-* event policy is applied (what to log, when, what metadata is allowed)
-* request context is normalized (actor, correlation, requestId, routeName, ip, userAgent)
-* DTO construction is centralized
+* accepts the documented public recording inputs
+* delegates domain-specific normalization and validation to the independent domain Policy
+* builds the applicable command or write DTO
+* delegates persistence to the domain writer
+* coordinates the current domain's reliability boundary
+
+The domain Policy is a separate architectural role responsible for domain-specific normalization
+and validation under the current domain contract. It does not perform storage I/O or decide the
+Recorder's fail-open/fail-closed boundary.
 
 Recorders prevent:
 
@@ -94,16 +103,19 @@ Recorders prevent:
 
 **Recorders**
 
-* MUST be pure “policy + DTO construction” using safe context.
+* MUST coordinate public recording, applicable Policy delegation, command/write DTO construction,
+  and writer delegation.
 * MUST NOT contain SQL / direct storage logic.
-* MUST apply the current domain policy for data safety and metadata handling (see Section 9 and
+* MUST delegate current domain policy for data safety and metadata handling (see Section 9 and
   Section 14).
 
 **Infrastructure Drivers**
 
 * MUST be MySQL-specific in the current Runtime.
 * MUST NOT reinterpret policy or classify domains.
-* MUST throw domain-specific storage exceptions (never swallow).
+* MUST surface failures through the current domain exception boundary and never swallow.
+* Storage/PDO failures use the applicable domain storage exception; Admin Query
+  validation/configuration/execution failures use the applicable domain query exceptions.
 
 ### 3.2 Forbidden Shortcuts
 
@@ -376,6 +388,23 @@ Logging must NEVER store:
 * keep JSON minimal and structured
 * apply the current domain policy for size and oversized-metadata handling (Section 14.1)
 
+### 9.3 Current Runtime Gap / RC Blocker
+
+The safety rules above remain canonical architectural requirements. They do not prove that the
+current Runtime already enforces every requirement.
+
+The current Runtime has an open **Current Runtime gap / RC blocker**:
+
+* `AuditTrailRecorder` strips query strings from `referrerPath` but does not currently mask or
+  hash sensitive path segments.
+* `Common\UrlSanitizer` does not currently satisfy the canonical path-only plus sensitive
+  path-segment masking requirement.
+* Non-authoritative metadata sanitization is not universally enforced at Recorder boundaries. The
+  existence of `Common\MetadataSanitizer` alone does not prove enforcement.
+
+This is not deferred optional functionality and is not a Host-only responsibility. WU-2 records
+the gap only; a separate Runtime remediation WU must close it before RC.
+
 ---
 
 ## 10) Naming & Taxonomy Rules
@@ -421,7 +450,7 @@ This implies:
 A logging implementation is compliant only if:
 
 * It is classified into exactly one of the six domains.
-* It routes through a domain recorder (policy + context).
+* It routes through a domain recorder and the applicable domain Policy.
 * Infrastructure does not silently swallow exceptions.
 * Telemetry is not used for access tracking.
 * Operational Activity does not contain reads/views.
