@@ -101,11 +101,21 @@ Any change to:
 - Security or sanitization rules
 - Storage or archiving guarantees
 
-- Fail-open guarantees (Recorder exception boundary)
-  - `Recorder::record()` MUST NOT throw under any condition.
-  - `Throwable` MUST be caught ONLY at the Recorder boundary (top-level).
+- Fail-open guarantees (Recorder exception boundary) apply only to:
+  - `AuditTrail`
+  - `SecuritySignals`
+  - `BehaviorTrace` / `Operational Activity`
+  - `DiagnosticsTelemetry`
+  - `DeliveryOperations`
+  - Each listed domain's `Recorder::record()` MUST NOT throw to the caller due to a recording failure.
+  - For these domains, `Throwable` MUST be caught ONLY at the Recorder boundary (top-level).
+  - An optional supplied PSR-3 logger MAY receive a sanitized diagnostic; no reporting or fallback
+    channel is mandatory.
   - Swallowing is forbidden in Infrastructure / Repository / DTO layers (they MUST throw domain custom exceptions).
-  - The only tolerated best-effort swallow is metadata decode corruption during read-mapping (metadata => null).
+  - The only separate read-side swallow permitted is metadata decode corruption during read-mapping (metadata => null).
+- `AuthoritativeAudit` is the explicit fail-closed exception:
+  - Its Recorder MUST NOT catch or swallow recorder-boundary failures.
+  - Integrity and storage failures MUST propagate; the transactional outbox guarantee is not replaced by best-effort handling.
 
 
 is considered an **Architectural Change**
@@ -118,5 +128,4 @@ No silent or ad-hoc changes are allowed.
 ## ✅ Status
 
 - **Architecture:** Approved
-- **Reviews:** Completed (4 independent reviews)
 - **Stability:** Approved logging architecture; subordinate to repository authority

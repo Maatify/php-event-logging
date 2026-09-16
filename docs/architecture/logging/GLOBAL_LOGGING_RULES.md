@@ -3,8 +3,6 @@
 **Project:** maatify/php-event-logging
 **Status:** CANONICAL (Binding logging rules — subordinate to repository authority)
 **Audience:** Backend Developers, Security Reviewers, Auditors
-**Last Updated:** 2026-01
-
 **Terminology Source of Truth:**
 
 * `docs/architecture/logging/LOG_DOMAINS_OVERVIEW.md`

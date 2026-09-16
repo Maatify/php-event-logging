@@ -4,7 +4,7 @@
 > **Status:** CANONICAL (Binding logging standard — subordinate to repository authority)
 > **Scope:** Defines the **mandatory design standard** for building any logging domain as a framework-agnostic standalone, extractable library (uses explicit Composer/runtime dependencies).
 > **Terminology Source of Truth:** `docs/architecture/logging/LOG_DOMAINS_OVERVIEW.md`
-> **ASCII Language Source of Truth:** `docs/architecture/logging/ASCII_FLOW_LEGENDS.md`
+> **ASCII Language Source of Truth:** [`ASCII_FLOW_LEGENDS.md`](../../reference/logging/ASCII_FLOW_LEGENDS.md)
 > **Logging Semantics References:**
 >
 > * `unified-logging-system.ar.md`
@@ -314,7 +314,7 @@ Free-text strings MUST NOT be used as primary classifiers.
 
 All diagrams describing logging behavior MUST comply with:
 
-* `ASCII_FLOW_LEGENDS.md`
+* [`ASCII_FLOW_LEGENDS.md`](../../reference/logging/ASCII_FLOW_LEGENDS.md)
 
 Custom arrows, implicit semantics, or informal notation are INVALID.
 

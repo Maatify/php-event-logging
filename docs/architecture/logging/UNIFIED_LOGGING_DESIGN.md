@@ -396,7 +396,7 @@ Avoid free-text strings where structured enums/taxonomy exist.
 
 ASCII diagrams must follow:
 
-* `docs/architecture/logging/ASCII_FLOW_LEGENDS.md`
+* [`ASCII Flow Legends`](../../reference/logging/ASCII_FLOW_LEGENDS.md)
 
 No alternative symbols, no informal arrows, no custom markers.
 All flow diagrams must use the canonical legend.

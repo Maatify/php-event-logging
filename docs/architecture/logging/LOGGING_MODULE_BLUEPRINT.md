@@ -37,7 +37,7 @@ The module is a strict **Black Box**. The single canonical root Package Referenc
 ### Inside the Module (The Library)
 - **Recorder:** The entry point for writing.
 - **Policy:** The logic for validation and normalization.
-- **DTOs:** The strict data structure contracts.
+- **DTOs:** Domain-specific command, write, query, page, and view types where the current contract defines them.
 - **Contracts:** The interfaces for storage.
 - **Infrastructure:** The default storage drivers (e.g., MySQL).
 - **Admin Query contracts:** Domain-specific offset/page request and result contracts for the
@@ -63,31 +63,31 @@ The module is a strict **Black Box**. The single canonical root Package Referenc
 
 ---
 
-## 3. Mandatory Directory Structure
+## 3. Mandatory Structural Roles
 
-A logging module MUST follow this structure to ensure predictability and separation of concerns.
+A logging module MUST provide these structural roles to ensure predictability and separation of
+concerns. The exact filenames and optional classes follow each domain's current contract; this
+blueprint does not require files that are not present in the package.
 
 ```text
 ModuleName/
-├── Contract/          # Interfaces (Writer, Reader, Policy)
-├── DTO/               # Immutable Data Transfer Objects
-├── Database/          # Canonical SQL Schema
-├── Enum/              # Domain enum types (Severity, ActorType where applicable)
-├── Exception/         # Domain-specific Exceptions
-├── Infrastructure/    # Storage Drivers (MySQL, etc.)
-├── Recorder/          # The Public Entry Point & Logic
-│   ├── {Name}Recorder.php
-│   └── {Name}DefaultPolicy.php
-├── README.md          # Usage Documentation
-└── TESTING_STRATEGY.md # Testing Rules
+├── Contract/          # Domain writer, reader, and policy contracts
+├── DTO/               # Domain write, query, page, and view transfer types where applicable
+├── Database/          # Domain-owned SQL schema role
+├── Enum/              # Domain enum types where applicable
+├── Exception/         # Domain-specific exception role
+├── Infrastructure/    # MySQL storage adapter role
+└── Recorder/          # Public recording entry point and policy boundary
 ```
 
 The root Package Reference is not duplicated inside each domain module. The package uses the
 current namespace `Maatify\EventLogging\<Domain>` for its domain-owned contracts and types.
+The package-level [`TESTING_STRATEGY.md`](../../../TESTING_STRATEGY.md) governs testing for all six
+domains; a per-domain testing-strategy file is not a required module role.
 
 ### Rationale
 - **Recorder/**: Isolates the "Application-Facing" logic (validation, safety) from the "Storage-Facing" logic.
-- **Infrastructure/**: Keeps external dependencies (PDO, Redis) isolated from the Domain logic.
+- **Infrastructure/**: Keeps external dependencies (PDO and MySQL) isolated from the Domain logic.
 - **DTO/**: Enforces structural contracts across boundaries.
 
 ---
@@ -97,9 +97,11 @@ current namespace `Maatify\EventLogging\<Domain>` for its domain-owned contracts
 The **Recorder** is the heart of the module. It is the **only** permitted entry point for writing logs.
 
 ### Responsibilities
-1.  **Accept Primitive/Enum Inputs:** Do not force the caller to build DTOs.
+1.  **Accept Current Mutation Inputs:** Accept documented primitive/enum convenience inputs and/or
+    domain commands; do not force callers to build internal persistence DTOs.
 2.  **Validate & Normalize:** Delegate to the **Policy**.
-3.  **Construct DTOs:** Convert valid inputs into immutable DTOs.
+3.  **Construct Applicable Write DTOs:** Convert valid inputs into the immutable write DTO required
+    by the current domain writer contract.
 4.  **Persist:** Pass the applicable domain write contract to storage.
 5.  **Guarantee Safety:** Catch and suppress **ALL** storage exceptions for non-authoritative
     recorders; `AuthoritativeAudit` is the explicit fail-closed exception.
@@ -169,15 +171,38 @@ The module MUST provide a `DefaultPolicy`. The Host Application MAY implement a 
 
 DTOs are the currency of the module.
 
+### Current DTO Boundaries
+
+DTO responsibilities follow the current domain contracts and are not interchangeable:
+
+- **Commands:** Public mutation input contracts accepted by recorder command methods.
+- **Persistence/write DTOs:** Recorder-to-writer transfer objects containing the normalized values
+  required by the current write and storage contracts.
+- **Query/request DTOs:** Read filters and pagination inputs. Current query DTOs may perform their
+  contract-defined validation, normalization, and serialization.
+- **Page/result/view DTOs:** Read-side output and pagination result contracts; they do not inherit
+  persistence-row requirements merely because they represent stored data.
+
 ### Rules
-1.  **Immutable:** Properties MUST be `readonly`.
-2.  **Strictly Typed:** No `mixed` types (except within verified metadata arrays).
-3.  **Canonical Alignment:** DTO properties MUST map 1:1 to the canonical database schema.
-4.  **No Behavior:** DTOs are data carriers only.
+1.  **Immutable:** DTOs and commands MUST follow the immutability guarantees of their current
+    contract, using `readonly` where the contract permits.
+2.  **Strictly Typed:** Types MUST be explicit; verified metadata arrays remain the domain-defined
+    exception where applicable.
+3.  **Contract Alignment:** Persistence/write DTOs align with their current writer/storage
+    contracts. Query/request/page/result DTOs align with their current read contracts and are not
+    required to mirror the database schema.
+4.  **No Universal Behavior Rule:** Write DTOs are structural transfer objects where their current
+    contract requires that shape. Query DTOs may retain contract-defined validation, normalization,
+    and serialization behavior.
+
+The blueprint MUST NOT impose persistence-row semantics on query DTOs or require every public API
+to accept a DTO when the current recorder convenience methods accept primitive or enum inputs.
 
 ### Arrays
-- **Structured Data:** MUST use DTOs.
-- **Unstructured Data:** `metadata` arrays are allowed but MUST be validated by the Policy (size limits, depth).
+- **Structured Data:** Use the applicable command or DTO at the boundary where the current domain
+  contract defines one.
+- **Metadata:** `metadata` arrays are allowed and MUST be handled by the current domain Policy,
+  including any domain-specific size or depth rules.
 
 ### Cursor Representation
 Cursor representation follows each domain's current primitive read contract. Some domains carry
@@ -269,6 +294,10 @@ explicit fail-closed exception and propagates integrity failures.
 
 ## 10. Testing Blueprint
 
+Testing is governed by the package-level [`TESTING_STRATEGY.md`](../../../TESTING_STRATEGY.md) for
+all six domains. This blueprint does not require a separate testing-strategy file inside each
+domain.
+
 ### Unit Tests
 - **Target:** Recorder, Policy, DTOs.
 - **Strategy:** Mock the Storage Interface.
@@ -326,8 +355,10 @@ only an optional diagnostic dependency when supplied; it is not the domain write
 
 ### ❌ Throwing on Write
 **Anti-Pattern:** Allowing non-authoritative logging DB errors to bubble up to the Controller.
-**Fix:** Non-authoritative Recorders MUST catch and report failures; AuthoritativeAudit MUST
-preserve its explicit fail-closed boundary.
+**Fix:** Non-authoritative Recorders MUST catch and swallow failures at the Recorder boundary. An
+optional supplied PSR-3 logger MAY receive a sanitized diagnostic; no reporting channel is
+mandatory. `AuthoritativeAudit` MUST preserve its explicit fail-closed boundary and propagate
+failures.
 
 
 ## Namespace & Library Isolation (MANDATORY)
