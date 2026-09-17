@@ -13,15 +13,19 @@
 
 ## 1. Purpose
 
-This phase exists to perform the final pre-RC contract, public-surface, and documentation consolidation before any Phase 5 Reporting/Dashboard work or release preparation continues.
+This phase exists to perform the final pre-RC contract and public-surface consolidation before any Phase 5 Reporting/Dashboard work or release preparation continues.
 
 Earlier pagination work intentionally preserved compatibility while the package line was evolving. The Owner has now explicitly decided that the unpublished successor package must not carry transitional or compatibility-only pollution into its first RC merely because an unfinished pre-stable path once existed.
 
-The Owner has also explicitly decided that repository documentation must not become a second event log. Completed roadmaps, historical review reports, implementation chronology, completed migration plans, and superseded blueprints must not remain active merely because they once helped execute work. Git/PR history is the source for chronology. The durable Markdown surface must primarily explain current decisions, current architecture, domain purpose, interaction/usage, integration boundaries, and genuinely deferred future contracts.
+This phase therefore reviews the current public Runtime surface against the retained legacy baseline and the intended current architecture, then removes or replaces only artifacts proven to be transitional, duplicated, superseded, or architecturally unnecessary.
 
-This phase therefore reviews the current public Runtime surface against the retained legacy baseline and the intended current architecture, then removes or replaces only artifacts proven to be transitional, duplicated, superseded, or architecturally unnecessary. It also performs a full Markdown rationalization so the final repository is understandable without navigating a large volume of completed process history.
+The phase is intentionally conservative: no symbol, method, DTO, repository, factory, provider, binding, test, or documented behavior may be removed merely because it looks old or redundant.
 
-The phase is intentionally conservative: no symbol, method, DTO, repository, factory, provider, binding, test, or documented behavior may be removed merely because it looks old or redundant. Likewise, no Markdown file may be deleted until a Content Preservation Audit proves that any current rule, Owner decision, future/deferred scope, unique architectural information, or required usage guidance has an authoritative surviving home.
+This phase is **not the final release-closure program**. After it completes, the mandatory post-consolidation sequence is defined in:
+
+- `docs/blueprints/PRE_RC_RELEASE_CLOSURE_SEQUENCE.md`
+
+That sequence requires, in order, a fresh Engineering Standards Adoption refresh using the central Adoption procedure, a fresh full-library standards review/remediation, closure of all remaining current-release roadmap/deferred commitments, a zero-open-commitment audit, and final exact-state release-readiness certification before any release authorization is considered.
 
 ---
 
@@ -71,7 +75,6 @@ At phase start, the intended system model is:
 - Separate Admin Query APIs exist for all six domains for host-owned administrative screens using deterministic offset/page pagination.
 - Superseded post-legacy-v1 pagination wrapper experiments already identified by prior rebuild work were removed.
 - Phase 5 Reporting/Dashboard work has not started and remains blocked until this consolidation phase is closed.
-- The Markdown tree currently contains a mixture of current authority, active usage guidance, completed blueprints, roadmaps, audits, review evidence, and historical process material. Its final retained shape has not yet been rationalized against current informational value.
 
 ---
 
@@ -90,11 +93,6 @@ The phase must answer, with file-level and contract-level evidence:
 - Which apparent differences between domains are intentional semantic exceptions rather than inconsistency?
 - Which convenience APIs are useful composition boundaries, and which create unnecessary duplicate ways to perform the same operation?
 - Whether current tests and documentation protect intended behavior or accidentally freeze transitional behavior.
-- Which Markdown files are current sources of truth or useful consumer/maintainer guidance?
-- Which Markdown files contain durable Owner decisions or architecture that must survive?
-- Which completed roadmaps, audits, review reports, phase logs, migration records, or implementation chronology can be removed because Git/PR history already preserves their historical function?
-- Which historical files contain a small amount of unique current/future information that must be migrated before deletion?
-- Whether multiple active Markdown files explain the same concept and should be consolidated into a smaller canonical set.
 
 ---
 
@@ -111,12 +109,10 @@ The following are fixed phase constraints unless the Owner explicitly changes th
 7. Do not remove the primitive query path wholesale merely because Admin Query exists; its independent sequential/export/migration role must be evaluated and retained where intentional.
 8. Do not preserve a post-v1 or pre-stable API solely because it previously existed during development.
 9. Do not treat a historical audit or old PR body as current Runtime authority.
-10. Do not keep completed process/history Markdown merely because it exists; retain it only when it still carries unique durable value that has not been migrated to an authoritative current home.
-11. Git and PR history are the normal source for implementation chronology, review history, completed roadmap execution history, and past phase mechanics.
-12. Preserve durable documentation for Owner decisions, current architecture, domain purpose/classification, failure semantics, storage boundaries, public usage/integration, and genuinely deferred future contracts.
-13. Do not start Phase 5 Reporting/Dashboard implementation until this phase is complete.
-14. Do not create an RC, Stable release, tag, or GitHub Release in this phase.
-15. Do not merge the Phase Draft or parent umbrella to `main` without explicit Owner authorization.
+10. Do not start Phase 5 Reporting/Dashboard implementation until this phase is complete.
+11. Do not create an RC, Stable release, tag, or GitHub Release in this phase.
+12. Do not merge the Phase Draft or parent umbrella to `main` without explicit Owner authorization.
+13. Completion of this phase does not close the release program; `PRE_RC_RELEASE_CLOSURE_SEQUENCE.md` remains mandatory before release readiness.
 
 ---
 
@@ -137,15 +133,6 @@ Delete only when evidence proves that the artifact has no required independent u
 The capability remains required, but the current public shape is duplicated, polluted, inconsistent, or otherwise not the intended first-RC contract. Replacement must be atomic and fully tested.
 
 No implementation is authorized until the classification matrix is complete enough to support the affected Work Unit and the relevant Owner decisions are recorded.
-
-Documentation uses a parallel retention classification during the Markdown rationalization review:
-
-- `KEEP — CURRENT AUTHORITY/USAGE`: required to understand or use the current package.
-- `CONSOLIDATE`: unique useful content remains, but the standalone file is unnecessary; migrate content to the authoritative surviving document, then delete the source.
-- `DELETE — HISTORY ONLY`: file only records completed execution, review chronology, superseded state, or information already preserved by Git/PR history and surviving current docs.
-- `KEEP — DEFERRED/FUTURE`: file contains approved future scope or constraints that are not implemented and do not yet have another authoritative home.
-
-No documentation deletion is allowed from filename/category alone. Every candidate requires content-level review.
 
 ---
 
@@ -337,64 +324,90 @@ After Runtime Work Units are integrated:
 
 If maintained host usage is in scope for a removed public surface, perform evidence-based host usage search before finalizing deletion/migration impact.
 
-### Step 10 — Markdown Documentation Rationalization Review
+### Step 10 — Repository-wide Markdown Documentation Rationalization Review
 
-After Runtime truth is stable and before the final Documentation Sweep, perform a repository-wide Markdown inventory and Content Preservation Audit.
+Before the final Documentation Consolidation Sweep, review **every package-owned Markdown file by content**, not by filename or directory alone.
 
-The review must inspect the **content of every package-owned Markdown file**, not classify by filename alone. Pinned Engineering Standards remain governed by the standards-adoption contract and are not deleted merely to reduce file count.
+The purpose is to remove documentation inflation and leave a small, navigable set that answers durable questions:
 
-For every package-owned Markdown file record:
+- What is the package and its current public contract?
+- What are the six logging domains and what is each one for?
+- What architectural and Owner decisions still govern the package?
+- How are recording, reading, Admin Query, failure semantics, storage, factories/providers, and integration supposed to work now?
+- What future/deferred scope is still genuinely approved and unimplemented?
 
-- current path;
-- current category/purpose;
-- whether it is current authority, current usage guidance, future/deferred scope, or history/process evidence;
-- unique durable information not represented elsewhere;
-- duplicated information and its canonical surviving home;
-- proposed documentation classification: `KEEP — CURRENT AUTHORITY/USAGE`, `CONSOLIDATE`, `DELETE — HISTORY ONLY`, or `KEEP — DEFERRED/FUTURE`;
-- migration target for every unique paragraph/decision that must survive before source deletion;
-- inbound active-document references that must be updated if the file is removed.
+Git and PR history are the normal source for **how completed work happened**. The current package tree must not become an execution diary.
 
-Retention priority is intentionally narrow. The final Markdown surface should primarily retain:
+#### Markdown classification
 
-1. repository governance and pinned standards required to operate the repository;
-2. canonical Package Reference and consumer-facing root presentation files;
-3. Owner decisions that still govern current or future behavior;
-4. current architecture explaining the six domains, what each domain is for, classification rules, failure semantics, storage/read boundaries, and intentional exceptions;
-5. current integration/usage guidance explaining how to record, construct, query, and consume the package;
-6. genuinely deferred/future contracts that are approved and not yet implemented;
-7. only the minimal preservation evidence that still carries unique information with no better authoritative home.
+Every package-owned Markdown file must be classified as one of:
 
-Strong deletion/consolidation candidates include, subject to content-level proof:
+- `KEEP — CURRENT AUTHORITY/USAGE` — needed to understand, integrate, operate, test, secure, or maintain the current package.
+- `CONSOLIDATE` — contains durable information, but that information should move into a smaller surviving authoritative document before the source file is deleted.
+- `DELETE — HISTORY ONLY` — contains only completed chronology, old audit/review state, implemented roadmap steps, superseded proposal detail, or information already represented authoritatively elsewhere.
+- `KEEP — DEFERRED/FUTURE` — contains still-approved unimplemented scope or constraints that do not yet have another authoritative home.
 
-- completed roadmaps whose remaining future scope has been moved to a current roadmap/deferred-scope authority;
-- completed phase/rebuild blueprints after all lasting decisions/contracts are represented in current architecture or Owner-decision documents;
-- historical audits and review reports whose findings are resolved and whose unique durable decisions have been migrated;
-- event-log-style documents that record PRs, commits, review chronology, verification chronology, or execution history already available from Git/PR history;
-- duplicate architecture overviews that repeat the same current rules without owning a distinct authority role;
-- stale examples/coverage plans that describe completed planning rather than current consumer usage.
+#### Strong deletion/consolidation candidates
 
-A file must **not** be deleted if it contains any unique current Owner decision, current architectural rule, approved future/deferred contract, compatibility fact still needed for an unresolved decision, or consumer/maintainer guidance without an authoritative surviving home. In that case, migrate the content first or keep the file.
+The following categories must be challenged rather than retained by default:
 
-The target is not an arbitrary file-count reduction. The target is a small, navigable, non-contradictory documentation system where a new maintainer can understand the package without reading implementation history.
+- completed roadmaps whose remaining durable rules already have an authoritative home;
+- completed rebuild/POC blueprints;
+- historical audits and review reports;
+- migration/transition reports;
+- phase-completion records;
+- execution plans whose work is fully implemented;
+- duplicate architecture explanations;
+- duplicate language/overview documents that add no unique maintained value;
+- documentation indexes that only point to obsolete files;
+- examples plans after the useful examples themselves and current usage docs are complete.
 
-**Deliverable:** a final Markdown retention matrix plus the approved deletion/consolidation list before documentation files are removed.
+A completed file is **not** automatically deleted. Before deletion perform a Content Preservation Audit over the whole file and prove that it contains no unique:
+
+- active Owner decision;
+- current architecture rule or invariant;
+- current public/compatibility contract;
+- unresolved decision evidence still needed by this phase;
+- approved future/deferred work;
+- consumer/integrator guidance;
+- security/reliability requirement;
+- operational constraint.
+
+Any such durable content must first be moved, without semantic loss, into an appropriate surviving authority such as the Package Reference, architecture, domain-purpose, integration, testing/security, or explicit future-scope document.
+
+#### Target documentation shape
+
+The surviving package-owned docs should be intentionally small and role-based, favoring:
+
+- root package/reference and release-facing files required by package standards;
+- durable Owner decisions that cannot be represented cleanly elsewhere;
+- concise current architecture;
+- domain classification/purpose and meaningful differences between the six domains;
+- recording/read/Admin Query interaction and failure semantics;
+- storage/schema boundaries;
+- integration/manual wiring/factory/DI usage where each adds distinct value;
+- testing/security/operational guidance with current maintainership value;
+- genuinely unimplemented future/deferred scope.
+
+Do not retain a roadmap or audit solely so future reviewers can reconstruct history; Git/PR history already serves that role.
+
+**Deliverable:** a complete Markdown retention matrix in `docs/audits/DOCUMENTATION_INVENTORY.md` or a replacement working inventory, with an evidence-based disposition for every package-owned Markdown file.
 
 ### Step 11 — Documentation Consolidation Sweep
 
-Only after the Markdown retention matrix is reviewed:
+Only after Runtime truth is stable and the Markdown rationalization review is complete:
 
-- update `EVENT_LOGGING_PACKAGE_REFERENCE.md` to match final Runtime truth;
-- consolidate current architecture into the smallest coherent authoritative set without losing domain semantics or Owner decisions;
-- update integration guides and examples to expose only intended current usage paths;
-- update `CHANGELOG.md` with consumer-relevant changes only, not internal execution chronology;
-- migrate any unique durable content out of files classified `CONSOLIDATE` before deleting them;
-- delete files classified `DELETE — HISTORY ONLY` after inbound active references are removed;
-- remove completed roadmaps/blueprints/audits when their durable information has an authoritative surviving home;
-- keep future/deferred scope only where it remains genuinely unresolved and approved;
-- update `docs/audits/DOCUMENTATION_INVENTORY.md` to describe the **surviving** documentation system rather than preserve a catalog of deleted historical files;
-- update roadmap/phase status only where a surviving roadmap remains justified.
+- update `EVENT_LOGGING_PACKAGE_REFERENCE.md`;
+- update surviving architecture documents;
+- update surviving integration/usage guides;
+- update examples and testing/security docs where current behavior requires it;
+- update `CHANGELOG.md`;
+- execute approved Markdown consolidations and deletions;
+- update `docs/audits/DOCUMENTATION_INVENTORY.md` to represent the surviving documentation system;
+- update genuine future/deferred scope;
+- remove completed roadmap/phase/audit history whose durable content has been preserved elsewhere.
 
-The Documentation Sweep must describe the final intended contract and architecture, not the chronology of how transitional APIs or earlier phases were replaced. Git/PR history remains the implementation-history source.
+Documentation must describe the final intended contract and current interaction model, not the chronology of how transitional APIs were replaced.
 
 ### Step 12 — Verification Gate
 
@@ -426,10 +439,9 @@ The Lead performs a fresh review after all WUs and documentation are integrated:
 - review final changed-file list and contract impact;
 - verify no scope leakage;
 - verify documentation matches Runtime;
-- verify the retained Markdown tree is minimal, navigable, non-duplicative, and free of completed process/history files without current value;
-- verify no deleted Markdown file carried an unmigrated Owner decision, current architectural rule, or future/deferred contract;
 - verify no transitional surface remains unintentionally active;
 - verify no intended semantic exception was flattened;
+- verify the surviving Markdown set contains current durable value rather than completed execution clutter;
 - verify exact-head CI evidence.
 
 ### Step 14 — Integrate Phase Draft Into PR #6
@@ -442,13 +454,21 @@ Only after the Phase Draft is accepted:
 - rerun/re-evaluate the complete final integrated gate on the new PR #6 HEAD;
 - update stale PR #6 metadata and final status.
 
-### Step 15 — Owner-Controlled Final Merge
+### Step 15 — Owner-Controlled Current-Phase Merge
 
-PR #6 remains the outer umbrella. Its merge to `main` is **not** authorized by completion of this child phase.
+PR #6 remains the outer umbrella for the current remediation/consolidation phase. Its merge to `main` is **not** authorized by completion of this child phase.
 
 Only after a fresh final PR #6 review and explicit Owner instruction may the outer umbrella be squash-merged to `main`.
 
-Tagging, RC publication, Stable publication, or GitHub Release creation require separate explicit Owner authorization.
+Even after that merge, the package is **not release-ready solely because PR #6 is complete**. The mandatory release-closure program in `docs/blueprints/PRE_RC_RELEASE_CLOSURE_SEQUENCE.md` still follows:
+
+1. Engineering Standards Adoption Refresh using the central Adoption procedure;
+2. fresh full-library standards review and remediation;
+3. roadmap/deferred-commitment closure, including all remaining current-release work;
+4. zero-open-current-release-commitment audit;
+5. final exact-state release-readiness certification.
+
+Tagging, RC publication, Stable publication, or GitHub Release creation require separate explicit Owner authorization after that program completes.
 
 ---
 
@@ -462,15 +482,15 @@ Tagging, RC publication, Stable publication, or GitHub Release creation require 
 - Admin Query surfaces.
 - Factory/provider/bootstrap composition surfaces.
 - Related exceptions, DTOs, repositories, mappers/builders, tests, examples, and documentation.
-- Removal of proven transitional or compatibility-only Runtime artifacts before first RC.
+- Removal of proven transitional or compatibility-only artifacts before first RC.
 - Replacement of duplicated or architecturally incorrect pre-stable contracts where explicitly approved.
-- Repository-wide package-owned Markdown review and Content Preservation Audit.
-- Consolidation/removal of completed roadmaps, blueprints, audits, review reports, execution-history documents, duplicate architecture documents, and stale planning files after durable content is preserved elsewhere.
-- Finalization of a small authoritative documentation set centered on decisions, architecture, domain purpose, interaction/usage, integration, and genuine deferred scope.
+- Repository-wide package-owned Markdown rationalization and consolidation.
 
 ### Out of Scope
 
-- Phase 5 Reporting/Dashboard feature implementation.
+- Phase 5 Reporting/Dashboard feature implementation in this current phase.
+- Standards Adoption Refresh itself; it is a mandatory later phase defined by `PRE_RC_RELEASE_CLOSURE_SEQUENCE.md`.
+- Fresh post-adoption full-library standards remediation; it is a mandatory later phase.
 - New logging domains.
 - Generic cross-domain querying or logging.
 - Host controllers/routes/UI/permissions/localization.
@@ -478,8 +498,6 @@ Tagging, RC publication, Stable publication, or GitHub Release creation require 
 - Outbox consumer/materialization implementation unless separately authorized.
 - Unrelated schema redesign.
 - Unrelated dependency/Composer/CI redesign.
-- Modification/removal of pinned Engineering Standards outside the standards-adoption process.
-- Keeping historical Markdown solely as a substitute for Git/PR history.
 - RC/Stable/tag/release publication.
 
 ---
@@ -497,37 +515,33 @@ Tagging, RC publication, Stable publication, or GitHub Release creation require 
 | Pagination delegation | Tests proving `maatify/persistence` boundary and deterministic results |
 | Factory/Provider/Bindings | Unit/Regression + Consumer Harness |
 | Schema-impacting change, if separately approved | Schema Regression + real MySQL Integration |
-| Markdown rationalization | Complete retention matrix + Content Preservation proof + no broken active references |
 | Final integrated consumer contract | Consumer Verification Harness with clean runs |
+| Documentation rationalization | Complete Markdown retention matrix + no deleted unique current/future/Owner/usage content |
 | Repository quality | Composer validation/audit, PHPStan, workflow lint, whitespace, CI Gate |
 
 ---
 
 ## 10. Documentation Impact
 
-The documentation review is repository-wide for package-owned Markdown rather than limited to files changed by Runtime work.
-
-The final retained set should favor durable value over historical completeness. Review includes, at minimum:
+Expected documentation review surface is **all package-owned Markdown**, with particular attention to:
 
 - `EVENT_LOGGING_PACKAGE_REFERENCE.md`
 - `CHANGELOG.md`
 - `README.md`
-- repository governance files required by the adopted standards
 - `docs/architecture/**`
 - `docs/integration/**`
 - `docs/reference/**`
-- `docs/roadmap/**`
-- `docs/audits/**`
 - `docs/examples/**`
 - `docs/testing/**`
-- domain `src/*/README.md` files
-- `schema/README.md`
-- this Phase Blueprint while the phase is active
-- `docs/audits/DOCUMENTATION_INVENTORY.md`
+- `docs/roadmap/**`
+- `docs/audits/**`
+- domain `src/*/README.md`
+- package-level `schema/README.md`
+- active phase/release-closure blueprints under `docs/blueprints/`
 
-Pinned files under `docs/php-engineering-standards/**` are reviewed for role/placement and references, but their content/removal remains governed by standards adoption and is not ordinary documentation cleanup scope.
+Pinned Engineering Standards under `docs/php-engineering-standards/` are governed by the adoption mechanism and are **not** deleted merely as documentation clutter; their exact local set is addressed later by the mandatory Standards Adoption Refresh phase.
 
-The expected end state is not “archive everything.” Historical execution detail should normally remain in Git/PR history. A Markdown file survives because it carries current authority, current usage value, an active Owner decision, or approved future/deferred scope that has no better canonical home.
+The final documentation diff must preserve current authoritative value while removing completed-process noise and duplication.
 
 ---
 
@@ -541,18 +555,16 @@ This phase is complete only when all of the following are true:
 - no active architectural contradiction remains;
 - all approved Runtime consolidation is implemented atomically;
 - intended semantic exceptions remain intact;
-- transitional/compatibility-only Runtime artifacts approved for removal have no surviving Runtime, test, example, or active-doc references;
+- transitional/compatibility-only artifacts approved for removal have no surviving Runtime, test, example, or active-doc references;
 - all retained contracts have Regression protection appropriate to their role;
 - strict real MySQL Integration passes where persistence is involved;
 - Consumer Verification Harness passes on the exact integrated Phase Draft HEAD;
-- every package-owned Markdown file has been reviewed for current value;
-- the Markdown retention matrix is complete;
-- completed roadmaps/audits/blueprints/review-history files without durable current value are removed rather than retained as documentation clutter;
-- all unique current rules, Owner decisions, future/deferred contracts, architecture, and usage guidance from removed files are migrated to authoritative surviving documents before deletion;
-- no active reference points to a deleted documentation file;
-- the surviving documentation tree is materially smaller where redundancy/history existed and can be navigated as current truth rather than execution history;
+- every package-owned Markdown file has a reviewed retention disposition;
+- durable decisions/architecture/usage/future constraints from deleted docs have a surviving authoritative home;
+- completed roadmap/audit/phase history without current durable value is not retained merely as documentation history;
 - documentation matches final Runtime truth;
-- Phase 5 remains unstarted unless separately authorized;
+- Phase 5 remains unstarted in this phase unless separately authorized;
+- `PRE_RC_RELEASE_CLOSURE_SEQUENCE.md` is present as the mandatory continuation before release readiness;
 - final review against latest parent and `main` finds no unresolved blocker;
 - the Phase Draft is accepted for squash integration into PR #6.
 
@@ -569,10 +581,10 @@ Start exactly as follows:
 3. Fetch PR #6 exact live state, base/head SHAs, Draft/Ready status, diff, files, mergeability, and checks.
 4. Fetch the Phase Draft PR exact live state and head SHA.
 5. Read this Blueprint completely.
-6. Read `EVENT_LOGGING_PACKAGE_REFERENCE.md`.
-7. Read `docs/audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md` as retained historical baseline evidence while the contract-classification work remains unresolved.
-8. Read the relevant active architecture documents for the step currently in progress.
-9. If Step 10 or Step 11 is active, fetch the complete Markdown tree and `docs/audits/DOCUMENTATION_INVENTORY.md`, then continue from the recorded retention matrix/deletion state rather than assuming existing files must survive.
+6. Read `docs/blueprints/PRE_RC_RELEASE_CLOSURE_SEQUENCE.md` so the post-phase mandatory sequence is not lost.
+7. Read `EVENT_LOGGING_PACKAGE_REFERENCE.md`.
+8. Read `docs/audits/ADMIN_QUERY_PHASE_1_RUNTIME_COMPATIBILITY_INVENTORY.md` as retained historical baseline evidence while the contract classification still depends on it.
+9. Read the relevant active architecture documents for the step currently in progress.
 10. Determine the last completed numbered Step and Work Unit from merged PR state and repository files, not from chat history.
 11. Continue only from the next incomplete gate.
 
