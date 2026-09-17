@@ -299,6 +299,8 @@ Recommended sequence from the live repository state at execution time:
 7. run Final Release Readiness Certification;
 8. request Owner release authorization separately.
 
+PR #6 belongs to the current remediation/consolidation program. Its eventual merge to `main`, if and when explicitly authorized by the Owner after the current phase closes, does **not** satisfy Phases B–F and does not authorize an RC/Stable release. The later release-closure phases start from whatever exact live `main` state exists at that time and must each follow the stacked-phase rules independently.
+
 The exact parent/base for each future phase must be resolved from live GitHub state at that time. Do not reuse the SHAs recorded in earlier phases.
 
 ---
